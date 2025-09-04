@@ -8,73 +8,6 @@ require_once __DIR__ . '/site_features.php';
 require_once __DIR__ . '/table-responsive.php';
 include "nav.php"; ?>
 
-<style>
-  /* Professional Leaderboard Styling */
-  #leaderboardTable {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(76, 175, 80, 0.3);
-  }
-  
-  #leaderboardTable tbody tr {
-    background: rgba(0, 0, 0, 0.3);
-    border-left: 3px solid transparent;
-    transition: all 0.2s ease;
-  }
-  
-  #leaderboardTable tbody tr:hover {
-    background: rgba(76, 175, 80, 0.05);
-    border-left-color: #4CAF50;
-    transform: translateX(3px);
-  }
-  
-  .player-name a {
-    display: inline-block;
-    color: #e0e0e0;
-    text-decoration: none;
-    transition: color 0.2s ease;
-    font-weight: 500;
-  }
-  
-  .player-name a:hover {
-    color: #4CAF50;
-  }
-  
-  /* Rank styling */
-  #leaderboardTable tbody tr td:first-child {
-    font-weight: 600;
-    color: #4CAF50;
-  }
-  
-  /* Top 3 trophy boxes professional styling */
-  .trophy-box {
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
-    border: 1px solid rgba(76, 175, 80, 0.3);
-    padding: 20px;
-    text-align: center;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-  }
-  
-  .trophy-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
-    border-color: #4CAF50;
-  }
-  
-  .trophy {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 10px;
-  }
-  
-  .trophy-box strong {
-    color: #4CAF50;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-</style>
-
 <?php tableResponsiveStyles(); ?>
 
 <main class="container">
@@ -237,7 +170,7 @@ async function loadLeaderboardFromMissionstats() {
     
     // Populate top 3 leaderboard
     const top3Container = document.getElementById("top3-leaderboard");
-    const trophies = ['🥇', '🥈', '🥉'];
+    const trophies = ['<i class="fad fa-medal gold"></i>', '<i class="fad fa-medal silver"></i>', '<i class="fad fa-medal bronze"></i>'];
     leaderboardData.slice(0, 3).forEach((player, i) => {
         const box = document.createElement("div");
         box.className = "trophy-box";

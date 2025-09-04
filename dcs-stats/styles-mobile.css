@@ -22,29 +22,20 @@ html, body {
     position: relative;
     border-radius: 8px;
     margin-left: 10px;
+    font-size: 2em;
+    color: #fff;
 }
-
-.hamburger-line {
-    display: block;
-    width: 25px;
-    height: 3px;
-    background-color: #fff;
-    margin: 5px 0;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
 /* Mobile Menu Header */
 .mobile-menu-header {
     display: none;
     padding: 20px;
     background: #1a1a1a;
-    border-bottom: 2px solid #4CAF50;
+    border-bottom: 2px solid #ed145b;
     position: relative;
 }
 
 .mobile-menu-title {
-    color: #4CAF50;
+    color: #ed145b;
     font-size: 1.2rem;
     font-weight: bold;
 }
@@ -110,8 +101,17 @@ html, body {
     opacity: 1;
 }
 
+.mobile {
+    display: none;
+}
+
 /* Base Mobile Styles */
 @media screen and (max-width: 768px) {
+
+    #primary {
+        display: none !important;
+    }
+
     /* Prevent horizontal scroll on all elements */
     * {
         max-width: 100vw !important;
@@ -125,23 +125,17 @@ html, body {
     /* Show mobile menu toggle */
     .mobile-menu-toggle {
         display: block !important;
-        margin-left: auto;
-        flex-shrink: 0;
-        position: fixed;
-        top: 20px;
-        right: 15px;
-        z-index: 1002;
     }
     
     /* Header adjustments */
     .main-header {
-        min-height: 80px;
-        position: fixed;
+        display: flex;
         width: 100%;
+        position: sticky;
+        margin-right: auto;
+        padding: 10px 0px;
         top: 0;
-        left: 0;
-        right: 0;
-        z-index: 900;
+        z-index: 1;
     }
     
     .header-container {
@@ -193,8 +187,8 @@ html, body {
         width: 80%;
         max-width: 300px;
         height: 100vh;
-        background: #1a1a1a;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+        background-color: rgba(24, 24, 24, 0.4);
+        backdrop-filter: blur(20px);
         transition: left 0.3s ease;
         z-index: 999;
         overflow-y: auto;
@@ -226,13 +220,13 @@ html, body {
     }
     
     .nav-link:hover {
-        background: rgba(76, 175, 80, 0.2);
+        background: rgba(237, 20, 103, 0.2);
     }
     
     /* Main content adjustments */
     body {
-        padding-top: 80px; /* Account for fixed header */
         margin: 0;
+        padding-top: 0; /* Account for fixed header */
     }
     
     main {
@@ -421,10 +415,19 @@ html, body {
         padding: 15px;
         font-size: 0.9rem;
     }
+
+    .mobile {
+        display: block;
+    }
 }
 
 /* Small Mobile Devices */
 @media screen and (max-width: 480px) {
+    #nav { 
+        padding: 20px !important;
+        padding-right: 80px !important;
+    }
+
     .site-title {
         font-size: 1.2rem;
     }
@@ -456,21 +459,21 @@ html, body {
     .chart-container canvas {
         max-height: 200px !important;
     }
+
+    .mobile {
+        display: block;
+    }
 }
 
 /* Landscape Mobile */
-@media screen and (max-width: 768px) and (orientation: landscape) {
-    .main-header {
-        min-height: 60px;
-    }
-    
+@media screen and (max-width: 768px) and (orientation: landscape) {    
     .header-container {
         min-height: 60px;
         padding: 0.5rem 1rem;
     }
     
     body {
-        padding-top: 60px;
+        padding-top: 0;
     }
     
     .site-title {
@@ -489,7 +492,7 @@ html, body {
     }
     
     .nav-link:active {
-        background: rgba(76, 175, 80, 0.3);
+        background: rgba(237, 20, 103, 0.3);
     }
     
     button:hover {
@@ -511,6 +514,11 @@ html, body {
 }
 
 @media screen and (max-width: 768px) {
+    #nav { 
+        padding: 20px !important;
+        padding-right: 80px !important;
+    }
+
     /* Hide tables on mobile, show cards instead */
     .table-wrapper table,
     .table-responsive table {
@@ -527,7 +535,7 @@ html, body {
     /* Card base styles */
     .mobile-card {
         background: rgba(0, 0, 0, 0.6);
-        border: 1px solid rgba(76, 175, 80, 0.3);
+        border: 1px solid rgba(237, 20, 103, 0.3) !important;
         border-radius: 12px;
         padding: 15px;
         margin: 0 10px 15px 10px;
@@ -539,7 +547,7 @@ html, body {
     
     .mobile-card:active {
         transform: scale(0.98);
-        background: rgba(76, 175, 80, 0.1);
+        background: rgba(237, 20, 103, 0.1);
     }
     
     /* Leaderboard cards */
@@ -556,7 +564,7 @@ html, body {
     .leaderboard-card-rank {
         font-size: 1.5rem;
         font-weight: bold;
-        color: #4CAF50;
+        color: #ed145b;
         margin-bottom: 5px;
     }
     
@@ -577,7 +585,7 @@ html, body {
     }
     
     .leaderboard-card-stat span {
-        color: #4CAF50;
+        color: #ed145b;
         font-weight: bold;
     }
     
@@ -598,7 +606,7 @@ html, body {
         height: 50px;
         object-fit: cover;
         border-radius: 8px;
-        border: 1px solid rgba(76, 175, 80, 0.3);
+        border: 1px solid rgba(237, 20, 103, 0.3);
     }
     
     .squadron-card-info {
@@ -607,7 +615,7 @@ html, body {
     
     .squadron-card-name {
         font-size: 1.2rem;
-        color: #4CAF50;
+        color: #ed145b;
         margin-bottom: 5px;
     }
     
@@ -672,7 +680,7 @@ html, body {
     }
     
     .server-card-info-item strong {
-        color: #4CAF50;
+        color: #ed145b;
         display: block;
         font-size: 0.8rem;
         margin-bottom: 2px;
@@ -686,6 +694,10 @@ html, body {
     /* Remove table wrapper styles on mobile */
     .table-wrapper::after {
         display: none !important;
+    }
+
+    .mobile {
+        display: block;
     }
 }
 
@@ -784,7 +796,7 @@ html, body {
         font-size: 16px; /* Prevents zoom on iOS */
         border-radius: 25px;
         background: rgba(0, 0, 0, 0.6);
-        border: 1px solid rgba(76, 175, 80, 0.3);
+        border: 1px solid rgba(237, 20, 103, 0.3);
         color: #fff;
         box-sizing: border-box;
     }
@@ -795,7 +807,7 @@ html, body {
         font-size: 1rem;
         border-radius: 25px;
         min-height: 44px;
-        background: #4CAF50;
+        background: #ed145b;
         color: white;
         border: none;
         cursor: pointer;
@@ -829,7 +841,7 @@ html, body {
     .pilot-card h3 {
         font-size: 1.5rem;
         margin-bottom: 15px;
-        color: #4CAF50;
+        color: #fff;
     }
     
     /* Stats grid for all pages */
@@ -926,6 +938,10 @@ html, body {
         margin: 15px;
         border-radius: 8px;
     }
+
+    .mobile {
+        display: block;
+    }
 }
 
 /* Landscape adjustments */
@@ -934,12 +950,8 @@ html, body {
         font-size: 1.5rem;
     }
     
-    .main-header {
-        min-height: 60px;
-    }
-    
     body {
-        padding-top: 60px;
+        padding: 0;
     }
 }
 
@@ -986,7 +998,7 @@ html, body {
 /* Footer mobile styles */
 @media screen and (max-width: 768px) {
     footer {
-        padding: 20px 15px;
+        padding: 20px 40px;
         font-size: 0.85rem;
         text-align: center;
         line-height: 1.6;
@@ -995,22 +1007,12 @@ html, body {
     footer p {
         margin: 0;
     }
-    
-    footer a {
-        display: inline-block;
-        margin: 0 5px;
-    }
 }
 
 @media screen and (max-width: 480px) {
     footer {
-        font-size: 0.75rem;
-        padding: 15px 10px;
-    }
-    
-    footer a {
-        display: block;
-        margin: 5px 0;
+        font-size: 0.85rem;
+        padding: 15px 40px;
     }
 }
 

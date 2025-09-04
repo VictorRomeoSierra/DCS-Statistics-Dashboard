@@ -127,6 +127,10 @@ if (!$hasSquadronInMenu && isFeatureEnabled('show_squadron_homepage') && !empty(
     ?>
       <li><a class="nav-link" href="<?php echo url('site-config/'); ?>">Site Config</a></li>
     <?php endif; ?>
+    <li><a class="nav-link mobile" href="https://map.victorromeosierra.com/">Live Map</a></li>
+    <li><a class="nav-link mobile" href="https://tacview.victorromeosierra.com/">Tac View</a></li>
+    <li><a class="nav-link mobile" href="https://discord.gg/invite/n5XMup5NBF">Discord</a></li>
+    <li><a class="nav-link mobile" href="">Patreon</a></li>
   </ul>
 </nav>
 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>

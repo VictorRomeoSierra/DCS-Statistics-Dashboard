@@ -1,12 +1,34 @@
+<?php  
+header_remove('X-Frame-Options');
+header("Content-Security-Policy: frame-ancestors 'self' https://agaar.in");  
+?>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VRS Test Statistics Dashboard</title>
+  <link rel="stylesheet" href="/styles.php" />
+  <link rel="stylesheet" href="/styles-mobile.css" />
+      <script>
+    // Path configuration for JavaScript
+    window.DCS_CONFIG = {"basePath":"","baseUrl":"http:\/\/stats-test.victorromeosierra.com"};
+    
+    // XSS Protection function
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+  <script src="/js/api-client.js"></script>
+  <script src="/mobile-enhancements.js"></script>
+</head>
 <?php
 // Start session before any output
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include 'header.php';
 require_once __DIR__ . '/site_features.php';
 require_once __DIR__ . '/table-responsive.php';
-include 'nav.php';
 
 if (!isFeatureEnabled('nav_servers')):
 ?>
@@ -16,15 +38,9 @@ if (!isFeatureEnabled('nav_servers')):
         <p>The server status page is currently disabled.</p>
     </div>
 </main>
-<?php include 'footer.php'; exit; ?>
 <?php endif; ?>
 
-<main>
-    <div class="dashboard-header">
-        <h1>Server Status</h1>
-        <p class="dashboard-subtitle">Live DCS server information and player counts</p>
-    </div>
-    
+<main>   
     <div id="servers-loading" style="text-align: center; padding: 50px;">
         <p>Loading server information...</p>
     </div>
@@ -32,18 +48,6 @@ if (!isFeatureEnabled('nav_servers')):
     <div id="servers-container" style="display: none;">
         <div class="table-wrapper">
             <table id="serversTable">
-                <thead>
-                    <tr>
-                        <th>Server Name</th>
-                        <th>Status</th>
-                        <th class="hide-mobile">Address</th>
-                        <th class="hide-mobile">Password</th>
-                        <th>Mission</th>
-                        <th class="hide-mobile">Theatre</th>
-                        <th>Players</th>
-                        <th class="hide-mobile">Uptime</th>
-                    </tr>
-                </thead>
                 <tbody id="serversTableBody"></tbody>
             </table>
         </div>
@@ -193,6 +197,13 @@ setInterval(loadServers, 30000);
 </script>
 
 <style>
+body {
+    background: transparent !important;
+    overflow: hidden;
+}
+main {
+    width: 100% !important;
+}
 .table-responsive {
     overflow-x: auto;
     margin: 20px 0;
@@ -357,5 +368,3 @@ setInterval(loadServers, 30000);
 </style>
 
 <?php tableResponsiveStyles(); ?>
-
-<?php include 'footer.php'; ?>

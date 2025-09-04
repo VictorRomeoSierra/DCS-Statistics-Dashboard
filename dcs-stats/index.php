@@ -45,14 +45,14 @@ if (!$isConfigured):
 <?php else: ?>
 <main>
     <div class="dashboard-header">
-        <h1>DCS Statistics Dashboard</h1>
+        <h1>VRS Stats Dashboard</h1>
         <p class="dashboard-subtitle">Real-time server performance and player metrics</p>
     </div>
     
     <?php if (isFeatureEnabled('home_server_stats')): ?>
     <div class="stats-cards">
         <div class="stat-card" id="totalPlayersCard">
-            <div class="stat-icon">👥</div>
+            <div class="stat-icon"><i class="fad fa-user-friends"></i></div>
             <div class="stat-content">
                 <h3>Total Players</h3>
                 <p class="stat-number" id="totalPlayers">-</p>
@@ -60,23 +60,23 @@ if (!$isConfigured):
         </div>
         
         <div class="stat-card" id="totalPlaytimeCard">
-            <div class="stat-icon">✈️</div>
+            <div class="stat-icon"><i class="fad fa-clock"></i></div>
             <div class="stat-content">
-                <h3>Total Playtime (hrs)</h3>
+                <h3>Total Playtime</h3>
                 <p class="stat-number" id="totalPlaytime">-</p>
             </div>
         </div>
         
         <div class="stat-card" id="avgPlaytimeCard">
-            <div class="stat-icon">🕐</div>
+            <div class="stat-icon"><i class="fad fa-chart-bar"></i></div>
             <div class="stat-content">
-                <h3>Average Playtime (mins)</h3>
+                <h3>Avg. Playtime</h3>
                 <p class="stat-number" id="avgPlaytime">-</p>
             </div>
         </div>
         
         <div class="stat-card" id="totalSortiesCard">
-            <div class="stat-icon">📊</div>
+            <div class="stat-icon"><i class="fad fa-fighter-jet"></i></div>
             <div class="stat-content">
                 <h3>Total Sorties</h3>
                 <p class="stat-number" id="totalSorties">-</p>
@@ -132,7 +132,7 @@ let topSquadronsChart = null;
 
 // Chart configuration with enhanced dark theme
 const chartColors = {
-    primary: 'rgba(76, 175, 80, 0.8)',
+    primary: 'rgba(237, 20, 91, 0.8)',
     secondary: 'rgba(33, 150, 243, 0.8)',
     danger: 'rgba(244, 67, 54, 0.8)',
     warning: 'rgba(255, 193, 7, 0.8)',
@@ -142,7 +142,7 @@ const chartColors = {
 };
 
 const gradientColors = {
-    primary: ['rgba(76, 175, 80, 1)', 'rgba(76, 175, 80, 0.2)'],
+    primary: ['rgba(237, 20, 91, 1)', 'rgba(0, 169, 206, 0.2)'],
     secondary: ['rgba(33, 150, 243, 1)', 'rgba(33, 150, 243, 0.2)'],
     danger: ['rgba(244, 67, 54, 1)', 'rgba(244, 67, 54, 0.2)'],
     warning: ['rgba(255, 193, 7, 1)', 'rgba(255, 193, 7, 0.2)']
@@ -162,8 +162,8 @@ async function loadServerStats() {
         // Update stat cards with animation (if enabled)
         <?php if (isFeatureEnabled('home_server_stats')): ?>
         animateNumber('totalPlayers', data.totalPlayers);
-        animateNumber('totalPlaytime', data.totalPlaytime);
-        animateNumber('avgPlaytime', data.avgPlaytime / 60);
+        animateNumber('totalPlaytime', data.totalPlaytime, 'Hrs');
+        animateNumber('avgPlaytime', data.avgPlaytime / 60, 'Mins');
         animateNumber('totalSorties', data.totalSorties);
         
         // Calculate K/D ratio
@@ -219,12 +219,13 @@ async function loadServerStats() {
 }
 
 // Animate numbers counting up
-function animateNumber(elementId, targetNumber) {
+function animateNumber(elementId, targetNumber, unit) {
     const element = document.getElementById(elementId);
     const duration = 1500;
     const start = 0;
     const increment = targetNumber / (duration / 16);
     let current = start;
+    unit = unit ? '<span style="font-size:0.4em;"> ' + unit + '</span>' : '';
     
     const timer = setInterval(() => {
         current += increment;
@@ -232,7 +233,7 @@ function animateNumber(elementId, targetNumber) {
             current = targetNumber;
             clearInterval(timer);
         }
-        element.textContent = Math.floor(current).toLocaleString();
+        element.innerHTML = Math.floor(current).toLocaleString() + unit;
     }, 16);
 }
 
@@ -262,7 +263,7 @@ function createTopPilotsChart(pilots) {
                 label: 'Kills',
                 data: pilots.map(p => p.kills),
                 backgroundColor: gradient,
-                borderColor: 'rgba(76, 175, 80, 1)',
+                borderColor: 'rgba(237, 20, 91, 1)',
                 borderWidth: 2,
                 borderRadius: 8,
                 barThickness: 40
@@ -277,9 +278,9 @@ function createTopPilotsChart(pilots) {
                 },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#4CAF50',
+                    titleColor: '#ed145b',
                     bodyColor: '#fff',
-                    borderColor: '#4CAF50',
+                    borderColor: '#ed145b',
                     borderWidth: 1,
                     titleFont: {
                         size: 14,
@@ -312,7 +313,7 @@ function createTopPilotsChart(pilots) {
                     title: {
                         display: true,
                         text: 'Pilot Names',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -337,7 +338,7 @@ function createTopPilotsChart(pilots) {
                     title: {
                         display: true,
                         text: 'Number of Kills',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -563,12 +564,12 @@ function createPlayerActivityChart(daily_players) {
             datasets: [{
                 label: 'Daily Players',
                 data: data,
-                borderColor: 'rgba(76, 175, 80, 1)',
+                borderColor: 'rgba(237, 20, 91, 1)',
                 backgroundColor: gradient1,
                 borderWidth: 3,
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: 'rgba(76, 175, 80, 1)',
+                pointBackgroundColor: 'rgba(237, 20, 91, 1)',
                 pointBorderColor: '#fff',
                 pointBorderWidth: 2,
                 pointRadius: 6,
@@ -584,9 +585,9 @@ function createPlayerActivityChart(daily_players) {
                 },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#4CAF50',
+                    titleColor: '#ed145b',
                     bodyColor: '#fff',
-                    borderColor: '#4CAF50',
+                    borderColor: '#ed145b',
                     borderWidth: 1,
                     titleFont: {
                         size: 14,
@@ -623,7 +624,7 @@ function createPlayerActivityChart(daily_players) {
                     title: {
                         display: true,
                         text: 'Date',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -648,7 +649,7 @@ function createPlayerActivityChart(daily_players) {
                     title: {
                         display: true,
                         text: 'Number of Players',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -670,289 +671,6 @@ document.addEventListener('DOMContentLoaded', loadServerStats);
 // Refresh stats every 30 seconds
 setInterval(loadServerStats, 30000);
 </script>
-
-<style>
-main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 40px;
-    animation: fadeInDown 0.8s ease-out;
-}
-
-.dashboard-header h1 {
-    font-size: 2.5rem;
-    color: #4CAF50;
-    margin-bottom: 10px;
-    text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-}
-
-.dashboard-subtitle {
-    color: #ccc;
-    font-size: 1.1rem;
-    opacity: 0.8;
-}
-
-.stats-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    margin-bottom: 50px;
-}
-
-.stat-card {
-    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
-    border-radius: 16px;
-    padding: 30px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.stat-card.pop-in {
-    animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.3);
-    border-color: rgba(76, 175, 80, 0.5);
-}
-
-.stat-icon {
-    font-size: 3rem;
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
-}
-
-.stat-content h3 {
-    color: #ccc;
-    font-size: 1rem;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #4CAF50;
-    margin: 0;
-    text-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
-}
-
-.charts-dashboard {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    margin: 40px auto;
-    width: 100%;
-    max-width: 100%;
-    padding: 0 20px;
-}
-
-@media (max-width: 968px) {
-    .charts-dashboard {
-        grid-template-columns: 1fr;
-    }
-}
-
-.chart-container {
-    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeInUp 0.8s ease-out;
-}
-
-.chart-container.full-width {
-    grid-column: 1 / -1;
-}
-
-.chart-container h2 {
-    color: #4CAF50;
-    font-size: 1.5rem;
-    margin-bottom: 25px;
-    text-align: center;
-    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-}
-
-.chart-container canvas {
-    max-height: 350px;
-}
-
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.loader {
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(76, 175, 80, 0.3);
-    border-top-color: #4CAF50;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-.loading-overlay p {
-    color: #4CAF50;
-    margin-top: 20px;
-    font-size: 1.2rem;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes popIn {
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.no-data-message {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    margin-top: 20px;
-    font-size: 0.9rem;
-}
-
-/* Chart info icon and tooltip styles */
-.chart-info {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-    text-align: center;
-    background-color: #444;
-    color: #ccc;
-    border-radius: 50%;
-    font-size: 12px;
-    margin-left: 5px;
-    cursor: help;
-    transition: all 0.3s ease;
-}
-
-.chart-info:hover {
-    background-color: #4CAF50;
-    color: white;
-    transform: scale(1.1);
-}
-
-.chart-container {
-    position: relative;
-}
-
-.chart-container:hover {
-    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.3);
-    border-color: rgba(76, 175, 80, 0.5);
-}
-
-.chart-container[title] {
-    cursor: help;
-}
-
-/* Enhanced tooltip styling */
-.chart-container:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    white-space: normal;
-    max-width: 300px;
-    text-align: center;
-    z-index: 1000;
-    pointer-events: none;
-    opacity: 0;
-    animation: fadeIn 0.3s forwards;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.chart-container:hover::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 8px solid transparent;
-    border-top-color: #333;
-    margin-bottom: 2px;
-    opacity: 0;
-    animation: fadeIn 0.3s forwards;
-}
-
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-    }
-}
-
-@media (max-width: 768px) {
-    .stats-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .charts-dashboard {
-        grid-template-columns: 1fr;
-    }
-    
-    .dashboard-header h1 {
-        font-size: 2rem;
-    }
-}
-</style>
-
 <?php endif; ?>
 <?php include 'footer.php'; ?>
+</div>

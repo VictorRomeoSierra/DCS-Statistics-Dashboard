@@ -20,7 +20,7 @@ header("X-Content-Type-Options: nosniff");
 if (isset($_GET['preview']) && $_GET['preview'] === '1') {
     header("X-Frame-Options: SAMEORIGIN");
 } else {
-    header("X-Frame-Options: DENY");
+   header("X-Frame-Options: DENY");
 }
 header("X-XSS-Protection: 1; mode=block");
 header("Referrer-Policy: strict-origin-when-cross-origin");
@@ -59,7 +59,7 @@ $cspConnectSrc .= " http://localhost:* https://localhost:*";
 
 // Build CSP header with frame-ancestors for preview mode
 $frameAncestors = (isset($_GET['preview']) && $_GET['preview'] === '1') ? " frame-ancestors 'self';" : " frame-ancestors 'none';";
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src {$cspConnectSrc};" . $frameAncestors);
+//header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src {$cspConnectSrc};" . $frameAncestors);
 
 // Handle theme preview parameters
 $previewColors = null;
@@ -98,6 +98,14 @@ if (file_exists($maintenanceFile)) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?php echo htmlspecialchars($siteName); ?> Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro@4cac1a6/css/all.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://community.cloudflare.steamstatic.com/public/shared/javascript/tooltip.js"></script>
+    <script>
+	document.addEventListener('DOMContentLoaded', function(event) {
+		$('.nav').v_tooltip( { 'location': 'bottom', 'offsetY': 5, 'tooltipClass': 'tooltiptext_wrap', 'dataName': 'tooltipText', 'defaultType': 'text', 'replaceExisting': false } );
+	});
+</script>
   <link rel="stylesheet" href="<?php echo url('styles.php'); ?>" />
   <link rel="stylesheet" href="<?php echo url('styles-mobile.css'); ?>" />
   <?php if (file_exists(__DIR__ . '/custom_theme.css')): ?>
@@ -129,26 +137,24 @@ if (file_exists($maintenanceFile)) {
   <script src="<?php echo url('mobile-enhancements.js'); ?>"></script>
 </head>
 <body>
+<div id="wrapper">
+<video playsinline autoplay muted loop poster="bg.jpg" id="vrs-bg-video">
+  <source src="video.mp4" type="video/mp4">
+</video>
   <header class="main-header">
-    <div class="header-background"></div>
-    <div class="header-overlay"></div>
-    <div class="header-container">
-      <div class="header-brand">
-        <div class="brand-text">
-          <h1 class="site-title"><?php echo htmlspecialchars($siteName); ?></h1>
-          <p class="site-subtitle">Combat Data & Analytics Platform</p>
-        </div>
-      </div>
-      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
-      <div class="header-actions">
-        <div class="status-indicator">
-          <span class="status-dot"></span>
-          <span class="status-text">Live Data</span>
-        </div>
-      </div>
-    </div>
+	<div id="logo"><a href="https://agaar.in/vrs_new/"><img src="logo.png" /></a>
+	</div>
+
+	<div id="nav">
+		<div id="primary">
+			<a class="nav" href="https://map.victorromeosierra.com/">Live Map</a>
+			<a class="nav" href="https://tacview.victorromeosierra.com/">Tac View</a>
+			<a class="nav active" href="https://stats.victorromeosierra.com/">Stats</a>
+			<a class="nav disabled" href="">Wiki</a>
+			<a class="nav icon" data-tooltip-text="Discord" href="https://discord.gg/invite/n5XMup5NBF"><i class="fab fa-discord"></i></a>
+			<a class="nav icon" data-tooltip-text="Patreon" href=""><i class="fab fa-patreon"></i></a>
+			<a class="nav icon" data-tooltip-text="Youtube" href=""><i class="fab fa-youtube"></i></a>
+		</div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu"><i class="fas fa-bars"></i></button>
+	</div>
   </header>

@@ -567,7 +567,7 @@ const chartOptions = {
         },
         tooltip: {
             backgroundColor: '#1e1e1e',
-            titleColor: '#4CAF50',
+            titleColor: '#ed145b',
             bodyColor: '#ccc',
             borderColor: '#444',
             borderWidth: 1
@@ -585,7 +585,7 @@ const chartOptions = {
             title: {
                 display: true,
                 text: 'Statistics',
-                color: '#4CAF50',
+                color: '#ed145b',
                 font: {
                     size: 14,
                     weight: 'bold'
@@ -603,7 +603,7 @@ const chartOptions = {
             title: {
                 display: true,
                 text: 'Count',
-                color: '#4CAF50',
+                color: '#ed145b',
                 font: {
                     size: 14,
                     weight: 'bold'
@@ -677,7 +677,7 @@ function createCombatChart(statsData) {
                     title: {
                         display: true,
                         text: 'Combat Metrics',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -689,7 +689,7 @@ function createCombatChart(statsData) {
                     title: {
                         display: true,
                         text: 'Number of Events',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -791,7 +791,7 @@ function createAircraftChart(aircraftData) {
     
     // Generate colors for each aircraft
     const colors = [
-        'rgba(76, 175, 80, 0.6)',
+        'rgba(237, 20, 91, 0.6)',
         'rgba(33, 150, 243, 0.6)',
         'rgba(255, 193, 7, 0.6)',
         'rgba(233, 30, 99, 0.6)',
@@ -833,7 +833,7 @@ function createAircraftChart(aircraftData) {
                     title: {
                         display: true,
                         text: 'Times Used',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -845,7 +845,7 @@ function createAircraftChart(aircraftData) {
                     title: {
                         display: true,
                         text: 'Aircraft Type',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -936,7 +936,7 @@ function createTrapScoresChart(trapScores) {
                     title: {
                         display: true,
                         text: 'Landing Grade',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -953,7 +953,7 @@ function createTrapScoresChart(trapScores) {
                     title: {
                         display: true,
                         text: 'Number of Carrier Traps',
-                        color: '#4CAF50',
+                        color: '#ed145b',
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -1022,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .chart-wrapper h4 {
-    color: #4CAF50;
+    color: #fff;
     margin-bottom: 20px;
     text-align: center;
     font-size: 1.2rem;
@@ -1048,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .chart-info:hover {
-    background-color: #4CAF50;
+    background-color: #ed145b;
     color: white;
     transform: scale(1.1);
 }
@@ -1058,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .chart-wrapper:hover {
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 0 15px rgba(237, 20, 91, 0.3);
 }
 
 .chart-wrapper[title] {
@@ -1190,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .stat-label {
         font-weight: 600;
-        color: #4CAF50;
+        color: #ed145b;
     }
     
     .stat-value {
@@ -1221,7 +1221,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .stat-group h4 {
         font-size: 1.1rem;
         margin: 20px 0 10px 0;
-        color: #4CAF50;
+        color: #fff;
     }
     
     /* Dashboard header mobile */
@@ -1262,7 +1262,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     .result-item:active {
-        background-color: rgba(76, 175, 80, 0.3);
+        background-color: rgba(237, 20, 91, 0.3);
     }
 }
 </style>
