@@ -152,7 +152,7 @@ if (file_exists($maintenanceFile)) {
 			<a class="nav active" href="https://stats.victorromeosierra.com/">Stats</a>
 			<a class="nav disabled" href="">Wiki</a>
 			<a class="nav icon" data-tooltip-text="Discord" href="https://discord.gg/invite/n5XMup5NBF"><i class="fab fa-discord"></i></a>
-			<a class="nav icon" data-tooltip-text="Patreon" href=""><i class="fab fa-patreon"></i></a>
+			<a class="nav icon" data-tooltip-text="Patreon" href="https://www.patreon.com/VictorRomeoSierra"><i class="fab fa-patreon"></i></a>
 			<a class="nav icon" data-tooltip-text="Youtube" href=""><i class="fab fa-youtube"></i></a>
 		</div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu"><i class="fas fa-bars"></i></button>
