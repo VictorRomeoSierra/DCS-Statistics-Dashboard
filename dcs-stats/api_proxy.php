@@ -50,17 +50,28 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, $apiConfig['timeout'] ?? 30);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
+// Build headers — forward the API key to the upstream API if configured.
+// DCSServerBot's REST API requires X-API-Key (Bearer is rejected).
+$headers = [];
+if (!empty($apiConfig['api_key'])) {
+    $headers[] = 'X-API-Key: ' . $apiConfig['api_key'];
+}
+
 // Set method and data
 if ($method === 'POST') {
     curl_setopt($ch, CURLOPT_POST, true);
-    
+
     // Use form-urlencoded for POST data
     if (!empty($data)) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
     } else {
         curl_setopt($ch, CURLOPT_POSTFIELDS, '');
     }
+}
+
+if (!empty($headers)) {
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 }
 
 // Execute request
