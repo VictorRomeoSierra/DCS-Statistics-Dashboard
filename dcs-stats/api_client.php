@@ -44,7 +44,7 @@ class DCSServerBotAPIClient {
         ];
         
         if ($this->apiKey) {
-            $headers[] = 'Authorization: Bearer ' . $this->apiKey;
+            $headers[] = 'X-API-Key: ' . $this->apiKey;
         }
         
         // Set method and data
