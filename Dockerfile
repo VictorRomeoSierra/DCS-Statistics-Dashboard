@@ -90,7 +90,18 @@ http {
         location ~ ^/(data|site-config/data)/ {
             deny all;
         }
-        
+
+        # Mirror dcs-stats/.htaccess intent: deny direct access to log, SQL,
+        # and JSON files. .htaccess is silently ignored under nginx, so the
+        # API key in api_config.json would otherwise be web-fetchable.
+        # Two JSON files JS callers need stay accessible via exact-match
+        # locations (higher priority than the regex deny below).
+        location = /server_data.json { try_files $uri =404; }
+        location = /mission_data.json { try_files $uri =404; }
+        location ~ \.(log|sql|json)$ {
+            deny all;
+        }
+
         location / {
             try_files $uri $uri/ /index.php?$query_string;
         }
