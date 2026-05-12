@@ -36,9 +36,9 @@ try {
         $stats[] = [
             'rank' => $index + 1,
             'name' => htmlspecialchars($player['nick'] ?? 'Unknown', ENT_QUOTES, 'UTF-8'),
-            'kills' => $player['AAkills'] ?? 0,
+            'kills' => $player['kills'] ?? 0,
             'deaths' => $player['deaths'] ?? 0,
-            'kd_ratio' => $player['AAKDR'] ?? 0,
+            'kd_ratio' => $player['kdr'] ?? 0,
             // These fields are not available in the current API
             'sorties' => 0,
             'flight_hours' => 0,
