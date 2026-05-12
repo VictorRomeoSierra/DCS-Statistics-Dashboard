@@ -44,7 +44,7 @@ class DCSServerBotAPIClient {
         ];
         
         if ($this->apiKey) {
-            $headers[] = 'Authorization: Bearer ' . $this->apiKey;
+            $headers[] = 'X-API-Key: ' . $this->apiKey;
         }
         
         // Set method and data
@@ -130,14 +130,14 @@ class DCSServerBotAPIClient {
      * Get top players by kills
      */
     public function getTopKills() {
-        return $this->makeRequest('POST', '/topkills');
+        return $this->makeRequest('GET', '/topkills');
     }
     
     /**
      * Get top players by kill/death ratio
      */
     public function getTopKDR() {
-        return $this->makeRequest('POST', '/topkdr');
+        return $this->makeRequest('GET', '/topkdr');
     }
     
     /**
