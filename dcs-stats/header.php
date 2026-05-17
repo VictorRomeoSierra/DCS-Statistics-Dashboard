@@ -142,18 +142,18 @@ if (file_exists($maintenanceFile)) {
   <source src="video.mp4" type="video/mp4">
 </video>
   <header class="main-header">
-	<div id="logo"><a href="https://agaar.in/vrs_new/"><img src="logo.png" /></a>
+	<div id="logo"><a href="https://victorromeosierra.com/"><img src="logo.png" /></a>
 	</div>
 
 	<div id="nav">
 		<div id="primary">
-			<a class="nav" href="https://map.victorromeosierra.com/">Live Map</a>
+			<a class="nav" href="https://map.victorromeosierra.com/servers/VRS">Live Map</a>
 			<a class="nav" href="https://tacview.victorromeosierra.com/">Tac View</a>
 			<a class="nav active" href="https://stats.victorromeosierra.com/">Stats</a>
-			<a class="nav disabled" href="">Wiki</a>
-			<a class="nav icon" data-tooltip-text="Discord" href="https://discord.gg/invite/n5XMup5NBF"><i class="fab fa-discord"></i></a>
-			<a class="nav icon" data-tooltip-text="Patreon" href="https://www.patreon.com/VictorRomeoSierra"><i class="fab fa-patreon"></i></a>
-			<a class="nav icon" data-tooltip-text="Youtube" href=""><i class="fab fa-youtube"></i></a>
+			<a class="nav" href="https://victorromeosierra.com/">Wiki</a>
+			<a class="nav icon" data-tooltip-text="Discord" href="https://discord.gg/victorromeosierra"><i class="fab fa-discord"></i></a>
+			<a class="nav icon" data-tooltip-text="Patreon" href="https://www.patreon.com/c/VictorRomeoSierra/"><i class="fab fa-patreon"></i></a>
+			<a class="nav icon" data-tooltip-text="Youtube" href="https://youtube.com/VictorRomeoSierra"><i class="fab fa-youtube"></i></a>
 		</div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu"><i class="fas fa-bars"></i></button>
 	</div>

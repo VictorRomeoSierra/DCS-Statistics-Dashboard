@@ -1,11 +1,11 @@
-<?php  
+<?php
 header_remove('X-Frame-Options');
-header("Content-Security-Policy: frame-ancestors 'self' https://agaar.in");  
+header("Content-Security-Policy: frame-ancestors 'self' https://victorromeosierra.com");
 ?>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VRS Test Statistics Dashboard</title>
+  <title>VRS Statistics</title>
   <link rel="stylesheet" href="/styles.php" />
   <link rel="stylesheet" href="/styles-mobile.css" />
       <script>
