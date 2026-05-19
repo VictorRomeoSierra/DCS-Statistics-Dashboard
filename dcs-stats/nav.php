@@ -132,7 +132,7 @@ if (!$hasSquadronInMenu && isFeatureEnabled('show_squadron_homepage') && !empty(
     <li><a class="nav-link mobile" href="https://victorromeosierra.com/">Wiki</a></li>
     <li><a class="nav-link mobile" href="https://discord.gg/victorromeosierra">Discord</a></li>
     <li><a class="nav-link mobile" href="https://www.patreon.com/c/VictorRomeoSierra/">Patreon</a></li>
-    <li><a class="nav-link mobile" href="https://youtube.com/VictorRomeoSierra">YouTube</a></li>
+    <li><a class="nav-link mobile" href="https://www.youtube.com/@VictorRomeoSierra">YouTube</a></li>
   </ul>
 </nav>
 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
