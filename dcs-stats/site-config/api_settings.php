@@ -232,6 +232,15 @@ $pageTitle = 'API Settings';
             font-size: 13px;
             line-height: 1.8;
         }
+
+        .endpoints-list ul {
+            margin: 8px 0 18px;
+            padding-left: 20px;
+        }
+
+        .endpoints-list code {
+            color: var(--accent-primary);
+        }
         
         .button-group {
             display: flex;
@@ -339,33 +348,47 @@ $pageTitle = 'API Settings';
                 <div class="endpoints-info">
                     <h4>Available Endpoints</h4>
                     <div class="endpoints-list">
-                        <strong>DCSServerBot REST API endpoints:</strong><br>
-                        • /servers - Get server status (GET)<br>
-                        • /credits - Get player credits (POST with nick and date)<br>
-                        • /stats - Get enhanced statistics (POST with nick and date)<br>
-                        • /getuser - Get user statistics (POST with nick)<br>
-                        • /topkills - Get top killers leaderboard (GET)<br>
-                        • /topkdr - Get top K/D ratio leaderboard (GET)<br>
-                        • /weaponpk - Get weapon probability of kill (POST with nick and date)<br>
-                        • /squadrons - Get all squadrons (GET)<br>
-                        • /squadron_members - Get squadron members (POST with name)<br>
-                        • /squadron_credits - Get squadron credits (POST with name)<br>
-                        <br>
-                        <strong>Our system endpoints (PHP files):</strong><br>
-                        • get_servers.php - Server status page data<br>
-                        • get_leaderboard.php - Leaderboard page data<br>
-                        • get_player_stats.php - Individual player statistics<br>
-                        • get_pilot_credits.php - Credits leaderboard<br>
-                        • get_pilot_statistics.php - Pilot details<br>
-                        • get_server_statistics.php - Server statistics<br>
-                        • get_active_players.php - Currently active players<br>
-                        • search_players.php - Player search functionality<br>
-                        • get_leaderboard_client.php - Client-side leaderboard<br>
-                        • get_credits.php - Credits data<br>
-                        • get_missionstats.php - Mission statistics<br>
-                        • get_server_stats.php - Server performance stats<br>
-                        <br>
-                        <strong>Note:</strong> All features now work through the API
+                        <strong>DCSServerBot REST API endpoints:</strong>
+                        <ul>
+                            <li><code>GET /servers</code> - Live server status, mission, weather, slots, extensions, and players</li>
+                            <li><code>GET /serverstats</code> - Server-wide totals for players, playtime, sorties, kills, deaths, and activity</li>
+                            <li><code>GET /server_attendance</code> - Current players, 24h/7d/30d attendance, top theatres, missions, and modules</li>
+                            <li><code>GET /leaderboard</code> - Ranked player data by kills, credits, playtime, and other supported metrics</li>
+                            <li><code>GET /highscore</code> - High score leaderboard data</li>
+                            <li><code>GET /trueskill</code> - TrueSkill ranking data</li>
+                            <li><code>POST /player_info</code> - Detailed individual player profile data</li>
+                            <li><code>POST /stats</code> - Enhanced individual player statistics</li>
+                            <li><code>POST /getuser</code> - Legacy individual user statistics</li>
+                            <li><code>POST /credits</code> - Player credits lookup</li>
+                            <li><code>POST /modulestats</code> - Module usage statistics</li>
+                            <li><code>POST /traps</code> - Carrier trap statistics</li>
+                            <li><code>POST /weaponpk</code> - Weapon probability of kill statistics</li>
+                            <li><code>GET /squadrons</code> - Squadron list and overview data</li>
+                            <li><code>POST /player_squadrons</code> - Squadrons for an individual player</li>
+                            <li><code>POST /squadron_members</code> - Members for a squadron</li>
+                            <li><code>POST /squadron_credits</code> - Squadron credits data</li>
+                            <li><code>GET /current_server</code> - Current server selection/status</li>
+                            <li><code>GET /airbases</code>, <code>GET /airbase</code>, <code>GET /airbase/atis</code>, <code>GET /airbase/warehouse</code> - Airbase data</li>
+                            <li><code>GET /convertCoordinates</code> - Coordinate conversion helper</li>
+                            <li><code>GET /mission/group/waypoints</code> - Mission group waypoint data</li>
+                        </ul>
+
+                        <strong>Dashboard PHP endpoints:</strong>
+                        <ul>
+                            <li><code>get_servers_api.php</code> / <code>get_servers.php</code> - Server status page data</li>
+                            <li><code>get_server_stats.php</code> - Homepage server statistics, attendance, and top API lists</li>
+                            <li><code>get_leaderboard_api.php</code> / <code>get_leaderboard.php</code> - Leaderboard page data</li>
+                            <li><code>get_player_stats_api.php</code> / <code>get_player_stats.php</code> - Individual player statistics</li>
+                            <li><code>get_credits_api.php</code> / <code>get_credits.php</code> - Credits leaderboard data</li>
+                            <li><code>get_missionstats_api.php</code> / <code>get_missionstats.php</code> - Mission statistics</li>
+                            <li><code>get_squadrons_api.php</code> / <code>get_squadrons.php</code> - Squadron overview data</li>
+                            <li><code>get_squadron_members_api.php</code> / <code>get_squadron_members.php</code> - Squadron member data</li>
+                            <li><code>get_squadron_credits_api.php</code> / <code>get_squadron_credits.php</code> - Squadron credits data</li>
+                            <li><code>get_api_config.php</code> - Client-side API configuration</li>
+                            <li><code>get_leaderboard_client.php</code> - Client-side leaderboard bridge</li>
+                        </ul>
+
+                        <strong>Note:</strong> The dashboard now uses the expanded API routes where available.
                     </div>
                 </div>
 

@@ -69,14 +69,29 @@ function loadSiteFeatures() {
         'home_mission_stats' => true,
         'home_top_pilots' => true,
         'home_recent_activity' => true,
+        'home_api_insights' => true,
+        'home_api_players_24h' => true,
+        'home_api_players_7d' => true,
+        'home_api_players_30d' => true,
+        'home_api_current_players' => true,
+        'home_top_theatres' => true,
+        'home_top_missions' => true,
+        'home_top_modules' => true,
         
         // Leaderboard Features
         'leaderboard_kills' => true,
         'leaderboard_deaths' => true,
         'leaderboard_kd_ratio' => true,
-        'leaderboard_flight_hours' => true,
-        'leaderboard_sorties' => true,
+        'leaderboard_pvp_kd_ratio' => true,
+        'leaderboard_credits' => true,
+        'leaderboard_playtime' => true,
+        'leaderboard_sorties' => false,
+        'leaderboard_takeoffs' => false,
+        'leaderboard_landings' => false,
+        'leaderboard_crashes' => false,
+        'leaderboard_ejections' => false,
         'leaderboard_aircraft' => true,
+        'leaderboard_chart' => true,
         
         // Pilot Statistics Features
         'pilot_search' => true,
@@ -97,9 +112,15 @@ function loadSiteFeatures() {
         'squadron_statistics' => false,
         
         // Server Features
-        'servers_list' => true,
-        'server_status' => true,
-        'server_players' => true,
+        'server_live_api_details' => true,
+        'server_detail_status' => true,
+        'server_detail_description' => true,
+        'server_detail_mission' => true,
+        'server_detail_slots' => true,
+        'server_detail_restart' => true,
+        'server_detail_weather' => true,
+        'server_detail_extensions' => true,
+        'server_detail_active_players' => true,
         
         // Global Features
         'show_discord_link' => true,
@@ -170,6 +191,18 @@ function getFeatureValue($feature, $default = '') {
     return isset($features[$feature]) ? $features[$feature] : $default;
 }
 
+function serverCardFeatureKey($serverName) {
+    $slug = strtolower(trim((string)$serverName));
+    $slug = preg_replace('/[^a-z0-9]+/', '_', $slug);
+    $slug = trim($slug, '_');
+
+    if ($slug === '') {
+        $slug = 'unknown_server';
+    }
+
+    return 'server_card_' . $slug;
+}
+
 // Feature groups for admin interface
 function getFeatureGroups() {
     return [
@@ -186,15 +219,34 @@ function getFeatureGroups() {
             'home_player_activity' => 'Player Activity Graph',
             'home_mission_stats' => 'Mission Statistics Graph',
             'home_top_pilots' => 'Top Pilots Table',
-            'home_recent_activity' => 'Recent Activity Feed'
+            'home_recent_activity' => 'Recent Activity Feed',
+            'home_api_insights' => 'Top 5 Insights'
+        ],
+        'Attendance Cards' => [
+            'home_api_players_24h' => 'Players 24h Card',
+            'home_api_players_7d' => 'Players 7d Card',
+            'home_api_players_30d' => 'Players 30d Card',
+            'home_api_current_players' => 'Current Players Card'
+        ],
+        'Top 5 Insights' => [
+            'home_top_theatres' => 'Top Theatres List',
+            'home_top_missions' => 'Top Missions List',
+            'home_top_modules' => 'Top Modules List'
         ],
         'Leaderboard Columns' => [
             'leaderboard_kills' => 'Kills Column',
             'leaderboard_deaths' => 'Deaths Column',
             'leaderboard_kd_ratio' => 'K/D Ratio Column',
-            'leaderboard_flight_hours' => 'Flight Hours Column',
-            'leaderboard_sorties' => 'Sorties Column',
-            'leaderboard_aircraft' => 'Most Used Aircraft Column'
+            'leaderboard_pvp_kd_ratio' => 'PvP K/D Ratio Column',
+            'leaderboard_credits' => 'Credits Column',
+            'leaderboard_playtime' => 'Playtime Column',
+            'leaderboard_sorties' => 'Sorties Column (Not Implimented)',
+            'leaderboard_takeoffs' => 'Takeoffs Column',
+            'leaderboard_landings' => 'Landings Column',
+            'leaderboard_crashes' => 'Crashes Column',
+            'leaderboard_ejections' => 'Ejections Column',
+            'leaderboard_aircraft' => 'Most Used Aircraft Column',
+            'leaderboard_chart' => 'Top 10 Chart'
         ],
         'Pilot Features' => [
             'pilot_search' => 'Pilot Search',
@@ -215,9 +267,15 @@ function getFeatureGroups() {
             'squadron_statistics' => 'Squadron Statistics'
         ],
         'Server Features' => [
-            'servers_list' => 'Server List',
-            'server_status' => 'Server Status Display',
-            'server_players' => 'Online Players Display'
+            'server_live_api_details' => 'Server Details Section',
+            'server_detail_status' => 'Status Badge',
+            'server_detail_description' => 'Server Description',
+            'server_detail_mission' => 'Mission and Theatre Details',
+            'server_detail_slots' => 'Slot Usage Details',
+            'server_detail_restart' => 'Restart Time Details',
+            'server_detail_weather' => 'Weather Details',
+            'server_detail_extensions' => 'Extensions/SRS Details',
+            'server_detail_active_players' => 'Active Players Details'
         ],
         'Global Settings' => [
             'show_discord_link' => 'Show Discord Link',
@@ -232,6 +290,7 @@ function getFeatureDependencies() {
         'credits_enabled' => ['credits_leaderboard', 'nav_pilot_credits'],
         'squadrons_enabled' => ['squadron_management', 'squadron_statistics', 'nav_squadrons'],
         'pilot_search' => ['pilot_detailed_stats', 'pilot_mission_history'],
-        'servers_list' => ['server_status', 'server_players', 'nav_servers']
+        'nav_servers' => ['server_live_api_details'],
+        'server_live_api_details' => ['server_detail_status', 'server_detail_description', 'server_detail_mission', 'server_detail_slots', 'server_detail_restart', 'server_detail_weather', 'server_detail_extensions', 'server_detail_active_players']
     ];
 }

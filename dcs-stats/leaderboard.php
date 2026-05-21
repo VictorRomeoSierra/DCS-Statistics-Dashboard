@@ -6,7 +6,10 @@ if (session_status() === PHP_SESSION_NONE) {
 include "header.php"; 
 require_once __DIR__ . '/site_features.php';
 require_once __DIR__ . '/table-responsive.php';
+require_once __DIR__ . '/chart_theme.php';
 include "nav.php"; ?>
+
+<?php $chartTheme = loadChartTheme(); ?>
 
 <style>
   /* Professional Leaderboard Styling */
@@ -73,11 +76,102 @@ include "nav.php"; ?>
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
+
+  .leaderboard-chart-panel {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    padding: 24px;
+    margin: 30px 0;
+  }
+
+  .leaderboard-chart-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .leaderboard-chart-header h2 {
+    color: #4CAF50;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+  }
+
+  .leaderboard-chart-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .leaderboard-chart-controls label {
+    color: #ccc;
+    display: grid;
+    gap: 6px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .leaderboard-chart-controls select {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(76, 175, 80, 0.35);
+    border-radius: 8px;
+    color: #fff;
+    padding: 9px 12px;
+    min-width: 150px;
+  }
+
+  .leaderboard-chart-frame {
+    position: relative;
+    min-height: 360px;
+  }
+
+  .leaderboard-page {
+    width: min(98vw, 1680px);
+    max-width: 1680px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .leaderboard-page .table-responsive {
+    border: 1px solid rgba(76, 175, 80, 0.25);
+  }
+
+  #leaderboardTable {
+    table-layout: auto;
+    min-width: 1180px;
+  }
+
+  #leaderboardTable th,
+  #leaderboardTable td {
+    padding: 12px 14px;
+    white-space: nowrap;
+  }
+
+  #leaderboardTable th:nth-child(2),
+  #leaderboardTable td:nth-child(2) {
+    min-width: 190px;
+  }
+
+  #leaderboardTable th:last-child,
+  #leaderboardTable td:last-child {
+    min-width: 160px;
+  }
+
+  @media (min-width: 1300px) {
+    #leaderboardTable {
+      min-width: 0;
+    }
+  }
 </style>
 
 <?php tableResponsiveStyles(); ?>
 
-<main class="container">
+<main class="container leaderboard-page">
   <div class="dashboard-header">
     <h1>Leaderboard</h1>
     <p class="dashboard-subtitle">Top 10 pilots ranked by kills</p>
@@ -97,13 +191,36 @@ include "nav.php"; ?>
           <?php if (isFeatureEnabled('leaderboard_kills')): ?>
           <th>Kills</th>
           <?php endif; ?>
-          <?php if (isFeatureEnabled('leaderboard_sorties')): ?>
-          <th>Sorties</th>
+          <?php if (isFeatureEnabled('leaderboard_deaths')): ?>
+          <th>Deaths</th>
           <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_kd_ratio')): ?>
+          <th>K/D</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_pvp_kd_ratio')): ?>
+          <th>PvP K/D</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_credits')): ?>
+          <th>Credits</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_playtime')): ?>
+          <th>Playtime</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_sorties')): ?>
+          <th class="col-sorties">Sorties</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_takeoffs')): ?>
           <th>Takeoffs</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_landings')): ?>
           <th>Landings</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_crashes')): ?>
           <th>Crashes</th>
+          <?php endif; ?>
+          <?php if (isFeatureEnabled('leaderboard_ejections')): ?>
           <th>Ejections</th>
+          <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_aircraft')): ?>
           <th>Most Used Aircraft</th>
           <?php endif; ?>
@@ -115,10 +232,51 @@ include "nav.php"; ?>
   
   <!-- Mobile Cards Container -->
   <div class="mobile-cards" id="leaderboardCards"></div>
+
+  <?php if (isFeatureEnabled('leaderboard_chart')): ?>
+  <section class="leaderboard-chart-panel">
+    <div class="leaderboard-chart-header">
+      <h2>Top 10 Visual Breakdown</h2>
+      <div class="leaderboard-chart-controls">
+        <label>
+          Data
+          <select id="leaderboardChartMetric">
+            <option value="kills">Kills</option>
+            <option value="deaths">Deaths</option>
+            <option value="kd_ratio">K/D</option>
+            <option value="kdr_pvp">PvP K/D</option>
+            <option value="credits">Credits</option>
+            <option value="playtime_hours">Playtime Hours</option>
+            <option value="takeoffs">Takeoffs</option>
+            <option value="landings">Landings</option>
+            <option value="crashes">Crashes</option>
+            <option value="ejections">Ejections</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="leaderboard-chart-frame">
+      <canvas id="leaderboardChart"></canvas>
+    </div>
+  </section>
+  <?php endif; ?>
 </main>
 
 <script>
 let leaderboardData = [];
+const leaderboardChartTheme = <?php echo json_encode($chartTheme); ?>;
+const leaderboardChartMetrics = {
+  kills: { label: 'Kills', value: player => Number(player.kills || 0) },
+  deaths: { label: 'Deaths', value: player => Number(player.deaths || 0) },
+  kd_ratio: { label: 'K/D', value: player => Number(player.kd_ratio || player.kdr || 0) },
+  kdr_pvp: { label: 'PvP K/D', value: player => Number(player.kdr_pvp || 0) },
+  credits: { label: 'Credits', value: player => Number(player.credits || 0) },
+  playtime_hours: { label: 'Playtime Hours', value: player => Math.round(Number(player.playtime || 0) / 3600) },
+  takeoffs: { label: 'Takeoffs', value: player => Number(player.takeoffs || 0) },
+  landings: { label: 'Landings', value: player => Number(player.landings || 0) },
+  crashes: { label: 'Crashes', value: player => Number(player.crashes || 0) },
+  ejections: { label: 'Ejections', value: player => Number(player.ejections || 0) }
+};
 
 function renderTable() {
   const tbody = document.querySelector("#leaderboardTable tbody");
@@ -146,19 +304,49 @@ function renderTable() {
     <?php if (isFeatureEnabled('leaderboard_kills')): ?>
     cells += `<td>${escapeHtml(String(player.kills || 0))}</td>`;
     <?php endif; ?>
-    
-    <?php if (isFeatureEnabled('leaderboard_sorties')): ?>
-    cells += `<td>${escapeHtml(String(player.sorties || 0))}</td>`;
+
+    <?php if (isFeatureEnabled('leaderboard_deaths')): ?>
+    cells += `<td>${escapeHtml(String(player.deaths || 0))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_kd_ratio')): ?>
+    cells += `<td>${escapeHtml(String(player.kd_ratio || player.kdr || 0))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_pvp_kd_ratio')): ?>
+    cells += `<td>${escapeHtml(String(player.kdr_pvp || 0))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_credits')): ?>
+    cells += `<td>${escapeHtml(String(player.credits || 0))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_playtime')): ?>
+    cells += `<td>${escapeHtml(formatPlaytime(player.playtime || 0))}</td>`;
     <?php endif; ?>
     
-    cells += `
-      <td>${escapeHtml(String(player.takeoffs || 0))}</td>
-      <td>${escapeHtml(String(player.landings || 0))}</td>
-      <td>${escapeHtml(String(player.crashes || 0))}</td>
-      <td>${escapeHtml(String(player.ejections || 0))}</td>`;
+    <?php if (isFeatureEnabled('leaderboard_sorties')): ?>
+    cells += `<td class="col-sorties">${escapeHtml(formatOptionalNumber(player.sorties))}</td>`;
+    <?php endif; ?>
+    
+    <?php if (isFeatureEnabled('leaderboard_takeoffs')): ?>
+    cells += `<td>${escapeHtml(formatOptionalNumber(player.takeoffs))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_landings')): ?>
+    cells += `<td>${escapeHtml(formatOptionalNumber(player.landings))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_crashes')): ?>
+    cells += `<td>${escapeHtml(formatOptionalNumber(player.crashes))}</td>`;
+    <?php endif; ?>
+
+    <?php if (isFeatureEnabled('leaderboard_ejections')): ?>
+    cells += `<td>${escapeHtml(formatOptionalNumber(player.ejections))}</td>`;
+    <?php endif; ?>
     
     <?php if (isFeatureEnabled('leaderboard_aircraft')): ?>
-    cells += `<td>${escapeHtml(player.most_used_aircraft || '')}</td>`;
+    cells += `<td>${escapeHtml(player.most_used_aircraft || '-')}</td>`;
     <?php endif; ?>
     
     row.innerHTML = cells;
@@ -216,6 +404,7 @@ function renderTable() {
     
     mobileCards.appendChild(card);
   });
+
 }
 
 async function loadLeaderboardFromMissionstats() {
@@ -246,10 +435,128 @@ async function loadLeaderboardFromMissionstats() {
     });
     
     renderTable();
+    renderLeaderboardChart();
   } catch (error) {
     document.getElementById("leaderboard-loading").innerText = "Failed to load leaderboard data. Please try again later.";
     console.error("Error loading leaderboard:", error);
   }
+}
+
+function renderLeaderboardChart() {
+  const canvas = document.getElementById('leaderboardChart');
+  const metricSelect = document.getElementById('leaderboardChartMetric');
+  if (!canvas || !metricSelect || !leaderboardData.length) return;
+
+  const metric = leaderboardChartMetrics[metricSelect.value] || leaderboardChartMetrics.kills;
+  const labels = leaderboardData.slice(0, 10).map(player => player.nick || 'Unknown');
+  const values = leaderboardData.slice(0, 10).map(metric.value);
+  drawLeaderboardCanvas(canvas, labels, values, metric.label);
+}
+
+function drawLeaderboardCanvas(canvas, labels, values, metricLabel) {
+  const frame = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const width = Math.max(320, Math.floor(frame.clientWidth));
+  const height = 360;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  const padding = { top: 32, right: 28, bottom: 84, left: 58 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const maxValue = Math.max(...values, 1);
+  const stepCount = 4;
+
+  ctx.font = '600 14px Arial, sans-serif';
+  ctx.fillStyle = leaderboardChartTheme.chart_text_color;
+  ctx.fillText(metricLabel, padding.left, 20);
+
+  ctx.strokeStyle = hexToRgba(leaderboardChartTheme.chart_grid_color, 0.45);
+  ctx.lineWidth = 1;
+  ctx.font = '12px Arial, sans-serif';
+  for (let i = 0; i <= stepCount; i++) {
+    const ratio = i / stepCount;
+    const y = padding.top + chartHeight - (chartHeight * ratio);
+    const value = Math.round(maxValue * ratio);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+    ctx.fillStyle = leaderboardChartTheme.chart_text_color;
+    ctx.fillText(value.toLocaleString(), 8, y + 4);
+  }
+
+  const slotWidth = chartWidth / labels.length;
+  const points = values.map((value, index) => {
+    const x = padding.left + slotWidth * index + slotWidth / 2;
+    const y = padding.top + chartHeight - (Number(value || 0) / maxValue) * chartHeight;
+    return { x, y, value };
+  });
+
+  const barWidth = Math.max(18, Math.min(56, slotWidth * 0.58));
+  points.forEach(point => {
+    const barHeight = padding.top + chartHeight - point.y;
+    const x = point.x - barWidth / 2;
+    ctx.fillStyle = hexToRgba(leaderboardChartTheme.chart_primary_color, 0.78);
+    roundRect(ctx, x, point.y, barWidth, barHeight, 8);
+    ctx.fill();
+  });
+
+  ctx.fillStyle = leaderboardChartTheme.chart_text_color;
+  ctx.font = '11px Arial, sans-serif';
+  labels.forEach((label, index) => {
+    const x = padding.left + slotWidth * index + slotWidth / 2;
+    ctx.save();
+    ctx.translate(x, height - 58);
+    ctx.rotate(-0.45);
+    ctx.textAlign = 'right';
+    ctx.fillText(label.length > 20 ? `${label.slice(0, 18)}...` : label, 0, 0);
+    ctx.restore();
+  });
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  const safeRadius = Math.min(radius, width / 2, Math.max(0, height / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + safeRadius, y);
+  ctx.lineTo(x + width - safeRadius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  ctx.lineTo(x + width, y + height);
+  ctx.lineTo(x, y + height);
+  ctx.lineTo(x, y + safeRadius);
+  ctx.quadraticCurveTo(x, y, x + safeRadius, y);
+  ctx.closePath();
+}
+
+function hexToRgba(hex, alpha) {
+  const clean = String(hex || '#4CAF50').replace('#', '');
+  const value = parseInt(clean, 16);
+  const red = (value >> 16) & 255;
+  const green = (value >> 8) & 255;
+  const blue = value & 255;
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('leaderboardChartMetric')?.addEventListener('change', renderLeaderboardChart);
+});
+
+function formatPlaytime(seconds) {
+  const hours = Math.floor(Number(seconds || 0) / 3600);
+  return `${hours.toLocaleString()}h`;
+}
+
+function formatOptionalNumber(value) {
+  if (value === null || value === undefined || value === '') {
+    return '-';
+  }
+  return Number(value).toLocaleString();
 }
 
 // Load the leaderboard

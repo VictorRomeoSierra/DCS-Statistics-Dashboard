@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../auth.php';
 require_once __DIR__ . '/../admin_functions.php';
+require_once __DIR__ . '/../update_channel.php';
 
 requireAdmin();
 requirePermission('manage_updates');
@@ -16,19 +17,27 @@ function logMessage($msg) {
     flush();
 }
 
-// Always use main branch for updates
-$branch = 'main';
+function buildVersionLabel($branch, $commitDate, $commitSha) {
+    $date = $commitDate ? date('Y-m-d', strtotime($commitDate)) : date('Y-m-d');
+    $shortSha = $commitSha ? substr($commitSha, 0, 12) : 'unknown';
+    return $branch . ' @ ' . $date . ' #' . $shortSha;
+}
+
+$channelConfig = getUpdateChannelConfig();
+$branch = $channelConfig['branch'];
+$repo = $channelConfig['repo'];
 // ALWAYS backup before updates, regardless of user choice
 $backup = true; // Force backup for safety
 $specificVersion = !empty($_POST['version']) ? $_POST['version'] : null;
 
-// Repository configuration
-// Note: GitHub redirects from Website-Uploader to Dashboard
-$repo = 'Penfold-88/DCS-Statistics-Dashboard';
-
 // Get current version
 $currentVersion = defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : '1.0.0';
-logMessage("Current version: $currentVersion");
+require_once dirname(__DIR__) . '/version_tracker.php';
+$currentVersionInfo = getCurrentVersionInfo();
+$currentBuildLabel = $currentVersionInfo['version'] ?? $currentVersion;
+logMessage("Current version: $currentBuildLabel");
+logMessage("Update channel: {$channelConfig['channel']}");
+logMessage("GitHub branch: $branch");
 
 // Determine download URL
 if ($specificVersion) {
@@ -53,25 +62,72 @@ if ($backup && !is_dir($backupDir)) {
     mkdir($backupDir, 0755, true);
 }
 
-// Always check for latest release
-logMessage("Checking for latest release...");
-$releaseUrl = "https://api.github.com/repos/$repo/releases/latest";
-$ch = curl_init($releaseUrl);
+// Check selected branch exists and log the latest commit.
+logMessage("Checking GitHub branch...");
+$branchUrl = "https://api.github.com/repos/$repo/branches/" . rawurlencode($branch);
+$ch = curl_init($branchUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_USERAGENT, 'DCS-Stats-Updater');
-$releaseData = curl_exec($ch);
+$branchData = curl_exec($ch);
+$branchCurlError = curl_error($ch);
+$branchHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-if ($releaseData) {
-    $release = json_decode($releaseData, true);
-    if (isset($release['tag_name'])) {
-        logMessage("Latest release: " . $release['tag_name']);
-        // Compare versions (handle V prefix)
-        $current = ltrim($currentVersion, 'Vv');
-        $latest = ltrim($release['tag_name'], 'Vv');
-        if (version_compare($current, $latest, '>=') && !$specificVersion) {
-            logMessage("You are already running the latest version.");
-            exit;
+if (!$specificVersion && ($branchHttpCode !== 200 || !$branchData)) {
+    logMessage("Selected branch was not found: $branch");
+    if ($branch === 'master') {
+        logMessage("Trying fallback branch: main");
+        $branch = 'main';
+        $apiUrl = "https://api.github.com/repos/$repo/zipball/$branch";
+        $branchUrl = "https://api.github.com/repos/$repo/branches/main";
+        $ch = curl_init($branchUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'DCS-Stats-Updater');
+        $branchData = curl_exec($ch);
+        $branchCurlError = curl_error($ch);
+        $branchHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+    }
+}
+
+if (!$specificVersion && $branchHttpCode !== 200) {
+    logMessage("Could not find a usable GitHub branch. Update cancelled.");
+    logMessage("HTTP Code: $branchHttpCode");
+    if (!empty($branchCurlError)) {
+        logMessage("Connection Error: $branchCurlError");
+    }
+    exit;
+}
+
+$remoteCommitSha = null;
+$remoteCommitDate = null;
+if (!$specificVersion && $branchData) {
+    $branchInfo = json_decode($branchData, true);
+    $remoteCommitSha = $branchInfo['commit']['sha'] ?? null;
+    $remoteCommitDate = $branchInfo['commit']['commit']['committer']['date'] ?? null;
+    if ($remoteCommitSha) {
+        logMessage("Latest branch commit: " . substr($remoteCommitSha, 0, 12));
+    }
+    if ($remoteCommitDate) {
+        logMessage("Latest branch date: " . date('Y-m-d H:i:s', strtotime($remoteCommitDate)));
+    }
+}
+
+// Check latest release only when a specific downgrade/tag is requested for context.
+$release = null;
+if ($specificVersion) {
+    logMessage("Checking release information...");
+    $releaseUrl = "https://api.github.com/repos/$repo/releases/latest";
+    $ch = curl_init($releaseUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'DCS-Stats-Updater');
+    $releaseData = curl_exec($ch);
+    curl_close($ch);
+
+    if ($releaseData) {
+        $release = json_decode($releaseData, true);
+        if (isset($release['tag_name'])) {
+            logMessage("Latest release: " . $release['tag_name']);
         }
     }
 }
@@ -115,7 +171,7 @@ foreach ($configFiles as $file) {
 }
 logMessage("Config backup complete: $configBackupDir");
 
-$downloadLabel = $specificVersion ? "version $specificVersion" : "latest release";
+$downloadLabel = $specificVersion ? "version $specificVersion" : "{$channelConfig['channel']} branch ($branch)";
 logMessage("Downloading $downloadLabel...");
 $zipFile = $upgradeDir . '/update.zip';
 $ch = curl_init($apiUrl);
@@ -311,15 +367,17 @@ function rrmdir($dir) {
 rrmdir($upgradeDir);
 
 // Update version metadata using tracker
-require_once dirname(__DIR__) . '/version_tracker.php';
+$versionLabel = $specificVersion ?? buildVersionLabel($branch, $remoteCommitDate, $remoteCommitSha);
 updateVersionMetadata(
-    $specificVersion ?? ($release['tag_name'] ?? $currentVersion),
+    $versionLabel,
     $branch,
-    getCurrentAdmin()['username']
+    getCurrentAdmin()['username'],
+    $remoteCommitSha,
+    $remoteCommitDate
 );
 
 // Update version in config file if we have a new version number
-$newVersion = $specificVersion ?? ($release['tag_name'] ?? null);
+$newVersion = $specificVersion ?? null;
 if ($newVersion && $newVersion !== $currentVersion) {
     $configFile = dirname(__DIR__) . '/config.php';
     if (file_exists($configFile)) {
@@ -337,7 +395,7 @@ if ($newVersion && $newVersion !== $currentVersion) {
 // Log the update action
 logAdminAction('SYSTEM_UPDATE', [
     'from_version' => $currentVersion,
-    'to_version' => $newVersion ?? 'latest',
+    'to_version' => $newVersion ?? $versionLabel,
     'branch' => $branch,
     'admin' => getCurrentAdmin()['username']
 ]);

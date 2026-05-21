@@ -22,11 +22,21 @@ try {
     // Create API client
     $client = createEnhancedAPIClient();
     
-    // Get credits data - the API expects POST with empty body or specific filters
-    $credits = $client->request('/credits', [], 'POST');
-    
-    if ($credits && is_array($credits)) {
-        $response['data'] = $credits;
+    $leaderboard = $client->request('/leaderboard?what=credits&limit=100', null, 'GET');
+    $players = $leaderboard['items'] ?? [];
+
+    if ($players && is_array($players)) {
+        $response['data'] = array_map(function($player) {
+            return [
+                'name' => $player['nick'] ?? 'Unknown',
+                'nick' => $player['nick'] ?? 'Unknown',
+                'credits' => $player['credits'] ?? 0,
+                'kills' => $player['kills'] ?? 0,
+                'deaths' => $player['deaths'] ?? 0,
+                'kdr' => $player['kdr'] ?? 0
+            ];
+        }, $players);
+        $response['total_count'] = $leaderboard['total_count'] ?? count($players);
         $response['source'] = 'api';
     } else {
         $response['error'] = 'No credits data available';

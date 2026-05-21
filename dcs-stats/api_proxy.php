@@ -23,8 +23,37 @@ if (!$apiConfig['use_api'] || empty($apiConfig['api_base_url'])) {
 
 // Get request parameters
 $endpoint = $_GET['endpoint'] ?? '';
-$method = $_GET['method'] ?? 'GET';
+$method = strtoupper($_GET['method'] ?? 'GET');
 $data = [];
+
+$allowedEndpoints = [
+    '/airbase' => ['GET'],
+    '/airbase/atis' => ['GET'],
+    '/airbase/warehouse' => ['GET'],
+    '/airbases' => ['GET'],
+    '/convertCoordinates' => ['GET'],
+    '/credits' => ['POST'],
+    '/current_server' => ['GET'],
+    '/getuser' => ['POST'],
+    '/highscore' => ['GET'],
+    '/leaderboard' => ['GET'],
+    '/mission/group/waypoints' => ['GET'],
+    '/modulestats' => ['POST'],
+    '/player_info' => ['POST'],
+    '/player_squadrons' => ['POST'],
+    '/server_attendance' => ['GET'],
+    '/servers' => ['GET'],
+    '/serverstats' => ['GET'],
+    '/squadron_credits' => ['POST'],
+    '/squadron_members' => ['POST'],
+    '/squadrons' => ['GET'],
+    '/stats' => ['POST'],
+    '/topkdr' => ['GET'],
+    '/topkills' => ['GET'],
+    '/traps' => ['POST'],
+    '/trueskill' => ['GET'],
+    '/weaponpk' => ['POST']
+];
 
 // Handle POST data
 if ($method === 'POST') {
@@ -37,6 +66,14 @@ if ($method === 'POST') {
 if (empty($endpoint)) {
     http_response_code(400);
     echo json_encode(['error' => 'Endpoint parameter required']);
+    exit;
+}
+
+$endpointParts = parse_url($endpoint);
+$endpointPath = $endpointParts['path'] ?? '';
+if (!isset($allowedEndpoints[$endpointPath]) || !in_array($method, $allowedEndpoints[$endpointPath], true)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Endpoint or method not allowed']);
     exit;
 }
 

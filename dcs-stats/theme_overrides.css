@@ -1,0 +1,300 @@
+:root {
+    --primary_color: #1a1a1a;
+    --secondary_color: #2a2a2a;
+    --background_color: #121212;
+    --surface_color: #2c2c2c;
+    --surface_dark_color: #1e1e1e;
+    --card_color: #2c2c2c;
+    --card_alt_color: #1e1e1e;
+    --card_heading_color: #4CAF50;
+    --card_text_color: #ffffff;
+    --card_muted_text_color: #cccccc;
+    --text_color: #ffffff;
+    --muted_text_color: #cccccc;
+    --heading_color: #4CAF50;
+    --link_color: #4a9eff;
+    --accent_color: #4CAF50;
+    --accent_hover_color: #7ad77d;
+    --border_color: #556b2f;
+    --nav_background_color: #1a1a1a;
+    --nav_text_color: #ffffff;
+    --nav_hover_color: #4CAF50;
+    --header_text_color: #ffffff;
+    --header_title_gradient_color: #4CAF50;
+    --header_title_gradient_enabled: 0;
+    --header_title_background: none;
+    --header_title_fill: var(--header_text_color);
+    --header_subtitle_color: #e0e0e0;
+    --footer_background_color: #2a2a2a;
+    --footer_text_color: #e0e0e0;
+    --success_color: #4CAF50;
+    --warning_color: #ff9800;
+    --danger_color: #f44336;
+    --info_color: #2196F3;
+    --table_header_color: #1e1e1e;
+    --table_header_text_color: #4CAF50;
+    --table_row_color: #2c2c2c;
+    --table_text_color: #ffffff;
+    --table_player_name_color: #e0e0e0;
+    --table_hover_color: #3a3a3a;
+}
+
+body {
+    background-color: var(--background_color) !important;
+    color: var(--text_color) !important;
+}
+
+a,
+.player-name a,
+.credits-link {
+    color: var(--link_color) !important;
+}
+
+.main-header {
+    border-bottom-color: var(--accent_color) !important;
+}
+
+.header-overlay {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--primary_color) 82%, transparent) 0%, color-mix(in srgb, var(--accent_color) 14%, transparent) 50%, color-mix(in srgb, var(--primary_color) 90%, transparent) 100%) !important;
+}
+
+.site-title,
+.dashboard-header h1,
+.section-heading h2,
+.leaderboard-chart-header h2,
+.stat-content h3,
+.credits-box h2 {
+    color: var(--heading_color) !important;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--accent_color) 35%, transparent) !important;
+}
+
+.site-subtitle,
+.dashboard-subtitle,
+.section-heading p,
+.server-detail-header p,
+.detail-metrics span,
+.detail-list-item span,
+.detail-list-item small,
+.muted,
+.text-muted {
+    color: var(--muted_text_color) !important;
+}
+
+.site-title {
+    background: var(--header_title_background, none) !important;
+    color: var(--header_text_color) !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: var(--header_title_fill, var(--header_text_color)) !important;
+    background-clip: initial !important;
+}
+
+.site-title[style],
+.site-title {
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+.site-subtitle {
+    color: var(--header_subtitle_color) !important;
+}
+
+nav,
+.main-nav,
+.navbar {
+    background-color: var(--nav_background_color) !important;
+}
+
+nav a,
+.main-nav a,
+.navbar a {
+    color: var(--nav_text_color) !important;
+}
+
+nav a:hover,
+.main-nav a:hover,
+.navbar a:hover {
+    color: var(--nav_hover_color) !important;
+}
+
+.stat-card,
+.api-attendance .insight-card,
+.api-insights .insight-card,
+.api-insights .insight-panel,
+.api-insights .top-api-card,
+.server-detail-card,
+.trophy-box,
+.table-wrapper {
+    background: linear-gradient(135deg, var(--card_color) 0%, var(--card_alt_color) 100%) !important;
+    border-color: color-mix(in srgb, var(--accent_color) 36%, transparent) !important;
+}
+
+.leaderboard-chart-panel,
+.chart-container,
+.credits-box {
+    background: linear-gradient(135deg, var(--surface_color) 0%, var(--surface_dark_color) 100%) !important;
+    border-color: color-mix(in srgb, var(--accent_color) 36%, transparent) !important;
+}
+
+.api-attendance,
+.api-insights,
+.api-insights .rank-list {
+    background: transparent !important;
+    border-color: transparent !important;
+}
+
+.stat-card:hover,
+.api-attendance .insight-card:hover,
+.api-insights .insight-card:hover,
+.api-insights .insight-panel:hover,
+.leaderboard-chart-panel:hover,
+.server-detail-card:hover,
+.trophy-box:hover {
+    border-color: var(--accent_color) !important;
+    box-shadow: 0 12px 40px color-mix(in srgb, var(--accent_color) 25%, transparent) !important;
+}
+
+.detail-metrics div,
+.detail-split section,
+.credits-list a,
+.detail-list-item,
+.server-detail-meta,
+.chart-filter-group,
+.chart-stat,
+.api-insights .rank-row,
+.api-insights .insight-list li {
+    background: color-mix(in srgb, var(--secondary_color) 84%, transparent) !important;
+    border-color: color-mix(in srgb, var(--border_color) 55%, transparent) !important;
+}
+
+.stat-card,
+.api-attendance .insight-card,
+.api-insights .insight-card,
+.api-insights .insight-panel,
+.api-insights .top-api-card,
+.leaderboard-chart-panel,
+.server-detail-card,
+.credits-box,
+.trophy-box,
+.chart-container,
+.table-wrapper {
+    color: var(--card_text_color) !important;
+}
+
+.stat-content h3,
+.api-attendance .insight-content span,
+.api-insights .insight-card strong,
+.api-insights .insight-panel h3,
+.api-insights .rank-row strong,
+.api-insights .rank-number,
+.api-insights h3,
+.server-detail-header h3,
+.detail-metrics span,
+.detail-split h4,
+.leaderboard-chart-header h2,
+.chart-container h2,
+.credits-box h2,
+.trophy-box strong {
+    color: var(--card_heading_color) !important;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--accent_color) 28%, transparent) !important;
+}
+
+.api-attendance .insight-content span {
+    font-weight: 700 !important;
+}
+
+.stat-content p,
+.api-attendance .insight-content strong,
+.api-insights .insight-card span,
+.api-insights .rank-row em,
+.server-detail-header p,
+.detail-list-item span,
+.detail-list-item small,
+.leaderboard-chart-panel p,
+.chart-filter-group label,
+.chart-stat span,
+.credits-box p {
+    color: var(--card_muted_text_color) !important;
+}
+
+table,
+#leaderboardTable,
+#serversTable {
+    background-color: var(--table_row_color) !important;
+    color: var(--table_text_color) !important;
+    border-color: var(--border_color) !important;
+}
+
+th,
+#leaderboardTable th,
+#serversTable th {
+    background-color: var(--table_header_color) !important;
+    color: var(--table_header_text_color) !important;
+    border-color: var(--accent_color) !important;
+}
+
+td,
+#leaderboardTable td,
+#serversTable td {
+    color: var(--table_text_color) !important;
+    border-color: color-mix(in srgb, var(--border_color) 65%, transparent) !important;
+}
+
+.player-name,
+.player-name a,
+#leaderboardTable .player-name,
+#leaderboardTable .player-name a {
+    color: var(--table_player_name_color) !important;
+}
+
+tr:hover,
+#leaderboardTable tbody tr:hover,
+#serversTable tr:hover {
+    background-color: var(--table_hover_color) !important;
+}
+
+.status-dot,
+.detail-status.status-online,
+.detail-status.status-running {
+    background-color: var(--success_color) !important;
+    border-color: color-mix(in srgb, var(--success_color) 50%, transparent) !important;
+    color: var(--success_color) !important;
+}
+
+.detail-status.status-paused,
+.detail-status.status-starting,
+.admin-button,
+.warning-box {
+    border-color: color-mix(in srgb, var(--warning_color) 50%, transparent) !important;
+    color: var(--warning_color) !important;
+}
+
+.detail-status.status-offline,
+.detail-status.status-shutdown,
+.alert-error {
+    border-color: color-mix(in srgb, var(--danger_color) 50%, transparent) !important;
+    color: var(--danger_color) !important;
+}
+
+button,
+.btn,
+input[type="submit"] {
+    border-color: var(--border_color);
+}
+
+.btn-primary {
+    background-color: var(--accent_color) !important;
+    border-color: var(--accent_color) !important;
+}
+
+.btn-primary:hover,
+.credits-link:hover,
+.credits-list a:hover {
+    color: var(--accent_hover_color) !important;
+    border-color: var(--accent_hover_color) !important;
+}
+
+footer {
+    background-color: var(--footer_background_color) !important;
+    color: var(--footer_text_color) !important;
+    border-color: var(--border_color) !important;
+}

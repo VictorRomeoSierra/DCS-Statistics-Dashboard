@@ -35,6 +35,8 @@ upload_log.txt
 # API Configuration
 dcs-stats/api_config.json
 dcs-stats/site_config.json
+dcs-stats/custom_theme.css
+dcs-stats/header_custom.css
 
 # Docker related
 docker-compose.override.yml
@@ -62,6 +64,9 @@ dcs-stats/.version_meta.json
 dcs-stats/.backup_meta.json
 dcs-stats/backups/
 !dcs-stats/backups/.gitkeep
+
+# Local preview server sessions
+.php-sessions/
 
 # Development/Testing
 dcs-stats/docker/sample-data/

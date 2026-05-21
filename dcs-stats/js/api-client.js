@@ -167,6 +167,10 @@ class DCSStatsAPI {
         }
     }
 
+    async request(endpoint, options = {}) {
+        return this.makeAPICall(endpoint, options);
+    }
+
     async getLeaderboard() {
         const config = await this.loadConfig();
         
@@ -174,70 +178,52 @@ class DCSStatsAPI {
             throw new Error('API is not enabled');
         }
 
-        // API only - no fallback
-        const topKillsData = await this.makeAPICall('/topkills');
-        
-        // For each player in top 10, fetch their detailed stats
-        const detailedPlayers = await Promise.all(
-            topKillsData.slice(0, 10).map(async (player, index) => {
-                try {
+        const leaderboard = await this.makeAPICall('/leaderboard?what=kills&limit=10');
+        const items = Array.isArray(leaderboard) ? leaderboard : (leaderboard.items || []);
+        const detailedPlayers = await Promise.all(items.map(async (player, index) => {
+            let overall = {};
+            let mostUsedAircraft = null;
 
-                    // Now get their detailed stats
-                    const stats = await this.makeAPICall('/stats', {
-                        method: 'POST',
-                        data: {
-                            nick: player.nick,
-                            date: player.date
-                        }
-                    });
+            try {
+                const playerInfo = await this.makeAPICall('/player_info', {
+                    method: 'POST',
+                    data: { nick: player.nick }
+                });
+                overall = playerInfo.overall || {};
+                const moduleKills = Array.isArray(overall.killsByModule) ? overall.killsByModule : [];
+                mostUsedAircraft = moduleKills.length ? moduleKills[0].module : null;
+            } catch (error) {
+                overall = {};
+            }
 
-
-                    // Find most used aircraft from killsByModule
-                    let mostUsedAircraft = 'N/A';
-                    if (stats.killsByModule && stats.killsByModule.length > 0) {
-                        // Sort by kills to find most used
-                        const sorted = [...stats.killsByModule].sort((a, b) => b.kills - a.kills);
-                        mostUsedAircraft = sorted[0].module || 'N/A';
-                    }
-
-                    return {
-                        rank: index + 1,
-                        nick: player.nick,
-                        kills: stats.kills || 0,
-                        deaths: stats.deaths || 0,
-                        kd_ratio: stats.AAKDR || 0,
-                        sorties: stats.takeoffs || 0, // Use takeoffs as sorties
-                        takeoffs: stats.takeoffs || 0,
-                        landings: stats.landings || 0,
-                        crashes: stats.crashes || 0,
-                        ejections: stats.ejections || 0,
-                        most_used_aircraft: mostUsedAircraft
-                    };
-                } catch (e) {
-                    console.error(`Failed to get detailed stats for ${player.nick}:`, e);
-                }
-                
-                // Fallback to basic data if detailed stats fail
-                return {
-                    rank: index + 1,
-                    name: player.nick,
-                    kills: player.AAkills || 0,
-                    deaths: player.deaths || 0,
-                    kd_ratio: player.AAKDR || 0,
-                    sorties: 0,
-                    takeoffs: 0,
-                    landings: 0,
-                    crashes: 0,
-                    ejections: 0,
-                    most_used_aircraft: 'N/A'
-                };
-            })
-        );
+            return {
+                rank: player.row_num || index + 1,
+                nick: player.nick,
+                name: player.nick,
+                date: player.date,
+                kills: player.kills ?? overall.kills ?? 0,
+                deaths: player.deaths ?? overall.deaths ?? 0,
+                kd_ratio: Number(player.kdr ?? overall.kdr ?? 0),
+                kdr: Number(player.kdr ?? overall.kdr ?? 0),
+                kills_pvp: player.kills_pvp ?? overall.kills_pvp ?? 0,
+                deaths_pvp: player.deaths_pvp ?? overall.deaths_pvp ?? 0,
+                kdr_pvp: Number(player.kdr_pvp ?? overall.kdr_pvp ?? 0),
+                credits: player.credits ?? 0,
+                playtime: player.playtime ?? overall.playtime ?? 0,
+                sorties: overall.sorties ?? null,
+                takeoffs: overall.takeoffs ?? null,
+                landings: overall.landings ?? null,
+                crashes: overall.crashes ?? null,
+                ejections: overall.ejections ?? null,
+                most_used_aircraft: mostUsedAircraft
+            };
+        }));
         
         return {
             data: detailedPlayers,
             source: 'api-client',
             count: detailedPlayers.length,
+            total_count: leaderboard.total_count || detailedPlayers.length,
             generated: new Date().toISOString()
         };
     }
@@ -249,13 +235,19 @@ class DCSStatsAPI {
             throw new Error('API is not enabled');
         }
 
-        // get /serverstats data
         const stats = await this.makeAPICall('/serverstats', {
             data: {}
         });
 
-        // get /topkills data
-        const topkills = await this.makeAPICall('/topkills?limit=5');
+        let attendance = {};
+        try {
+            attendance = await this.makeAPICall('/server_attendance');
+        } catch (error) {
+            attendance = {};
+        }
+
+        const leaderboard = await this.makeAPICall('/leaderboard?what=kills&limit=5');
+        const topkills = leaderboard.items || [];
 
         // Get squadron list
         const squadrons = await this.makeAPICall('/squadrons');
@@ -293,7 +285,7 @@ class DCSStatsAPI {
                 totalPlayers: stats.totalPlayers || 0,
                 totalPlaytime: stats.totalPlaytime || 0,
                 avgPlaytime: stats.avgPlaytime || 0,
-                activePlayers: stats.activePlayers || 0,
+                activePlayers: stats.activePlayers || attendance.current_players || 0,
                 totalSorties: stats.totalSorties || 0,
                 totalKills: stats.totalKills || 0,
                 totalDeaths: stats.totalDeaths || 0,
@@ -301,7 +293,8 @@ class DCSStatsAPI {
                 totalPvPDeaths: stats.totalPvPDeaths || 0,
                 top5Pilots: topkills,
                 top3Squadrons: top3Squadrons,
-                activityLastWeek: stats.daily_players
+                activityLastWeek: stats.daily_players || attendance.daily_trend,
+                attendance: attendance
             };
         }
     }
@@ -347,34 +340,32 @@ class DCSStatsAPI {
         return differences <= 2;
     }
 
-    async getPlayerStats(playerName) {
+    async getPlayerStats(playerName, playerDate = null) {
         const config = await this.loadConfig();
         
         if (!config.use_api) {
             throw new Error('API is not enabled');
         }
 
-        
-        // Get user data first using proxy
         const users = await this.makeAPICall('/getuser', {
             method: "POST",
             data: { nick: playerName }
         });
-        
-        
+
         if (users && users.length > 0) {
             const user = users[0];
 
-            // Get stats using proxy
-            const stats = await this.makeAPICall('/stats', {
+            const info = await this.makeAPICall('/player_info', {
                 method: 'POST',
                 data: {
                     nick: user.nick,
-                    date: user.date
+                    date: playerDate || user.date
                 }
             });
-            
-            
+            const stats = info.overall || {};
+            const lastSession = info.last_session || {};
+            const moduleStats = info.module_stats || stats.killsByModule || [];
+
             // Check if stats is empty object
             if (!stats || Object.keys(stats).length === 0) {
                 throw new Error(`No statistics found for player "${user.nick}". They may not have any recorded combat data.`);
@@ -390,6 +381,11 @@ class DCSStatsAPI {
                     mostUsedAircraft = sorted[0].module;
                 }
             }
+
+            if (Array.isArray(moduleStats) && moduleStats.length > 0) {
+                const sorted = [...moduleStats].sort((a, b) => (b.kills || 0) - (a.kills || 0));
+                mostUsedAircraft = sorted[0].module || mostUsedAircraft;
+            }
             
             return {
                 source: 'api-client',
@@ -398,27 +394,38 @@ class DCSStatsAPI {
                     kills: stats.kills || 0,
                     deaths: stats.deaths || 0,
                     kdr: stats.kdr || 0,
+                    kd_ratio: Number(stats.kdr || 0),
                     kills_pvp: stats.kills_pvp || 0,
                     deaths_pvp: stats.deaths_pvp || 0,
                     kdr_pvp: stats.kdr_pvp || 0,
-                    kills_by_module: stats.killsByModule ?
-                        stats.killsByModule.reduce((acc, item) => {
+                    kills_by_module: moduleStats && Array.isArray(moduleStats) ?
+                        moduleStats.reduce((acc, item) => {
                             acc[item.module] = item.kills;
                             return acc;
                         }, {}) : 
                         (stats.killsByModule || {}),
-                    last_session_kills: stats.lastSessionKills || 0,
-                    last_session_deaths: stats.lastSessionDeaths || 0,
+                    last_session_kills: lastSession.kills || stats.lastSessionKills || 0,
+                    last_session_deaths: lastSession.deaths || stats.lastSessionDeaths || 0,
                     takeoffs: stats.takeoffs || 0,
                     landings: stats.landings || 0,
                     crashes: stats.crashes || 0,
                     ejections: stats.ejections || 0,
                     sorties: stats.sorties || 0,
+                    playtime: stats.playtime || 0,
+                    current_server: info.current_server || null,
+                    credits: info.credits ? (info.credits.credits || 0) : 0,
+                    rank: info.credits ? info.credits.rank : null,
+                    campaign: info.credits ? info.credits.name : null,
+                    squadrons: info.squadrons || [],
+                    squadron: info.squadrons && info.squadrons.length ? info.squadrons[0].name : null,
                     carrier_traps: stats.carrier_traps || stats.carrierTraps || 0,
                     avgTrapScore: stats.avgTrapScore || stats.avg_trap_score || 0,
                     trapScores: stats.trapScores || [],
                     most_used_aircraft: mostUsedAircraft,
-                    aircraftUsage: stats.aircraftUsage || []
+                    aircraftUsage: Array.isArray(moduleStats) ? moduleStats.map(item => ({
+                        name: item.module,
+                        count: item.kills || 0
+                    })) : (stats.aircraftUsage || [])
                 }
             };
         }
@@ -438,16 +445,17 @@ class DCSStatsAPI {
             throw new Error('API is not enabled');
         }
 
-        // Use new /credits endpoint with POST via proxy
-        const credits = await this.makeAPICall('/credits', {
-            method: 'POST',
-            data: {}
-        });
+        const leaderboard = await this.makeAPICall('/leaderboard?what=credits&limit=100');
+        const credits = leaderboard.items || [];
         
         // Transform to expected format
-        return Object.entries(credits).map(([name, points]) => ({
-            name: name,
-            credits: points
+        return credits.map(player => ({
+            name: player.nick,
+            nick: player.nick,
+            credits: player.credits || 0,
+            kills: player.kills || 0,
+            deaths: player.deaths || 0,
+            kdr: player.kdr || 0
         })).sort((a, b) => b.credits - a.credits);
     }
 

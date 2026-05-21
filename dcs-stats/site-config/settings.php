@@ -6,6 +6,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
 require_once dirname(__DIR__) . '/site_features.php';
+require_once dirname(__DIR__) . '/api_client_enhanced.php';
 
 // Require admin login and permission
 requireAdmin();
@@ -13,6 +14,38 @@ requirePermission('manage_features');
 
 // Get current admin
 $currentAdmin = getCurrentAdmin();
+
+$lockedFeatures = [
+    'leaderboard_sorties' => 'Per-player sorties are not provided by the API yet.'
+];
+
+function getDetectedServerCardFeatures() {
+    try {
+        $client = createEnhancedAPIClient();
+        $response = $client->request('/servers', null, 'GET');
+        $servers = is_array($response) ? $response : [];
+        $features = [];
+
+        foreach ($servers as $index => $server) {
+            if (!is_array($server)) {
+                continue;
+            }
+
+            $name = trim((string)($server['name'] ?? 'Server ' . ($index + 1)));
+            if ($name === '') {
+                $name = 'Server ' . ($index + 1);
+            }
+
+            $features[serverCardFeatureKey($name)] = $name;
+        }
+
+        return $features;
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+$dynamicServerFeatures = getDetectedServerCardFeatures();
 
 // Handle form submission
 $message = '';
@@ -26,15 +59,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Load current settings first to preserve custom settings
         $allFeatures = loadSiteFeatures();
+        $featureGroupsForSave = getFeatureGroups();
+        if (!empty($dynamicServerFeatures)) {
+            $featureGroupsForSave['Server Features'] = array_merge(
+                $featureGroupsForSave['Server Features'],
+                $dynamicServerFeatures
+            );
+        }
         
         // Update only the features that are in groups based on checkboxes
-        foreach (getFeatureGroups() as $group => $features) {
+        foreach ($featureGroupsForSave as $group => $features) {
             foreach ($features as $key => $label) {
                 $allFeatures[$key] = isset($_POST['features'][$key]);
             }
         }
         
         // Note: Discord and Squadron settings are now handled in separate pages
+
+        // Locked features are visible in the UI but cannot be enabled yet.
+        foreach ($lockedFeatures as $lockedKey => $reason) {
+            $allFeatures[$lockedKey] = false;
+        }
         
         // Handle dependencies - if parent is disabled, disable children
         $dependencies = getFeatureDependencies();
@@ -61,6 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Load current settings
 $currentFeatures = loadSiteFeatures();
 $featureGroups = getFeatureGroups();
+if (!empty($dynamicServerFeatures)) {
+    $featureGroups['Server Features'] = array_merge(
+        $featureGroups['Server Features'],
+        $dynamicServerFeatures
+    );
+}
 $dependencies = getFeatureDependencies();
 
 // Page title
@@ -161,6 +212,36 @@ $pageTitle = 'Site Settings';
         .setting-item.disabled label {
             cursor: not-allowed;
         }
+
+        .setting-item.locked-feature input[type="checkbox"] {
+            cursor: not-allowed;
+        }
+
+        .settings-subheading {
+            border-top: 1px solid var(--border-color);
+            color: var(--accent-primary);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            margin: 18px 0 12px;
+            padding-top: 16px;
+            text-transform: uppercase;
+        }
+
+        .setting-item.dynamic-server {
+            align-items: flex-start;
+        }
+
+        .setting-item.dynamic-server input[type="checkbox"] {
+            flex: 0 0 auto;
+            margin-top: 2px;
+        }
+
+        .setting-item.dynamic-server label {
+            font-size: clamp(12px, 1.2vw, 14px);
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+        }
         
         .settings-actions {
             margin-top: 30px;
@@ -237,10 +318,13 @@ $pageTitle = 'Site Settings';
                                         <span class="collapse-arrow">▼</span>
                                     </h3>
                                     <div class="group-content" id="group_<?= e(strtolower(str_replace(' ', '_', $groupName))) ?>">
+                                        <?php $serverSubheadingShown = false; ?>
                                         <?php foreach ($features as $key => $label): ?>
                                             <?php
                                             $isDependent = false;
                                             $parentKey = null;
+                                            $isLocked = isset($lockedFeatures[$key]);
+                                            $isDynamicServer = isset($dynamicServerFeatures[$key]);
                                             foreach ($dependencies as $parent => $children) {
                                                 if (in_array($key, $children)) {
                                                     $isDependent = true;
@@ -249,15 +333,20 @@ $pageTitle = 'Site Settings';
                                                 }
                                             }
                                             ?>
-                                            <div class="setting-item <?= $isDependent ? 'dependent' : '' ?>" 
+                                            <?php if ($isDynamicServer && !$serverSubheadingShown): ?>
+                                                <div class="settings-subheading">Detected Servers</div>
+                                                <?php $serverSubheadingShown = true; ?>
+                                            <?php endif; ?>
+                                            <div class="setting-item <?= $isDependent ? 'dependent' : '' ?> <?= $isLocked ? 'disabled locked-feature' : '' ?> <?= $isDynamicServer ? 'dynamic-server' : '' ?>" 
                                                  data-feature="<?= e($key) ?>"
-                                                 <?= $parentKey ? 'data-parent="' . e($parentKey) . '"' : '' ?>>
+                                                 <?= $parentKey ? 'data-parent="' . e($parentKey) . '"' : '' ?>
+                                                 <?= $isLocked ? 'data-locked="true" title="' . e($lockedFeatures[$key]) . '"' : '' ?>>
                                                 <input type="checkbox" 
                                                        id="feature_<?= e($key) ?>" 
                                                        name="features[<?= e($key) ?>]" 
                                                        value="1"
-                                                       <?= $currentFeatures[$key] ? 'checked' : '' ?>
-                                                       <?= $isDependent && !$currentFeatures[$parentKey] ? 'disabled' : '' ?>>
+                                                       <?= (!$isLocked && ($currentFeatures[$key] ?? true)) ? 'checked' : '' ?>
+                                                       <?= ($isLocked || ($isDependent && !($currentFeatures[$parentKey] ?? true))) ? 'disabled' : '' ?>>
                                                 <label for="feature_<?= e($key) ?>">
                                                     <?= e($label) ?>
                                                 </label>
@@ -388,6 +477,11 @@ $pageTitle = 'Site Settings';
         // Toggle all features
         function toggleAll(enable) {
             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                if (checkbox.closest('[data-locked="true"]')) {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                    return;
+                }
                 checkbox.checked = enable;
                 checkbox.disabled = false;
             });
@@ -423,6 +517,12 @@ $pageTitle = 'Site Settings';
                         const childCheckbox = document.getElementById('feature_' + child);
                         
                         if (childElement && childCheckbox) {
+                            if (childElement.dataset.locked === 'true') {
+                                childCheckbox.checked = false;
+                                childCheckbox.disabled = true;
+                                childElement.classList.add('disabled');
+                                return;
+                            }
                             if (!isEnabled) {
                                 childCheckbox.checked = false;
                                 childCheckbox.disabled = true;

@@ -64,14 +64,22 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-i
 // Handle theme preview parameters
 $previewColors = null;
 if (isset($_GET['preview']) && $_GET['preview'] === '1') {
-    $previewColors = [
-        'primary_color' => isset($_GET['primary']) ? '#' . $_GET['primary'] : null,
-        'secondary_color' => isset($_GET['secondary']) ? '#' . $_GET['secondary'] : null,
-        'background_color' => isset($_GET['background']) ? '#' . $_GET['background'] : null,
-        'text_color' => isset($_GET['text']) ? '#' . $_GET['text'] : null,
-        'link_color' => isset($_GET['link']) ? '#' . $_GET['link'] : null,
-        'border_color' => isset($_GET['border']) ? '#' . $_GET['border'] : null,
+    $previewColorKeys = [
+        'primary_color', 'secondary_color', 'background_color', 'surface_color', 'surface_dark_color',
+        'card_color', 'card_alt_color', 'card_heading_color', 'card_text_color',
+        'card_muted_text_color', 'text_color', 'muted_text_color', 'heading_color', 'link_color',
+        'accent_color', 'accent_hover_color', 'border_color', 'nav_background_color',
+        'nav_text_color', 'nav_hover_color', 'header_text_color', 'header_title_gradient_color',
+        'header_subtitle_color',
+        'footer_background_color', 'footer_text_color', 'success_color', 'warning_color',
+        'danger_color', 'info_color', 'table_header_color', 'table_header_text_color',
+        'table_row_color', 'table_text_color', 'table_player_name_color', 'table_hover_color'
     ];
+    $previewColors = [];
+    foreach ($previewColorKeys as $key) {
+        $value = $_GET[$key] ?? null;
+        $previewColors[$key] = (is_string($value) && preg_match('/^[0-9A-Fa-f]{6}$/', $value)) ? '#' . $value : null;
+    }
 }
 
 // Maintenance mode check
@@ -100,8 +108,12 @@ if (file_exists($maintenanceFile)) {
   <title><?php echo htmlspecialchars($siteName); ?> Dashboard</title>
   <link rel="stylesheet" href="<?php echo url('styles.php'); ?>" />
   <link rel="stylesheet" href="<?php echo url('styles-mobile.css'); ?>" />
+  <link rel="stylesheet" href="<?php echo url('theme_overrides.css'); ?>" />
   <?php if (file_exists(__DIR__ . '/custom_theme.css')): ?>
   <link rel="stylesheet" href="<?php echo url('custom_theme.css'); ?>" />
+  <?php endif; ?>
+  <?php if (file_exists(__DIR__ . '/header_custom.css')): ?>
+  <link rel="stylesheet" href="<?php echo url('header_custom.css'); ?>" />
   <?php endif; ?>
   <?php if ($previewColors): ?>
   <style>
@@ -111,6 +123,15 @@ if (file_exists($maintenanceFile)) {
       --<?php echo $var; ?>: <?php echo $color; ?> !important;
       <?php endif; ?>
       <?php endforeach; ?>
+      <?php if (($_GET['header_title_gradient_enabled'] ?? '0') === '1'): ?>
+      --header_title_gradient_enabled: 1 !important;
+      --header_title_background: linear-gradient(135deg, var(--header_text_color) 0%, var(--header_title_gradient_color) 100%) !important;
+      --header_title_fill: transparent !important;
+      <?php else: ?>
+      --header_title_gradient_enabled: 0 !important;
+      --header_title_background: none !important;
+      --header_title_fill: var(--header_text_color) !important;
+      <?php endif; ?>
     }
   </style>
   <?php endif; ?>

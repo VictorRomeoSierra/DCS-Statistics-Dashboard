@@ -4,11 +4,13 @@
  */
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
+require_once __DIR__ . '/update_channel.php';
 
 requireAdmin();
 requirePermission('manage_updates');
 
 $currentAdmin = getCurrentAdmin();
+$updateChannel = getUpdateChannelConfig();
 
 $pageTitle = 'Update Dashboard';
 ?>
@@ -81,10 +83,6 @@ $pageTitle = 'Update Dashboard';
             background-color: #4CAF50;
             color: white;
         }
-        #git-status small {
-            color: #666;
-            font-weight: normal;
-        }
         .mt-2 {
             margin-top: 10px;
         }
@@ -118,14 +116,36 @@ $pageTitle = 'Update Dashboard';
                             $versionInfo = initializeVersionTracking();
                             $currentBranch = $versionInfo['branch'];
                             $isDev = isDevMode();
+                            $installedBuild = $versionInfo['version'] ?? 'Unknown';
+                            if (empty($versionInfo['commit_sha']) && preg_match('/^V?\d+\.\d+\.\d+/i', $installedBuild)) {
+                                $installedBuild .= ' (legacy - refreshes after next update)';
+                            }
+                            $supportInfo = [
+                                'Installed Build' => $installedBuild,
+                                'Update Channel' => $updateChannel['channel'],
+                                'Update Source' => $updateChannel['branch'],
+                                'Installed Commit' => !empty($versionInfo['commit_sha']) ? substr($versionInfo['commit_sha'], 0, 12) : 'Unknown',
+                                'Installed Date' => !empty($versionInfo['commit_date']) ? date('Y-m-d H:i:s', strtotime($versionInfo['commit_date'])) : 'Unknown',
+                                'PHP Version' => PHP_VERSION,
+                                'Last Updated' => $versionInfo['updated_at'] ?? 'Unknown'
+                            ];
                             ?>
-                            <p><strong>Current Version:</strong> <?= $versionInfo['version'] ?></p>
+                            <p><strong>Installed Build:</strong> <?= e($installedBuild) ?></p>
                             <p><strong>Current Branch:</strong> <span class="badge badge-<?= $currentBranch === 'Dev' ? 'warning' : 'primary' ?>"><?= $currentBranch ?></span></p>
-                            <?php if ($isDev): ?>
-                                <p><strong>Git Status:</strong> <span id="git-status" class="text-muted">Loading...</span></p>
+                            <p><strong>Update Channel:</strong> <span class="badge badge-<?= $updateChannel['is_dev'] ? 'warning' : 'primary' ?>"><?= e($updateChannel['channel']) ?></span></p>
+                            <p><strong>Update Source:</strong> GitHub branch <code><?= e($updateChannel['branch']) ?></code></p>
+                            <?php if (!empty($versionInfo['commit_sha'])): ?>
+                                <p><strong>Installed Commit:</strong> <code><?= e(substr($versionInfo['commit_sha'], 0, 12)) ?></code></p>
+                            <?php endif; ?>
+                            <?php if (!empty($versionInfo['commit_date'])): ?>
+                                <p><strong>Installed Date:</strong> <?= e(date('Y-m-d H:i:s', strtotime($versionInfo['commit_date']))) ?></p>
                             <?php endif; ?>
                             <p><strong>PHP Version:</strong> <?= PHP_VERSION ?></p>
                             <p><strong>Last Updated:</strong> <?= $versionInfo['updated_at'] ?? 'Unknown' ?></p>
+                            <button class="btn btn-secondary btn-small" type="button" onclick="copySupportInfo()" style="margin-top: 8px;">
+                                Copy Support Info
+                            </button>
+                            <pre id="support-info" class="update-log" style="display: none; height: auto; max-height: 180px; margin-top: 10px;"><?php foreach ($supportInfo as $label => $value): ?><?= e($label . ': ' . $value) . "\n" ?><?php endforeach; ?></pre>
                             
                             <div id="update-status" style="margin-top: 15px;">
                                 <p class="text-muted">Checking for updates...</p>
@@ -148,6 +168,9 @@ $pageTitle = 'Update Dashboard';
                             </button>
                             <button class="btn btn-info btn-block mb-2" onclick="checkForUpdates()">
                                 <span class="nav-icon">🔍</span> Check for Updates
+                            </button>
+                            <button class="btn btn-primary btn-block mb-2" onclick="performUpdate()">
+                                <span class="nav-icon">⬆️</span> Update Now
                             </button>
                         </div>
                     </div>
@@ -216,6 +239,25 @@ $pageTitle = 'Update Dashboard';
 let updateAvailable = false;
 let latestVersion = null;
 
+function copySupportInfo() {
+    const supportInfo = document.getElementById('support-info');
+    if (!supportInfo) return;
+
+    supportInfo.style.display = 'block';
+    navigator.clipboard.writeText(supportInfo.textContent.trim())
+        .then(() => {
+            const log = document.getElementById('log');
+            log.textContent = 'Support info copied. Paste it into the issue report.\n\n' + supportInfo.textContent.trim();
+        })
+        .catch(() => {
+            const range = document.createRange();
+            range.selectNodeContents(supportInfo);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        });
+}
+
 function checkUpdateStatus() {
     fetch('api/check_updates.php')
         .then(response => response.text())
@@ -230,9 +272,11 @@ function checkUpdateStatus() {
                 if (versionMatch) {
                     latestVersion = versionMatch[1];
                 }
+                const branchMatch = data.match(/GitHub Branch: ([^\n]+)/);
+                const sourceLabel = branchMatch ? branchMatch[1].trim() : 'selected branch';
                 statusDiv.innerHTML = `
                     <div class="alert alert-info">
-                        <strong>Update Available!</strong> Version ${latestVersion}
+                        <strong>Update Ready.</strong> Latest code from ${sourceLabel}
                         <button class="btn btn-primary btn-small" onclick="performUpdate()" style="margin-left: 10px;">
                             Update Now
                         </button>
@@ -259,10 +303,9 @@ function checkUpdateStatus() {
 
 function performUpdate() {
     const formData = new FormData();
-    formData.append('branch', 'main');
     
     const log = document.getElementById('log');
-    log.textContent = 'Starting update...\n';
+    log.textContent = 'Starting update from <?= e($updateChannel['channel']) ?> channel...\n';
     
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'api/update.php');
@@ -504,39 +547,6 @@ document.getElementById('downgrade-form').addEventListener('submit', function(e)
 loadBackups();
 checkUpdateStatus();
 
-<?php if ($isDev): ?>
-// In dev mode, check git status
-function checkGitStatus() {
-    fetch('api/git_status.php')
-        .then(response => response.json())
-        .then(data => {
-            const statusEl = document.getElementById('git-status');
-            if (data.success) {
-                let html = `<span class="badge badge-info">${data.branch}</span>`;
-                if (data.ahead > 0 || data.behind > 0) {
-                    html += ' <small>(';
-                    if (data.ahead > 0) html += `↑${data.ahead}`;
-                    if (data.ahead > 0 && data.behind > 0) html += ' ';
-                    if (data.behind > 0) html += `↓${data.behind}`;
-                    html += ')</small>';
-                }
-                if (data.modified > 0) {
-                    html += ` <span class="text-warning">• ${data.modified} modified</span>`;
-                }
-                if (data.untracked > 0) {
-                    html += ` <span class="text-muted">• ${data.untracked} untracked</span>`;
-                }
-                statusEl.innerHTML = html;
-            } else {
-                statusEl.innerHTML = '<span class="text-danger">Not a git repository</span>';
-            }
-        })
-        .catch(error => {
-            document.getElementById('git-status').innerHTML = '<span class="text-danger">Failed to check</span>';
-        });
-}
-checkGitStatus();
-<?php endif; ?>
 </script>
 </body>
 </html>

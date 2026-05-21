@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 include 'header.php'; 
 ?>
 <?php require_once __DIR__ . '/site_features.php'; ?>
+<?php require_once __DIR__ . '/chart_theme.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php include 'nav.php'; ?>
 
@@ -13,6 +14,16 @@ include 'header.php';
 // Check if this is a fresh install
 $isConfigured = file_exists(__DIR__ . '/api_config.json') || 
                 file_exists(__DIR__ . '/site-config/data/users.json');
+
+$showAttendanceCards = isFeatureEnabled('home_api_players_24h') ||
+                       isFeatureEnabled('home_api_players_7d') ||
+                       isFeatureEnabled('home_api_players_30d') ||
+                       isFeatureEnabled('home_api_current_players');
+$showTopApiLists = isFeatureEnabled('home_top_theatres') ||
+                   isFeatureEnabled('home_top_missions') ||
+                   isFeatureEnabled('home_top_modules');
+$showApiInsights = isFeatureEnabled('home_api_insights') || $showTopApiLists;
+$homepageChartTheme = loadChartTheme();
 
 if (!$isConfigured):
 ?>
@@ -84,6 +95,49 @@ if (!$isConfigured):
         </div>
     </div>
     <?php endif; ?>
+
+    <?php if ($showAttendanceCards): ?>
+    <div class="api-attendance" id="apiAttendance" style="display: none;">
+        <div class="insight-cards">
+            <?php if (isFeatureEnabled('home_api_players_24h')): ?>
+            <div class="insight-card">
+                <div class="insight-icon">👥</div>
+                <div class="insight-content">
+                    <span>Players 24h</span>
+                    <strong id="players24h">-</strong>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if (isFeatureEnabled('home_api_players_7d')): ?>
+            <div class="insight-card">
+                <div class="insight-icon">👥</div>
+                <div class="insight-content">
+                    <span>Players 7d</span>
+                    <strong id="players7d">-</strong>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if (isFeatureEnabled('home_api_players_30d')): ?>
+            <div class="insight-card">
+                <div class="insight-icon">👥</div>
+                <div class="insight-content">
+                    <span>Players 30d</span>
+                    <strong id="players30d">-</strong>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if (isFeatureEnabled('home_api_current_players')): ?>
+            <div class="insight-card">
+                <div class="insight-icon">👥</div>
+                <div class="insight-content">
+                    <span>Current Players</span>
+                    <strong id="currentPlayers">-</strong>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
     
     <div class="charts-dashboard">
         <?php if (isFeatureEnabled('home_top_pilots')): ?>
@@ -116,6 +170,33 @@ if (!$isConfigured):
         </div>
         <?php endif; ?>
     </div>
+
+    <?php if ($showTopApiLists): ?>
+    <div class="api-insights" id="apiInsights" style="display: none;">
+        <?php if ($showTopApiLists): ?>
+        <div class="insight-grid">
+            <?php if (isFeatureEnabled('home_top_theatres')): ?>
+            <section class="insight-panel">
+                <h3>Top Theatres</h3>
+                <div id="topTheatresList" class="rank-list"></div>
+            </section>
+            <?php endif; ?>
+            <?php if (isFeatureEnabled('home_top_missions')): ?>
+            <section class="insight-panel">
+                <h3>Top Missions</h3>
+                <div id="topMissionsList" class="rank-list"></div>
+            </section>
+            <?php endif; ?>
+            <?php if (isFeatureEnabled('home_top_modules')): ?>
+            <section class="insight-panel">
+                <h3>Top Modules</h3>
+                <div id="topModulesList" class="rank-list"></div>
+            </section>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
     
     <div id="loading-overlay" class="loading-overlay">
         <div class="loader"></div>
@@ -130,22 +211,50 @@ let combatStatsChart = null;
 let playerActivityChart = null;
 let topSquadronsChart = null;
 
-// Chart configuration with enhanced dark theme
+const homepageChartTheme = <?= json_encode($homepageChartTheme) ?>;
+
+function chartThemeColor(key, fallbackKey, fallbackColor) {
+    return homepageChartTheme[key] || homepageChartTheme[fallbackKey] || fallbackColor;
+}
+
+function hexToRgba(hex, alpha = 1) {
+    const cleanHex = String(hex || '#ffffff').replace('#', '');
+    const value = parseInt(cleanHex.length === 3 ? cleanHex.split('').map(c => c + c).join('') : cleanHex, 16);
+    const red = (value >> 16) & 255;
+    const green = (value >> 8) & 255;
+    const blue = value & 255;
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
 const chartColors = {
-    primary: 'rgba(76, 175, 80, 0.8)',
-    secondary: 'rgba(33, 150, 243, 0.8)',
-    danger: 'rgba(244, 67, 54, 0.8)',
-    warning: 'rgba(255, 193, 7, 0.8)',
-    info: 'rgba(0, 188, 212, 0.8)',
-    purple: 'rgba(156, 39, 176, 0.8)',
-    pink: 'rgba(233, 30, 99, 0.8)'
+    topPilots: {
+        main: chartThemeColor('home_top_pilots_color', 'home_chart_primary_color', '#4CAF50'),
+        grid: chartThemeColor('home_top_pilots_grid_color', 'home_chart_grid_color', '#2d4a2f'),
+        text: chartThemeColor('home_top_pilots_text_color', 'home_chart_text_color', '#e0e0e0')
+    },
+    combat: {
+        kills: chartThemeColor('home_combat_kills_color', 'home_chart_secondary_color', '#2196F3'),
+        deaths: chartThemeColor('home_combat_deaths_color', 'home_chart_danger_color', '#f44336'),
+        text: chartThemeColor('home_combat_text_color', 'home_chart_text_color', '#e0e0e0')
+    },
+    squadrons: {
+        main: chartThemeColor('home_squadrons_color', 'home_chart_warning_color', '#ffc107'),
+        grid: chartThemeColor('home_squadrons_grid_color', 'home_chart_grid_color', '#2d4a2f'),
+        text: chartThemeColor('home_squadrons_text_color', 'home_chart_text_color', '#e0e0e0')
+    },
+    activity: {
+        main: chartThemeColor('home_activity_color', 'home_chart_primary_color', '#4CAF50'),
+        grid: chartThemeColor('home_activity_grid_color', 'home_chart_grid_color', '#2d4a2f'),
+        text: chartThemeColor('home_activity_text_color', 'home_chart_text_color', '#e0e0e0')
+    }
 };
 
 const gradientColors = {
-    primary: ['rgba(76, 175, 80, 1)', 'rgba(76, 175, 80, 0.2)'],
-    secondary: ['rgba(33, 150, 243, 1)', 'rgba(33, 150, 243, 0.2)'],
-    danger: ['rgba(244, 67, 54, 1)', 'rgba(244, 67, 54, 0.2)'],
-    warning: ['rgba(255, 193, 7, 1)', 'rgba(255, 193, 7, 0.2)']
+    topPilots: [hexToRgba(chartColors.topPilots.main, 1), hexToRgba(chartColors.topPilots.main, 0.2)],
+    combatKills: [hexToRgba(chartColors.combat.kills, 1), hexToRgba(chartColors.combat.kills, 0.2)],
+    combatDeaths: [hexToRgba(chartColors.combat.deaths, 1), hexToRgba(chartColors.combat.deaths, 0.2)],
+    squadrons: [hexToRgba(chartColors.squadrons.main, 1), hexToRgba(chartColors.squadrons.main, 0.2)],
+    activity: [hexToRgba(chartColors.activity.main, 1), hexToRgba(chartColors.activity.main, 0.2)]
 };
 
 // Load server statistics
@@ -199,6 +308,10 @@ async function loadServerStats() {
         <?php if (isFeatureEnabled('home_player_activity')): ?>
         createPlayerActivityChart(data.activityLastWeek || []);
         <?php endif; ?>
+
+        <?php if ($showAttendanceCards || $showApiInsights): ?>
+        renderApiInsights(data.attendance || {});
+        <?php endif; ?>
         
         // Hide loading overlay
         document.getElementById('loading-overlay').style.display = 'none';
@@ -216,6 +329,62 @@ async function loadServerStats() {
         console.error('Error fetching server stats:', error);
         document.getElementById('loading-overlay').style.display = 'none';
     }
+}
+
+function renderApiInsights(attendance) {
+    const panel = document.getElementById('apiInsights');
+    const attendancePanel = document.getElementById('apiAttendance');
+    if (!attendance || Object.keys(attendance).length === 0) {
+        if (panel) panel.style.display = 'none';
+        if (attendancePanel) attendancePanel.style.display = 'none';
+        return;
+    }
+
+    if (panel) panel.style.display = 'block';
+    if (attendancePanel) attendancePanel.style.display = 'block';
+    setText('players24h', attendance.unique_players_24h ?? '-');
+    setText('players7d', attendance.unique_players_7d ?? '-');
+    setText('players30d', attendance.unique_players_30d ?? '-');
+    setText('currentPlayers', attendance.current_players ?? '-');
+
+    renderRankList('topTheatresList', attendance.top_theatres || [], item => ({
+        title: item.theatre || 'Unknown',
+        value: `${Number(item.playtime_hours || 0).toLocaleString()} hrs`
+    }));
+
+    renderRankList('topMissionsList', attendance.top_missions || [], item => ({
+        title: item.mission_name || 'Unknown',
+        value: `${Number(item.playtime_hours || 0).toLocaleString()} hrs`
+    }));
+
+    renderRankList('topModulesList', attendance.top_modules || [], item => ({
+        title: item.module || 'Unknown',
+        value: `${Number(item.playtime_hours || 0).toLocaleString()} hrs | ${Number(item.unique_players || 0).toLocaleString()} pilots`
+    }));
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.textContent = Number.isFinite(Number(value)) ? Number(value).toLocaleString() : value;
+}
+
+function renderRankList(id, items, mapItem) {
+    const container = document.getElementById(id);
+    if (!container) return;
+
+    const rows = items.slice(0, 5).map((item, index) => {
+        const mapped = mapItem(item);
+        return `
+            <div class="rank-row">
+                <span class="rank-number">${index + 1}</span>
+                <strong>${escapeHtml(mapped.title)}</strong>
+                <em>${escapeHtml(mapped.value)}</em>
+            </div>
+        `;
+    });
+
+    container.innerHTML = rows.length ? rows.join('') : '<p class="no-data-message">No data available</p>';
 }
 
 // Animate numbers counting up
@@ -252,7 +421,7 @@ function createTopPilotsChart(pilots) {
         topPilotsChart.destroy();
     }
     
-    const gradient = createGradient(ctx, gradientColors.primary);
+    const gradient = createGradient(ctx, gradientColors.topPilots);
     
     topPilotsChart = new Chart(ctx, {
         type: 'bar',
@@ -262,7 +431,7 @@ function createTopPilotsChart(pilots) {
                 label: 'Kills',
                 data: pilots.map(p => p.kills),
                 backgroundColor: gradient,
-                borderColor: 'rgba(76, 175, 80, 1)',
+                borderColor: hexToRgba(chartColors.topPilots.main, 1),
                 borderWidth: 2,
                 borderRadius: 8,
                 barThickness: 40
@@ -277,9 +446,9 @@ function createTopPilotsChart(pilots) {
                 },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#4CAF50',
-                    bodyColor: '#fff',
-                    borderColor: '#4CAF50',
+                    titleColor: chartColors.topPilots.text,
+                    bodyColor: chartColors.topPilots.text,
+                    borderColor: hexToRgba(chartColors.topPilots.main, 1),
                     borderWidth: 1,
                     titleFont: {
                         size: 14,
@@ -303,7 +472,7 @@ function createTopPilotsChart(pilots) {
                         display: false
                     },
                     ticks: {
-                        color: '#ccc',
+                        color: chartColors.topPilots.text,
                         font: {
                             size: 12,
                             weight: 'bold'
@@ -312,7 +481,7 @@ function createTopPilotsChart(pilots) {
                     title: {
                         display: true,
                         text: 'Pilot Names',
-                        color: '#4CAF50',
+                        color: hexToRgba(chartColors.topPilots.main, 1),
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -322,11 +491,11 @@ function createTopPilotsChart(pilots) {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)',
+                        color: hexToRgba(chartColors.topPilots.grid, 0.45),
                         borderDash: [5, 5]
                     },
                     ticks: {
-                        color: '#ccc',
+                        color: chartColors.topPilots.text,
                         font: {
                             size: 11
                         },
@@ -337,7 +506,7 @@ function createTopPilotsChart(pilots) {
                     title: {
                         display: true,
                         text: 'Number of Kills',
-                        color: '#4CAF50',
+                        color: hexToRgba(chartColors.topPilots.main, 1),
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -361,8 +530,8 @@ function createCombatStatsChart(kills, deaths) {
         combatStatsChart.destroy();
     }
     
-    const killGradient = createGradient(ctx, gradientColors.secondary);
-    const deathGradient = createGradient(ctx, gradientColors.danger);
+    const killGradient = createGradient(ctx, gradientColors.combatKills);
+    const deathGradient = createGradient(ctx, gradientColors.combatDeaths);
     
     combatStatsChart = new Chart(ctx, {
         type: 'doughnut',
@@ -371,7 +540,10 @@ function createCombatStatsChart(kills, deaths) {
             datasets: [{
                 data: [kills, deaths],
                 backgroundColor: [killGradient, deathGradient],
-                borderColor: ['rgba(33, 150, 243, 1)', 'rgba(244, 67, 54, 1)'],
+                borderColor: [
+                    hexToRgba(chartColors.combat.kills, 1),
+                    hexToRgba(chartColors.combat.deaths, 1)
+                ],
                 borderWidth: 2,
                 hoverOffset: 20
             }]
@@ -384,7 +556,7 @@ function createCombatStatsChart(kills, deaths) {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        color: '#ccc',
+                        color: chartColors.combat.text,
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -396,9 +568,9 @@ function createCombatStatsChart(kills, deaths) {
                 },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#fff',
-                    bodyColor: '#ccc',
-                    borderColor: '#444',
+                    titleColor: chartColors.combat.text,
+                    bodyColor: chartColors.combat.text,
+                    borderColor: hexToRgba(chartColors.combat.kills, 0.45),
                     borderWidth: 1,
                     titleFont: {
                         size: 14,
@@ -436,7 +608,7 @@ function createTopSquadronsChart(squadrons) {
         topSquadronsChart.destroy();
     }
     
-    const gradient = createGradient(ctx, gradientColors.warning);
+    const gradient = createGradient(ctx, gradientColors.squadrons);
     
     topSquadronsChart = new Chart(ctx, {
         type: 'bar',
@@ -446,7 +618,7 @@ function createTopSquadronsChart(squadrons) {
                 label: 'Squadron Credits',
                 data: squadrons.map(s => s.credits),
                 backgroundColor: gradient,
-                borderColor: 'rgba(255, 193, 7, 1)',
+                borderColor: hexToRgba(chartColors.squadrons.main, 1),
                 borderWidth: 2,
                 borderRadius: 8,
                 barThickness: 50
@@ -461,9 +633,9 @@ function createTopSquadronsChart(squadrons) {
                 },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#FFD700',
-                    bodyColor: '#fff',
-                    borderColor: '#FFD700',
+                    titleColor: chartColors.squadrons.text,
+                    bodyColor: chartColors.squadrons.text,
+                    borderColor: hexToRgba(chartColors.squadrons.main, 1),
                     borderWidth: 1,
                     titleFont: {
                         size: 14,
@@ -487,7 +659,7 @@ function createTopSquadronsChart(squadrons) {
                         display: false
                     },
                     ticks: {
-                        color: '#ccc',
+                        color: chartColors.squadrons.text,
                         font: {
                             size: 12,
                             weight: 'bold'
@@ -496,7 +668,7 @@ function createTopSquadronsChart(squadrons) {
                     title: {
                         display: true,
                         text: 'Squadron Names',
-                        color: '#FFD700',
+                        color: hexToRgba(chartColors.squadrons.main, 1),
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -506,11 +678,11 @@ function createTopSquadronsChart(squadrons) {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)',
+                        color: hexToRgba(chartColors.squadrons.grid, 0.45),
                         borderDash: [5, 5]
                     },
                     ticks: {
-                        color: '#ccc',
+                        color: chartColors.squadrons.text,
                         font: {
                             size: 11
                         },
@@ -521,7 +693,7 @@ function createTopSquadronsChart(squadrons) {
                     title: {
                         display: true,
                         text: 'Squadron Credits',
-                        color: '#FFD700',
+                        color: hexToRgba(chartColors.squadrons.main, 1),
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -546,7 +718,7 @@ function createPlayerActivityChart(daily_players) {
         playerActivityChart.destroy();
     }
 
-    const gradient1 = createGradient(ctx, gradientColors.primary);
+    const gradient1 = createGradient(ctx, gradientColors.activity);
 
     // Process the dates and player counts
     const labels = daily_players.map(entry => {
@@ -563,13 +735,13 @@ function createPlayerActivityChart(daily_players) {
             datasets: [{
                 label: 'Daily Players',
                 data: data,
-                borderColor: 'rgba(76, 175, 80, 1)',
+                borderColor: hexToRgba(chartColors.activity.main, 1),
                 backgroundColor: gradient1,
                 borderWidth: 3,
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: 'rgba(76, 175, 80, 1)',
-                pointBorderColor: '#fff',
+                pointBackgroundColor: hexToRgba(chartColors.activity.main, 1),
+                pointBorderColor: chartColors.activity.text,
                 pointBorderWidth: 2,
                 pointRadius: 6,
                 pointHoverRadius: 8
@@ -584,9 +756,9 @@ function createPlayerActivityChart(daily_players) {
                 },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    titleColor: '#4CAF50',
-                    bodyColor: '#fff',
-                    borderColor: '#4CAF50',
+                    titleColor: chartColors.activity.text,
+                    bodyColor: chartColors.activity.text,
+                    borderColor: hexToRgba(chartColors.activity.main, 1),
                     borderWidth: 1,
                     titleFont: {
                         size: 14,
@@ -610,11 +782,11 @@ function createPlayerActivityChart(daily_players) {
             scales: {
                 x: {
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)',
+                        color: hexToRgba(chartColors.activity.grid, 0.45),
                         borderDash: [5, 5]
                     },
                     ticks: {
-                        color: '#ccc',
+                        color: chartColors.activity.text,
                         font: {
                             size: 12,
                             weight: 'bold'
@@ -623,7 +795,7 @@ function createPlayerActivityChart(daily_players) {
                     title: {
                         display: true,
                         text: 'Date',
-                        color: '#4CAF50',
+                        color: hexToRgba(chartColors.activity.main, 1),
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -633,11 +805,11 @@ function createPlayerActivityChart(daily_players) {
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)',
+                        color: hexToRgba(chartColors.activity.grid, 0.45),
                         borderDash: [5, 5]
                     },
                     ticks: {
-                        color: '#ccc',
+                        color: chartColors.activity.text,
                         font: {
                             size: 11
                         },
@@ -648,7 +820,7 @@ function createPlayerActivityChart(daily_players) {
                     title: {
                         display: true,
                         text: 'Number of Players',
-                        color: '#4CAF50',
+                        color: hexToRgba(chartColors.activity.main, 1),
                         font: {
                             size: 14,
                             weight: 'bold'
@@ -759,8 +931,140 @@ main {
     padding: 0 20px;
 }
 
+.api-attendance,
+.api-insights {
+    margin: 0 20px 40px;
+}
+
+.api-attendance .insight-cards {
+    margin-bottom: 0;
+}
+
+.section-heading {
+    margin-bottom: 18px;
+}
+
+.section-heading h2 {
+    color: #4CAF50;
+    margin: 0 0 6px;
+}
+
+.section-heading p {
+    color: #ccc;
+    margin: 0;
+}
+
+.insight-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.insight-card,
+.insight-panel {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.insight-card:hover,
+.insight-panel:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.3);
+    border-color: rgba(76, 175, 80, 0.5);
+}
+
+.insight-card {
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.insight-icon {
+    font-size: 2.4rem;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    flex: 0 0 auto;
+}
+
+.insight-content {
+    min-width: 0;
+}
+
+.insight-card span {
+    color: #ccc;
+    display: block;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.insight-card strong {
+    color: #4CAF50;
+    font-size: 2rem;
+    text-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+}
+
+.insight-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.insight-panel {
+    padding: 24px;
+}
+
+.insight-panel h3 {
+    color: #4CAF50;
+    margin: 0 0 18px;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.rank-list {
+    display: grid;
+    gap: 8px;
+}
+
+.rank-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px 10px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.rank-number {
+    color: #4CAF50;
+    font-weight: 700;
+}
+
+.rank-row strong {
+    color: #fff;
+    overflow-wrap: anywhere;
+}
+
+.rank-row em {
+    grid-column: 2;
+    color: #aaa;
+    font-style: normal;
+}
+
 @media (max-width: 968px) {
     .charts-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .insight-cards,
+    .insight-grid {
         grid-template-columns: 1fr;
     }
 }

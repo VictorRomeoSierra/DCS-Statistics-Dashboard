@@ -98,7 +98,6 @@ const siteFeatures = {
     leaderboard_kills: <?php echo json_encode(isFeatureEnabled('leaderboard_kills')); ?>,
     leaderboard_deaths: <?php echo json_encode(isFeatureEnabled('leaderboard_deaths')); ?>,
     leaderboard_kd_ratio: <?php echo json_encode(isFeatureEnabled('leaderboard_kd_ratio')); ?>,
-    leaderboard_flight_hours: <?php echo json_encode(isFeatureEnabled('leaderboard_flight_hours')); ?>,
     leaderboard_aircraft: <?php echo json_encode(isFeatureEnabled('leaderboard_aircraft')); ?>,
     pilot_combat_stats: <?php echo json_encode(isFeatureEnabled('pilot_combat_stats')); ?>,
     pilot_flight_stats: <?php echo json_encode(isFeatureEnabled('pilot_flight_stats')); ?>,

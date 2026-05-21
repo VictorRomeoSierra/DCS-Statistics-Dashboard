@@ -101,7 +101,18 @@ if (!$hasSquadronInMenu && isFeatureEnabled('show_squadron_homepage') && !empty(
         $showItem = true;
         $itemType = $item['type'] ?? 'page';
         
-        if ($item['url'] === 'pilot_credits.php' && !isFeatureEnabled('credits_enabled')) {
+        $pageFeatureMap = [
+            'index.php' => 'nav_home',
+            'leaderboard.php' => 'nav_leaderboard',
+            'pilot_statistics.php' => 'nav_pilot_statistics',
+            'pilot_credits.php' => 'nav_pilot_credits',
+            'squadrons.php' => 'nav_squadrons',
+            'servers.php' => 'nav_servers'
+        ];
+
+        if (isset($pageFeatureMap[$item['url']]) && !isFeatureEnabled($pageFeatureMap[$item['url']])) {
+            $showItem = false;
+        } elseif ($item['url'] === 'pilot_credits.php' && !isFeatureEnabled('credits_enabled')) {
             $showItem = false;
         } elseif ($item['url'] === 'squadrons.php' && !isFeatureEnabled('squadrons_enabled')) {
             $showItem = false;

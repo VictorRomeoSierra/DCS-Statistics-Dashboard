@@ -25,16 +25,13 @@ if (!is_dir($backupDir)) {
 }
 
 // Get current version and branch info
-$currentVersion = defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : '1.0.0';
-$metaFile = $rootPath . '/.version_meta.json';
-$currentBranch = 'main'; // default
+require_once __DIR__ . '/../version_tracker.php';
+$versionInfo = getCurrentVersionInfo();
+$currentVersion = $versionInfo['version'] ?? (defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : '1.0.0');
+$currentBranch = $versionInfo['branch'] ?? 'main';
 
-if (file_exists($metaFile)) {
-    $meta = json_decode(file_get_contents($metaFile), true);
-    $currentBranch = $meta['branch'] ?? 'main';
-}
-
-$backupName = 'backup-' . date('Ymd-His') . '-' . $currentBranch . '-' . str_replace('.', '_', $currentVersion);
+$safeVersion = preg_replace('/[^A-Za-z0-9_.-]+/', '_', $currentVersion);
+$backupName = 'backup-' . date('Ymd-His') . '-' . $currentBranch . '-' . $safeVersion;
 $backupFile = $backupDir . '/' . $backupName . '.zip';
 
 logMessage("Creating backup: $backupName");
@@ -95,6 +92,8 @@ if ($backupZip->open($backupFile, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
     $metadata = [
         'version' => $currentVersion,
         'branch' => $currentBranch,
+        'commit_sha' => $versionInfo['commit_sha'] ?? null,
+        'commit_date' => $versionInfo['commit_date'] ?? null,
         'created_at' => date('Y-m-d H:i:s'),
         'created_by' => getCurrentAdmin()['username']
     ];

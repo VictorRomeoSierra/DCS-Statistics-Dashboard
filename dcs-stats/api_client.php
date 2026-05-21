@@ -80,6 +80,15 @@ class DCSServerBotAPIClient {
         
         return json_decode($response, true);
     }
+
+    public function getLeaderboard($what = 'kills', $limit = 10, $offset = 0, $order = 'desc') {
+        return $this->makeRequest('GET', '/leaderboard', [
+            'what' => $what,
+            'limit' => $limit,
+            'offset' => $offset,
+            'order' => $order
+        ]);
+    }
     
     /**
      * Get user information by nickname
@@ -139,6 +148,27 @@ class DCSServerBotAPIClient {
     public function getTopKDR() {
         return $this->makeRequest('GET', '/topkdr');
     }
+
+    public function getServerStats() {
+        return $this->makeRequest('GET', '/serverstats');
+    }
+
+    public function getServerAttendance() {
+        return $this->makeRequest('GET', '/server_attendance');
+    }
+
+    public function getPlayerInfo($nickname, $date = null) {
+        if (!$nickname) {
+            return null;
+        }
+
+        $data = ['nick' => $nickname];
+        if ($date) {
+            $data['date'] = $date;
+        }
+
+        return $this->makeRequest('POST', '/player_info', $data);
+    }
     
     /**
      * Get missile probability of kill for a player
@@ -187,8 +217,8 @@ class DCSServerBotAPIClient {
      * This endpoint doesn't exist in the current API
      */
     public function getCredits() {
-        // This will need a custom endpoint or different approach
-        throw new Exception('Credits endpoint not yet available in API');
+        $leaderboard = $this->getLeaderboard('credits', 50);
+        return $leaderboard['items'] ?? [];
     }
     
     /**
@@ -196,8 +226,7 @@ class DCSServerBotAPIClient {
      * This endpoint doesn't exist in the current API
      */
     public function getSquadrons() {
-        // This will need a custom endpoint or different approach
-        throw new Exception('Squadron endpoint not yet available in API');
+        return $this->makeRequest('GET', '/squadrons');
     }
     
     /**
@@ -205,8 +234,7 @@ class DCSServerBotAPIClient {
      * This endpoint doesn't exist in the current API
      */
     public function getServers() {
-        // This will need a custom endpoint or different approach
-        throw new Exception('Server info endpoint not yet available in API');
+        return $this->makeRequest('GET', '/servers');
     }
     
     /**

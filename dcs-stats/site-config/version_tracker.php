@@ -12,6 +12,8 @@ function getCurrentVersionInfo() {
     $info = [
         'version' => defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : 'V0.0.04',
         'branch' => 'main',
+        'commit_sha' => null,
+        'commit_date' => null,
         'updated_at' => null,
         'updated_by' => null
     ];
@@ -41,6 +43,8 @@ function getCurrentVersionInfo() {
             // Use all stored metadata
             $info['version'] = $meta['version'] ?? $info['version'];
             $info['branch'] = $meta['branch'] ?? $info['branch'];
+            $info['commit_sha'] = $meta['commit_sha'] ?? null;
+            $info['commit_date'] = $meta['commit_date'] ?? null;
             $info['updated_at'] = $meta['updated_at'] ?? null;
             $info['updated_by'] = $meta['updated_by'] ?? null;
         }
@@ -55,7 +59,7 @@ function getCurrentVersionInfo() {
     return $info;
 }
 
-function updateVersionMetadata($version = null, $branch = null, $username = null) {
+function updateVersionMetadata($version = null, $branch = null, $username = null, $commitSha = null, $commitDate = null) {
     $rootPath = dirname(__DIR__);
     $metaFile = $rootPath . '/.version_meta.json';
     
@@ -69,6 +73,12 @@ function updateVersionMetadata($version = null, $branch = null, $username = null
     if ($branch !== null) {
         $info['branch'] = $branch;
     }
+    if ($commitSha !== null) {
+        $info['commit_sha'] = $commitSha;
+    }
+    if ($commitDate !== null) {
+        $info['commit_date'] = $commitDate;
+    }
     
     $info['updated_at'] = date('Y-m-d H:i:s');
     $info['updated_by'] = $username ?? 'system';
@@ -77,6 +87,8 @@ function updateVersionMetadata($version = null, $branch = null, $username = null
     $metadata = [
         'version' => $info['version'],
         'branch' => $info['branch'],
+        'commit_sha' => $info['commit_sha'],
+        'commit_date' => $info['commit_date'],
         'updated_at' => $info['updated_at'],
         'updated_by' => $info['updated_by']
     ];
