@@ -82,12 +82,28 @@ body {
 .header-brand {
     display: flex;
     align-items: center;
+    gap: 18px;
+    min-width: 0;
 }
 
 .brand-text {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
+}
+
+.brand-text.is-hidden {
+    display: none;
+}
+
+.site-logo {
+    display: block;
+    height: var(--site_logo_height, 72px);
+    max-height: 96px;
+    max-width: min(360px, 42vw);
+    object-fit: contain;
+    width: auto;
 }
 
 .site-title {
@@ -219,6 +235,11 @@ body {
         font-size: 0.8rem;
         letter-spacing: 1.5px;
     }
+
+    .site-logo {
+        max-height: 72px;
+        max-width: min(260px, 52vw);
+    }
     
     .status-indicator {
         padding: 8px 12px;
@@ -256,6 +277,11 @@ body {
     .site-subtitle {
         font-size: 0.75rem;
         letter-spacing: 1px;
+    }
+
+    .site-logo {
+        max-height: 58px;
+        max-width: min(220px, 56vw);
     }
     
     .header-actions {

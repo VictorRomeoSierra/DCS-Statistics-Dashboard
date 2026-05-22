@@ -13,6 +13,33 @@ if (file_exists($siteConfigFile)) {
 }
 
 $siteName = $siteConfig['site_name'] ?? 'DCS Statistics';
+$headerSettingsPath = __DIR__ . '/site-config/data/header_image.json';
+$headerBranding = [
+    'branding_mode' => 'text',
+    'logo' => '',
+    'logo_height' => 72
+];
+
+if (file_exists($headerSettingsPath)) {
+    $savedHeaderSettings = json_decode(file_get_contents($headerSettingsPath), true);
+    if (is_array($savedHeaderSettings)) {
+        $headerBranding = array_merge($headerBranding, array_intersect_key($savedHeaderSettings, $headerBranding));
+    }
+}
+
+$headerBranding['branding_mode'] = in_array($headerBranding['branding_mode'], ['text', 'logo', 'both'], true) ? $headerBranding['branding_mode'] : 'text';
+$headerBranding['logo_height'] = max(32, min(96, (int)$headerBranding['logo_height']));
+$headerLogoPath = ltrim((string)$headerBranding['logo'], '/');
+
+if ($headerLogoPath === '' || !file_exists(__DIR__ . '/' . $headerLogoPath)) {
+    $headerLogoPath = '';
+    if ($headerBranding['branding_mode'] === 'logo') {
+        $headerBranding['branding_mode'] = 'text';
+    }
+}
+
+$showHeaderLogo = $headerLogoPath !== '' && in_array($headerBranding['branding_mode'], ['logo', 'both'], true);
+$showHeaderText = in_array($headerBranding['branding_mode'], ['text', 'both'], true) || !$showHeaderLogo;
 
 // Security headers for protection against common web vulnerabilities
 header("X-Content-Type-Options: nosniff");
@@ -155,9 +182,14 @@ if (file_exists($maintenanceFile)) {
     <div class="header-overlay"></div>
     <div class="header-container">
       <div class="header-brand">
-        <div class="brand-text">
+        <?php if ($showHeaderLogo): ?>
+        <img class="site-logo" src="<?php echo url($headerLogoPath); ?>" alt="<?php echo htmlspecialchars($siteName); ?> logo" style="--site_logo_height: <?php echo (int)$headerBranding['logo_height']; ?>px;" />
+        <?php endif; ?>
+        <div class="brand-text<?php echo $showHeaderText ? '' : ' is-hidden'; ?>">
+          <?php if ($showHeaderText): ?>
           <h1 class="site-title"><?php echo htmlspecialchars($siteName); ?></h1>
           <p class="site-subtitle">Combat Data & Analytics Platform</p>
+          <?php endif; ?>
         </div>
       </div>
       <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">

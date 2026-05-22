@@ -24,7 +24,10 @@ function getDefaultHeaderImageSettings() {
     return [
         'image' => 'dcs-header-image.jpg',
         'position_x' => 50,
-        'position_y' => 50
+        'position_y' => 50,
+        'branding_mode' => 'text',
+        'logo' => '',
+        'logo_height' => 72
     ];
 }
 
@@ -49,6 +52,16 @@ function loadHeaderImageSettings() {
 
     $settings['position_x'] = max(0, min(100, (int)$settings['position_x']));
     $settings['position_y'] = max(0, min(100, (int)$settings['position_y']));
+    if (!in_array($settings['branding_mode'], ['text', 'logo', 'both'], true)) {
+        $settings['branding_mode'] = 'text';
+    }
+    $settings['logo_height'] = max(32, min(96, (int)$settings['logo_height']));
+    if (!empty($settings['logo']) && !file_exists(__DIR__ . '/../' . ltrim($settings['logo'], '/'))) {
+        $settings['logo'] = '';
+        if ($settings['branding_mode'] === 'logo') {
+            $settings['branding_mode'] = 'text';
+        }
+    }
     return $settings;
 }
 
@@ -56,6 +69,10 @@ function saveHeaderImageSettings($settings) {
     $settings = array_merge(getDefaultHeaderImageSettings(), $settings);
     $settings['position_x'] = max(0, min(100, (int)$settings['position_x']));
     $settings['position_y'] = max(0, min(100, (int)$settings['position_y']));
+    if (!in_array($settings['branding_mode'], ['text', 'logo', 'both'], true)) {
+        $settings['branding_mode'] = 'text';
+    }
+    $settings['logo_height'] = max(32, min(96, (int)$settings['logo_height']));
 
     $dataDir = __DIR__ . '/data';
     if (!is_dir($dataDir)) {
@@ -65,6 +82,9 @@ function saveHeaderImageSettings($settings) {
     $imagePath = __DIR__ . '/../' . ltrim($settings['image'], '/');
     if (empty($settings['image']) || !file_exists($imagePath)) {
         $settings['image'] = getDefaultHeaderImageSettings()['image'];
+    }
+    if (!empty($settings['logo']) && !file_exists(__DIR__ . '/../' . ltrim($settings['logo'], '/'))) {
+        $settings['logo'] = '';
     }
 
     $imageUrl = str_replace(["\\", "'"], ['/', "\\'"], $settings['image']);
@@ -723,6 +743,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (isset($_POST['use_default_header_image'])) {
                     $headerSettings['image'] = getDefaultHeaderImageSettings()['image'];
                 }
+                $headerSettings['branding_mode'] = $_POST['branding_mode'] ?? 'text';
+                $headerSettings['logo_height'] = (int)($_POST['logo_height'] ?? 72);
+                if (isset($_POST['remove_header_logo'])) {
+                    $headerSettings['logo'] = '';
+                    if ($headerSettings['branding_mode'] === 'logo') {
+                        $headerSettings['branding_mode'] = 'text';
+                    }
+                }
 
                 if (!isset($_POST['use_default_header_image']) && isset($_FILES['header_image']) && $_FILES['header_image']['error'] === UPLOAD_ERR_OK) {
                     $uploadedFile = $_FILES['header_image'];
@@ -760,6 +788,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     $headerSettings['image'] = 'uploads/' . $targetName;
+                }
+
+                if (!isset($_POST['remove_header_logo']) && isset($_FILES['header_logo']) && $_FILES['header_logo']['error'] === UPLOAD_ERR_OK) {
+                    $uploadedLogo = $_FILES['header_logo'];
+                    $logoTmp = $uploadedLogo['tmp_name'];
+                    $logoSize = $uploadedLogo['size'];
+                    $logoType = mime_content_type($logoTmp);
+                    $logoExtension = strtolower(pathinfo($uploadedLogo['name'], PATHINFO_EXTENSION));
+                    $allowedLogoTypes = [
+                        'jpg' => 'image/jpeg',
+                        'jpeg' => 'image/jpeg',
+                        'png' => 'image/png',
+                        'webp' => 'image/webp',
+                        'svg' => 'image/svg+xml'
+                    ];
+
+                    if (!isset($allowedLogoTypes[$logoExtension]) || $allowedLogoTypes[$logoExtension] !== $logoType) {
+                        $error = 'Please upload a JPG, PNG, WebP, or SVG logo';
+                        break;
+                    }
+
+                    if ($logoSize > 2097152) {
+                        $error = 'Header logo must be less than 2MB';
+                        break;
+                    }
+
+                    $uploadDir = __DIR__ . '/../uploads';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+
+                    $logoTargetName = 'header-logo.' . ($logoExtension === 'jpeg' ? 'jpg' : $logoExtension);
+                    $logoTargetPath = $uploadDir . '/' . $logoTargetName;
+                    if (!move_uploaded_file($logoTmp, $logoTargetPath)) {
+                        $error = 'Failed to upload header logo';
+                        break;
+                    }
+
+                    $headerSettings['logo'] = 'uploads/' . $logoTargetName;
                 }
 
                 if (saveHeaderImageSettings($headerSettings)) {
@@ -844,6 +911,7 @@ $themeOptions = loadThemeOptionsFile($customCSS);
 $chartColors = loadChartTheme();
 $headerImageSettings = loadHeaderImageSettings();
 $headerPreviewImage = '../' . ltrim($headerImageSettings['image'], '/');
+$headerLogoPreview = !empty($headerImageSettings['logo']) ? '../' . ltrim($headerImageSettings['logo'], '/') : '';
 
 // Page title
 $pageTitle = 'Theme Management';
@@ -974,6 +1042,32 @@ $pageTitle = 'Theme Management';
             color: #fff;
             font-weight: 700;
             padding: 8px 12px;
+        }
+
+        .header-logo-preview {
+            align-items: center;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            gap: 16px;
+            margin: 20px 0;
+            max-width: 720px;
+            min-height: 108px;
+            padding: 16px;
+        }
+
+        .header-logo-preview img {
+            height: var(--preview_logo_height, 72px);
+            max-height: 96px;
+            max-width: 320px;
+            object-fit: contain;
+            width: auto;
+        }
+
+        .header-logo-placeholder {
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .header-position-controls {
@@ -1303,6 +1397,48 @@ $pageTitle = 'Theme Management';
                                 </label>
                             </div>
 
+                            <fieldset class="color-fieldset">
+                                <legend>Header Branding</legend>
+                                <p style="font-size: 0.9em; color: var(--text-muted); margin-top: 0;">
+                                    Recommended logo size: transparent PNG/WebP/SVG around 360 x 96 pixels. Keep it under 2MB so the header stays the same height.
+                                </p>
+
+                                <div class="color-inputs">
+                                    <div class="color-input-group">
+                                        <label for="branding_mode">Header Branding:</label>
+                                        <select id="branding_mode" name="branding_mode" class="form-control">
+                                            <option value="text" <?= $headerImageSettings['branding_mode'] === 'text' ? 'selected' : '' ?>>Text Only</option>
+                                            <option value="both" <?= $headerImageSettings['branding_mode'] === 'both' ? 'selected' : '' ?>>Logo and Text</option>
+                                            <option value="logo" <?= $headerImageSettings['branding_mode'] === 'logo' ? 'selected' : '' ?>>Logo Only</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="color-input-group">
+                                        <label for="logo_height">Logo Height:</label>
+                                        <input type="range" id="logo_height" name="logo_height" min="32" max="96" value="<?= (int)$headerImageSettings['logo_height'] ?>">
+                                    </div>
+                                </div>
+
+                                <div class="header-logo-preview" style="--preview_logo_height: <?= (int)$headerImageSettings['logo_height'] ?>px;">
+                                    <?php if ($headerLogoPreview): ?>
+                                        <img src="<?= htmlspecialchars($headerLogoPreview) ?>" alt="Header logo preview">
+                                    <?php else: ?>
+                                        <span class="header-logo-placeholder">No logo uploaded</span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="file-input-wrapper">
+                                    <input type="file" name="header_logo" id="header_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
+                                    <label for="header_logo" class="file-input-button">Choose Header Logo</label>
+                                </div>
+                                <span id="header-logo-file-name" style="margin-left: 10px;">No new logo selected</span>
+
+                                <div class="color-input-group" style="margin-top: 18px; max-width: 420px;">
+                                    <label for="remove_header_logo">Remove Header Logo:</label>
+                                    <input type="checkbox" id="remove_header_logo" name="remove_header_logo">
+                                </div>
+                            </fieldset>
+
                             <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Update Header Image</button>
                         </form>
                     </div>
@@ -1626,6 +1762,10 @@ $pageTitle = 'Theme Management';
         const positionY = document.getElementById('position_y');
         const useDefaultHeaderImage = document.getElementById('use_default_header_image');
         const defaultHeaderImageUrl = '../dcs-header-image.jpg';
+        const headerLogoInput = document.getElementById('header_logo');
+        const headerLogoPreview = document.querySelector('.header-logo-preview');
+        const logoHeight = document.getElementById('logo_height');
+        const removeHeaderLogo = document.getElementById('remove_header_logo');
 
         function updateHeaderImagePreview() {
             if (!headerImagePreview || !positionX || !positionY) return;
@@ -1668,6 +1808,33 @@ $pageTitle = 'Theme Management';
                 input.addEventListener('input', updateHeaderImagePreview);
             }
         });
+
+        if (headerLogoInput) {
+            headerLogoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                document.getElementById('header-logo-file-name').textContent = file?.name || 'No new logo selected';
+                if (file && headerLogoPreview) {
+                    if (removeHeaderLogo) removeHeaderLogo.checked = false;
+                    headerLogoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Header logo preview">`;
+                }
+            });
+        }
+
+        if (logoHeight && headerLogoPreview) {
+            logoHeight.addEventListener('input', function() {
+                headerLogoPreview.style.setProperty('--preview_logo_height', `${this.value}px`);
+            });
+        }
+
+        if (removeHeaderLogo && headerLogoPreview) {
+            removeHeaderLogo.addEventListener('change', function() {
+                if (this.checked) {
+                    headerLogoPreview.innerHTML = '<span class="header-logo-placeholder">Logo will be removed</span>';
+                    document.getElementById('header-logo-file-name').textContent = 'No new logo selected';
+                    if (headerLogoInput) headerLogoInput.value = '';
+                }
+            });
+        }
         
         
         // Debounce function to prevent too many updates
