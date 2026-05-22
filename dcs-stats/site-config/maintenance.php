@@ -25,27 +25,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = ERROR_MESSAGES['csrf_invalid'];
         $messageType = 'error';
     } else {
-        // Update maintenance mode
-        $maintenance['enabled'] = isset($_POST['enabled']);
+        $action = $_POST['action'] ?? 'update';
+        $maintenance['ip_whitelist'] = $maintenance['ip_whitelist'] ?? [];
 
-        // Add IP to whitelist if provided
-        $ip = trim($_POST['ip_address'] ?? '');
-        if ($ip !== '') {
-            if (filter_var($ip, FILTER_VALIDATE_IP)) {
-                if (!in_array($ip, $maintenance['ip_whitelist'])) {
-                    $maintenance['ip_whitelist'][] = $ip;
-                }
-            } else {
-                $message = 'Invalid IP address';
+        if ($action === 'remove_ip') {
+            $ipToRemove = trim($_POST['ip'] ?? '');
+            $originalCount = count($maintenance['ip_whitelist']);
+            $maintenance['ip_whitelist'] = array_values(array_filter(
+                $maintenance['ip_whitelist'],
+                static fn($ip) => $ip !== $ipToRemove
+            ));
+
+            if ($ipToRemove === '' || count($maintenance['ip_whitelist']) === $originalCount) {
+                $message = 'IP address was not found in the whitelist';
                 $messageType = 'error';
+            } else {
+                saveMaintenanceConfig($maintenance);
+                logAdminActivity('MAINTENANCE_IP_REMOVE', $_SESSION['admin_id'], 'settings', 'maintenance', ['ip' => $ipToRemove]);
+                $message = 'IP address removed from whitelist';
+                $messageType = 'success';
             }
-        }
+        } else {
+            // Update maintenance mode
+            $maintenance['enabled'] = isset($_POST['enabled']);
 
-        if ($messageType !== 'error') {
-            saveMaintenanceConfig($maintenance);
-            logAdminActivity('MAINTENANCE_UPDATE', $_SESSION['admin_id'], 'settings', 'maintenance', $maintenance);
-            $message = 'Maintenance settings updated';
-            $messageType = 'success';
+            // Add IP to whitelist if provided
+            $ip = trim($_POST['ip_address'] ?? '');
+            if ($ip !== '') {
+                if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                    if (!in_array($ip, $maintenance['ip_whitelist'])) {
+                        $maintenance['ip_whitelist'][] = $ip;
+                    }
+                } else {
+                    $message = 'Invalid IP address';
+                    $messageType = 'error';
+                }
+            }
+
+            if ($messageType !== 'error') {
+                saveMaintenanceConfig($maintenance);
+                logAdminActivity('MAINTENANCE_UPDATE', $_SESSION['admin_id'], 'settings', 'maintenance', $maintenance);
+                $message = 'Maintenance settings updated';
+                $messageType = 'success';
+            }
         }
     }
 }
@@ -83,6 +105,7 @@ $currentIP = $_SERVER['REMOTE_ADDR'] ?? '';
             <?php endif; ?>
             <form method="POST">
                 <?= csrfField() ?>
+                <input type="hidden" name="action" value="update">
                 <div class="form-group">
                     <label>
                         <input type="checkbox" name="enabled" <?= $maintenance['enabled'] ? 'checked' : '' ?>>
@@ -106,9 +129,17 @@ $currentIP = $_SERVER['REMOTE_ADDR'] ?? '';
                         <h2 class="card-title">Current Whitelist</h2>
                     </div>
                     <div class="card-content">
-                        <ul>
+                        <ul class="maintenance-whitelist">
                             <?php foreach ($maintenance['ip_whitelist'] as $ip): ?>
-                                <li><?= e($ip) ?></li>
+                                <li class="maintenance-whitelist-item">
+                                    <span><?= e($ip) ?></span>
+                                    <form method="POST" class="maintenance-whitelist-remove">
+                                        <?= csrfField() ?>
+                                        <input type="hidden" name="action" value="remove_ip">
+                                        <input type="hidden" name="ip" value="<?= e($ip) ?>">
+                                        <button type="submit" class="btn btn-danger btn-small">Remove</button>
+                                    </form>
+                                </li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
@@ -122,5 +153,24 @@ function autofillIP() {
     document.getElementById('ip_address').value = '<?= $currentIP ?>';
 }
 </script>
+<style>
+.maintenance-whitelist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.maintenance-whitelist-item {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.maintenance-whitelist-remove {
+    margin: 0;
+}
+</style>
 </body>
 </html>
