@@ -171,6 +171,12 @@ class DCSStatsAPI {
         return this.makeAPICall(endpoint, options);
     }
 
+    async getRefreshIntervalMs() {
+        const config = await this.loadConfig();
+        const seconds = Number(config.refresh_interval || 300);
+        return Math.max(seconds, 60) * 1000;
+    }
+
     async getLeaderboard() {
         const config = await this.loadConfig();
         

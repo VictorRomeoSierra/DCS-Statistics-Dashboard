@@ -15,6 +15,7 @@ function getDefaultApiConfig($apiHost = '') {
         'api_key' => null,
         'timeout' => 30,
         'cache_ttl' => 300,
+        'refresh_interval' => 300,
         
         // Feature flags
         'use_api' => true, // Always use API
@@ -93,7 +94,7 @@ function validateAndFixApiConfig($config) {
     }
     
     // Fix missing required fields
-    $requiredFields = ['timeout', 'cache_ttl', 'use_api'];
+    $requiredFields = ['timeout', 'cache_ttl', 'refresh_interval', 'use_api'];
     foreach ($requiredFields as $field) {
         if (!isset($config[$field])) {
             $config[$field] = $default[$field];
@@ -150,6 +151,12 @@ function validateAndFixApiConfig($config) {
     if (!is_int($config['cache_ttl']) || $config['cache_ttl'] < 0) {
         $config['cache_ttl'] = 300;
         $changes[] = 'Fixed invalid cache_ttl value';
+        $fixed = true;
+    }
+
+    if (!is_int($config['refresh_interval']) || $config['refresh_interval'] < 60) {
+        $config['refresh_interval'] = 300;
+        $changes[] = 'Fixed invalid refresh_interval value';
         $fixed = true;
     }
     

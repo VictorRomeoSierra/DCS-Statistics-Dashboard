@@ -24,5 +24,6 @@ echo json_encode([
     'api_base_url' => $config['api_base_url'] ?? '',
     'use_api' => true, // Always true
     'timeout' => $config['timeout'] ?? 30,
-    'cache_ttl' => $config['cache_ttl'] ?? 300
+    'cache_ttl' => $config['cache_ttl'] ?? 300,
+    'refresh_interval' => $config['refresh_interval'] ?? 300
 ]);

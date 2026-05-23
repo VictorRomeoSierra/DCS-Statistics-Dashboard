@@ -93,6 +93,7 @@ function cleanSiteConfigForImport($config) {
 
     $allowedKeys = [
         'site_name',
+        'default_language',
         'discord_invite_url',
         'theme',
         'allow_player_search',

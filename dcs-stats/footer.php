@@ -1,21 +1,22 @@
 <?php
 require_once __DIR__ . '/site_metadata.php';
+require_once __DIR__ . '/language.php';
 $footerMetadata = loadSiteMetadata();
 ?>
 <footer>
   <p>
     &copy; 2025 DCS Statistics Dashboard |
-    <button type="button" class="credits-link" id="openCredits">Credits</button>
+    <button type="button" class="credits-link" id="openCredits"><?php echo htmlspecialchars(dcs_t('footer.credits')); ?></button>
     <?php if (!empty($footerMetadata['show_privacy_link'])): ?>
-      | <a class="footer-privacy-link" href="<?php echo url('privacy.php'); ?>">Privacy</a>
+      | <a class="footer-privacy-link" href="<?php echo url('privacy.php'); ?>"><?php echo htmlspecialchars(dcs_t('footer.privacy')); ?></a>
     <?php endif; ?>
   </p>
 </footer>
 
 <div class="credits-modal" id="creditsModal" aria-hidden="true">
   <div class="credits-box" role="dialog" aria-modal="true" aria-labelledby="creditsTitle">
-    <button type="button" class="credits-close" id="closeCredits" aria-label="Close credits">&times;</button>
-    <h2 id="creditsTitle">Credits</h2>
+    <button type="button" class="credits-close" id="closeCredits" aria-label="<?php echo htmlspecialchars(dcs_t('footer.close_credits')); ?>">&times;</button>
+    <h2 id="creditsTitle"><?php echo htmlspecialchars(dcs_t('footer.credits')); ?></h2>
     <div class="credits-list">
       <a href="https://skypirates.uk" target="_blank" rel="noopener noreferrer">VFS-252 Sky Pirates</a>
       <a href="https://503rdblacksheep.com" target="_blank" rel="noopener noreferrer">{503rd} Blacksheep</a>

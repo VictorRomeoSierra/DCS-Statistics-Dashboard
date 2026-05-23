@@ -2,6 +2,7 @@
 // Include path configuration
 require_once __DIR__ . '/config_path.php';
 require_once __DIR__ . '/site_metadata.php';
+require_once __DIR__ . '/language.php';
 
 // Load site configuration
 $siteConfig = [];
@@ -130,7 +131,7 @@ if (file_exists($maintenanceFile)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars(dcs_default_language(), ENT_QUOTES); ?>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -201,7 +202,7 @@ if (file_exists($maintenanceFile)) {
         <div class="brand-text<?php echo $showHeaderText ? '' : ' is-hidden'; ?>">
           <?php if ($showHeaderText): ?>
           <h1 class="site-title"><?php echo htmlspecialchars($siteName); ?></h1>
-          <p class="site-subtitle">Combat Data & Analytics Platform</p>
+          <p class="site-subtitle"><?php echo htmlspecialchars(dcs_t('site.subtitle')); ?></p>
           <?php endif; ?>
         </div>
       </div>

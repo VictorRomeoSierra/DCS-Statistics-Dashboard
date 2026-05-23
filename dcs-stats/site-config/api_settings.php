@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $apiHost = trim($_POST['api_host'] ?? '');
                     $timeout = intval($_POST['timeout'] ?? 30);
                     $cacheTtl = intval($_POST['cache_ttl'] ?? 300);
+                    $refreshInterval = intval($_POST['refresh_interval'] ?? 300);
                     $useApi = isset($_POST['use_api']);
                     
                     // Use helper to create complete config
@@ -58,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $apiConfig = $saveResult['config'];
                         $apiConfig['timeout'] = $timeout;
                         $apiConfig['cache_ttl'] = $cacheTtl;
+                        $apiConfig['refresh_interval'] = in_array($refreshInterval, [300, 600, 1800, 3600], true) ? $refreshInterval : 300;
                         $apiConfig['use_api'] = $useApi;
                         
                         // Save again with all settings
@@ -156,7 +158,8 @@ $pageTitle = 'API Settings';
         }
         
         .form-group input[type="text"],
-        .form-group input[type="number"] {
+        .form-group input[type="number"],
+        .form-group select {
             width: 100%;
             padding: 10px;
             background-color: var(--bg-tertiary);
@@ -167,7 +170,8 @@ $pageTitle = 'API Settings';
         }
         
         .form-group input[type="text"]:focus,
-        .form-group input[type="number"]:focus {
+        .form-group input[type="number"]:focus,
+        .form-group select:focus {
             border-color: var(--accent-primary);
             outline: none;
         }
@@ -309,6 +313,18 @@ $pageTitle = 'API Settings';
                         </div>
                         
                         <div class="form-group">
+                            <label for="refresh_interval">Dashboard Refresh Rate</label>
+                            <?php $refreshInterval = (int)($apiConfig['refresh_interval'] ?? 300); ?>
+                            <select id="refresh_interval" name="refresh_interval">
+                                <option value="300" <?= $refreshInterval === 300 ? 'selected' : '' ?>>5 minutes</option>
+                                <option value="600" <?= $refreshInterval === 600 ? 'selected' : '' ?>>10 minutes</option>
+                                <option value="1800" <?= $refreshInterval === 1800 ? 'selected' : '' ?>>30 minutes</option>
+                                <option value="3600" <?= $refreshInterval === 3600 ? 'selected' : '' ?>>1 hour</option>
+                            </select>
+                            <div class="help-text">How often live dashboard pages automatically refresh API data. Default for new installs is 5 minutes.</div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="cache_ttl">Cache TTL (seconds)</label>
                             <input type="number" 
                                    id="cache_ttl" 
@@ -316,7 +332,7 @@ $pageTitle = 'API Settings';
                                    value="<?= $apiConfig['cache_ttl'] ?>"
                                    min="0" 
                                    max="3600">
-                            <div class="help-text">How long to cache API responses (0 to disable caching)</div>
+                            <div class="help-text">Advanced: how long API responses may be cached where caching is used. Existing default is 300 seconds.</div>
                         </div>
                         
                         <div class="checkbox-group">
@@ -332,6 +348,7 @@ $pageTitle = 'API Settings';
                         <div class="button-group">
                             <button type="submit" class="btn btn-primary">Save Configuration</button>
                             <button type="submit" class="btn btn-secondary" name="action" value="test">Test Connection</button>
+                            <a href="api_health.php" class="btn btn-secondary">API Health / Debug</a>
                         </div>
                     </form>
                 </div>

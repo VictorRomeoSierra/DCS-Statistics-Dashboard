@@ -449,6 +449,7 @@ if ($is_cli) {
 // Create site configuration
 $siteConfig = [
     'site_name' => $site_name ?? 'DCS Statistics',
+    'default_language' => 'en',
     'discord_invite_url' => $discord_url ?? '',
     'theme' => 'dark',
     'maintenance_mode' => false,

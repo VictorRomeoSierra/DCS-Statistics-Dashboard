@@ -1,6 +1,7 @@
 <?php
 // Include site features configuration
 require_once __DIR__ . '/site_features.php';
+require_once __DIR__ . '/language.php';
 // Include path configuration if not already included
 if (!defined('BASE_PATH')) {
     require_once __DIR__ . '/config_path.php';
@@ -43,12 +44,12 @@ function getMenuConfigPath() {
 // Load menu configuration
 $menuConfigFile = getMenuConfigPath();
 $defaultMenuItems = [
-    ['name' => 'Home', 'url' => 'index.php', 'enabled' => true],
-    ['name' => 'Leaderboard', 'url' => 'leaderboard.php', 'enabled' => true],
-    ['name' => 'Pilot Statistics', 'url' => 'pilot_statistics.php', 'enabled' => true],
-    ['name' => 'Pilot Credits', 'url' => 'pilot_credits.php', 'enabled' => true],
-    ['name' => 'Squadrons', 'url' => 'squadrons.php', 'enabled' => true],
-    ['name' => 'Servers', 'url' => 'servers.php', 'enabled' => true]
+    ['name' => 'Home', 'url' => 'index.php', 'enabled' => true, 'label_key' => 'nav.home'],
+    ['name' => 'Leaderboard', 'url' => 'leaderboard.php', 'enabled' => true, 'label_key' => 'nav.leaderboard'],
+    ['name' => 'Pilot Statistics', 'url' => 'pilot_statistics.php', 'enabled' => true, 'label_key' => 'nav.pilot_statistics'],
+    ['name' => 'Pilot Credits', 'url' => 'pilot_credits.php', 'enabled' => true, 'label_key' => 'nav.pilot_credits'],
+    ['name' => 'Squadrons', 'url' => 'squadrons.php', 'enabled' => true, 'label_key' => 'nav.squadrons'],
+    ['name' => 'Servers', 'url' => 'servers.php', 'enabled' => true, 'label_key' => 'nav.servers']
 ];
 
 $menuItems = $defaultMenuItems;
@@ -98,13 +99,36 @@ $customLinks = array_values(array_filter($customLinks, function($link) {
 }));
 $customLinksMenuText = trim((string)getFeatureValue('custom_links_menu_text', 'Squadron Links'));
 if ($customLinksMenuText === '') {
-    $customLinksMenuText = 'Squadron Links';
+    $customLinksMenuText = dcs_t('nav.squadron_links');
+}
+
+function dcs_nav_label($item) {
+    $knownLabels = [
+        'index.php' => ['Home', 'nav.home'],
+        'leaderboard.php' => ['Leaderboard', 'nav.leaderboard'],
+        'pilot_statistics.php' => ['Pilot Statistics', 'nav.pilot_statistics'],
+        'pilot_credits.php' => ['Pilot Credits', 'nav.pilot_credits'],
+        'squadrons.php' => ['Squadrons', 'nav.squadrons'],
+        'servers.php' => ['Servers', 'nav.servers']
+    ];
+
+    if (!empty($item['label_key'])) {
+        return dcs_t($item['label_key']);
+    }
+
+    $url = $item['url'] ?? '';
+    $name = $item['name'] ?? '';
+    if (isset($knownLabels[$url]) && $name === $knownLabels[$url][0]) {
+        return dcs_t($knownLabels[$url][1]);
+    }
+
+    return $name;
 }
 ?>
 <nav class="nav-bar" id="navBar">
   <div class="mobile-menu-header">
-    <span class="mobile-menu-title">Navigation</span>
-    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close navigation menu">
+    <span class="mobile-menu-title"><?= htmlspecialchars(dcs_t('nav.mobile_title')) ?></span>
+    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="<?= htmlspecialchars(dcs_t('nav.close')) ?>">
       <span>&times;</span>
     </button>
   </div>
@@ -139,9 +163,9 @@ if ($customLinksMenuText === '') {
         ?>
         <?php if ($showItem): ?>
           <?php if (in_array($itemType, ['discord', 'squadron_homepage'])): ?>
-            <li><a class="nav-link" href="<?= htmlspecialchars($item['url']) ?>"><?= htmlspecialchars($item['name']) ?></a></li>
+            <li><a class="nav-link" href="<?= htmlspecialchars($item['url']) ?>"><?= htmlspecialchars(dcs_nav_label($item)) ?></a></li>
           <?php else: ?>
-            <li><a class="nav-link" href="<?php echo url($item['url']); ?>"><?= htmlspecialchars($item['name']) ?></a></li>
+            <li><a class="nav-link" href="<?php echo url($item['url']); ?>"><?= htmlspecialchars(dcs_nav_label($item)) ?></a></li>
           <?php endif; ?>
         <?php endif; ?>
       <?php endif; ?>
@@ -174,7 +198,7 @@ if ($customLinksMenuText === '') {
     // Check if user is logged in as admin
     if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in']): 
     ?>
-      <li><a class="nav-link" href="<?php echo url('site-config/'); ?>">Site Config</a></li>
+      <li><a class="nav-link" href="<?php echo url('site-config/'); ?>"><?= htmlspecialchars(dcs_t('nav.site_config')) ?></a></li>
     <?php endif; ?>
   </ul>
 </nav>

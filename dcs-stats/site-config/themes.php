@@ -604,6 +604,54 @@ nav a:hover,
     color: var(--nav_hover_color) !important;
 }
 
+.nav-bar,
+.mobile-menu-header {
+    background: var(--nav_background_color) !important;
+}
+
+.mobile-menu-toggle {
+    background: color-mix(in srgb, var(--nav_background_color) 84%, transparent) !important;
+    border-color: color-mix(in srgb, var(--nav_hover_color) 35%, transparent) !important;
+}
+
+.hamburger-line {
+    background-color: var(--nav_text_color) !important;
+}
+
+.mobile-menu-header {
+    border-bottom-color: var(--nav_hover_color) !important;
+}
+
+.mobile-menu-title,
+.mobile-menu-close,
+.nav-link,
+.nav-dropdown-button,
+.nav-dropdown-caret {
+    color: var(--nav_text_color) !important;
+}
+
+.mobile-menu-close:hover,
+.nav-link:hover,
+.nav-link:focus,
+.nav-link:active,
+.public-nav-dropdown.open > .nav-dropdown-button {
+    background: color-mix(in srgb, var(--nav_hover_color) 18%, transparent) !important;
+    color: var(--nav_hover_color) !important;
+}
+
+.nav-menu li {
+    border-bottom-color: color-mix(in srgb, var(--nav_text_color) 12%, transparent) !important;
+}
+
+.public-nav-dropdown-menu {
+    background: color-mix(in srgb, var(--nav_background_color) 88%, #000 12%) !important;
+    border-color: color-mix(in srgb, var(--nav_hover_color) 24%, transparent) !important;
+}
+
+.mobile-menu-overlay {
+    background: color-mix(in srgb, var(--background_color) 72%, #000 28%) !important;
+}
+
 .stat-card,
 .stats-card,
 .squadron-card,
@@ -922,6 +970,25 @@ table,
     background-color: var(--table_row_color) !important;
     color: var(--table_text_color) !important;
     border-color: var(--border_color) !important;
+}
+
+.mobile-card {
+    background: linear-gradient(135deg, var(--card_color) 0%, var(--card_alt_color) 100%) !important;
+    border-color: color-mix(in srgb, var(--accent_color) 32%, transparent) !important;
+    color: var(--card_text_color) !important;
+}
+
+.mobile-card:active {
+    background: color-mix(in srgb, var(--accent_color) 12%, var(--card_alt_color)) !important;
+}
+
+.leaderboard-card-name,
+.leaderboard-card-stat {
+    color: var(--card_text_color) !important;
+}
+
+.leaderboard-card-stat span {
+    color: var(--card_muted_text_color) !important;
 }
 
 th,

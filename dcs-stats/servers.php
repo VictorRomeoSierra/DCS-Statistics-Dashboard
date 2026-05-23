@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include 'header.php';
 require_once __DIR__ . '/site_features.php';
+require_once __DIR__ . '/language.php';
 include 'nav.php';
 
 $siteFeatures = loadSiteFeatures();
@@ -19,8 +20,8 @@ if (!isFeatureEnabled('nav_servers')):
 ?>
 <main>
     <div class="alert" style="text-align: center; padding: 50px;">
-        <h2>Server Status Disabled</h2>
-        <p>The server status page is currently disabled.</p>
+        <h2><?php echo htmlspecialchars(dcs_t('servers.disabled_title')); ?></h2>
+        <p><?php echo htmlspecialchars(dcs_t('servers.disabled_message')); ?></p>
     </div>
 </main>
 <?php include 'footer.php'; exit; ?>
@@ -28,12 +29,12 @@ if (!isFeatureEnabled('nav_servers')):
 
 <main>
     <div class="dashboard-header">
-        <h1>Server Status</h1>
-        <p class="dashboard-subtitle">Live DCS server information and player counts</p>
+        <h1><?php echo htmlspecialchars(dcs_t('servers.title')); ?></h1>
+        <p class="dashboard-subtitle"><?php echo htmlspecialchars(dcs_t('servers.subtitle')); ?></p>
     </div>
     
     <div id="servers-loading" style="text-align: center; padding: 50px;">
-        <p>Loading server information...</p>
+        <p><?php echo htmlspecialchars(dcs_t('servers.loading')); ?></p>
     </div>
     
     <div id="servers-container" style="display: none;">
@@ -45,12 +46,34 @@ if (!isFeatureEnabled('nav_servers')):
     </div>
     
     <div id="no-servers" style="display: none; text-align: center; padding: 50px;">
-        <p>No server information available.</p>
+        <p><?php echo htmlspecialchars(dcs_t('servers.no_info')); ?></p>
     </div>
 </main>
 
 <script>
 const serverCardVisibility = <?php echo json_encode($serverCardVisibility); ?>;
+const i18n = <?php echo json_encode([
+    'unknownServer' => dcs_t('servers.unknown_server'),
+    'unknown' => dcs_t('servers.unknown'),
+    'notAvailable' => dcs_t('servers.not_available'),
+    'noWeather' => dcs_t('servers.no_weather'),
+    'noExtensions' => dcs_t('servers.no_extensions'),
+    'noPlayers' => dcs_t('servers.no_players'),
+    'extension' => dcs_t('servers.extension'),
+    'wind' => dcs_t('servers.wind'),
+    'degrees' => dcs_t('servers.degrees'),
+    'cloudBase' => dcs_t('servers.cloud_base'),
+    'slotsUsed' => dcs_t('servers.slots_used'),
+    'blueShort' => dcs_t('servers.blue_short'),
+    'redShort' => dcs_t('servers.red_short'),
+    'mission' => dcs_t('servers.mission'),
+    'theatre' => dcs_t('servers.theatre'),
+    'slots' => dcs_t('servers.slots'),
+    'restart' => dcs_t('servers.restart'),
+    'weather' => dcs_t('servers.weather'),
+    'extensions' => dcs_t('servers.extensions'),
+    'activePlayers' => dcs_t('servers.active_players')
+], JSON_UNESCAPED_UNICODE); ?>;
 
 function getServerCardFeatureKey(serverName) {
     let slug = String(serverName || 'unknown_server')
@@ -106,16 +129,16 @@ async function loadServers() {
             visibleServerCount++;
 
             // Extract mission data if available
-            let missionName = 'N/A';
-            let theatre = 'N/A';
-            let playerCount = 'N/A';
-            let uptime = 'N/A';
-            let slotSummary = 'N/A';
+            let missionName = i18n.notAvailable;
+            let theatre = i18n.notAvailable;
+            let playerCount = i18n.notAvailable;
+            let uptime = i18n.notAvailable;
+            let slotSummary = i18n.notAvailable;
             let activeSlotCount = 0;
             
             if (server.mission) {
-                missionName = server.mission.name || 'N/A';
-                theatre = server.mission.theatre || 'N/A';
+                missionName = server.mission.name || i18n.notAvailable;
+                theatre = server.mission.theatre || i18n.notAvailable;
                 
                 // Calculate player counts
                 const blueUsed = server.mission.blue_slots_used || 0;
@@ -126,8 +149,8 @@ async function loadServers() {
                 const totalSlots = blueTotal + redTotal;
                 activeSlotCount = totalUsed;
                 
-                playerCount = `${totalUsed}/${totalSlots} (B:${blueUsed}/${blueTotal} R:${redUsed}/${redTotal})`;
-                slotSummary = `${totalUsed}/${totalSlots} slots used`;
+                playerCount = `${totalUsed}/${totalSlots} (${i18n.blueShort}:${blueUsed}/${blueTotal} ${i18n.redShort}:${redUsed}/${redTotal})`;
+                slotSummary = `${totalUsed}/${totalSlots} ${i18n.slotsUsed}`;
                 
                 // Format uptime
                 if (server.mission.uptime !== undefined) {
@@ -163,20 +186,20 @@ async function loadServers() {
 }
 
 function formatWeather(weather) {
-    if (!weather) return 'No weather data';
+    if (!weather) return i18n.noWeather;
     const parts = [];
     if (weather.temperature !== undefined && weather.temperature !== null) parts.push(`${weather.temperature}C`);
-    if (weather.wind_speed !== undefined && weather.wind_speed !== null) parts.push(`${Number(weather.wind_speed).toFixed(1)} m/s wind`);
-    if (weather.wind_direction !== undefined && weather.wind_direction !== null) parts.push(`${weather.wind_direction} deg`);
-    if (weather.clouds_base !== undefined && weather.clouds_base !== null) parts.push(`cloud base ${weather.clouds_base}m`);
-    return parts.length ? parts.join(' | ') : 'No weather data';
+    if (weather.wind_speed !== undefined && weather.wind_speed !== null) parts.push(`${Number(weather.wind_speed).toFixed(1)} m/s ${i18n.wind}`);
+    if (weather.wind_direction !== undefined && weather.wind_direction !== null) parts.push(`${weather.wind_direction} ${i18n.degrees}`);
+    if (weather.clouds_base !== undefined && weather.clouds_base !== null) parts.push(`${i18n.cloudBase} ${weather.clouds_base}m`);
+    return parts.length ? parts.join(' | ') : i18n.noWeather;
 }
 
 function formatExtensions(extensions) {
-    if (!Array.isArray(extensions) || extensions.length === 0) return '<span class="muted">No extension data</span>';
+    if (!Array.isArray(extensions) || extensions.length === 0) return `<span class="muted">${escapeHtml(i18n.noExtensions)}</span>`;
     return extensions.map(ext => `
         <div class="detail-list-item">
-            <strong>${escapeHtml(ext.name || 'Extension')}</strong>
+            <strong>${escapeHtml(ext.name || i18n.extension)}</strong>
             <span>${escapeHtml(ext.version || '')}</span>
             <small>${escapeHtml(ext.value || '')}</small>
         </div>
@@ -184,10 +207,10 @@ function formatExtensions(extensions) {
 }
 
 function formatPlayers(players) {
-    if (!Array.isArray(players) || players.length === 0) return '<span class="muted">No active players</span>';
+    if (!Array.isArray(players) || players.length === 0) return `<span class="muted">${escapeHtml(i18n.noPlayers)}</span>`;
     return players.slice(0, 8).map(player => `
         <div class="detail-list-item compact">
-            <strong>${escapeHtml(player.name || player.nick || 'Unknown')}</strong>
+            <strong>${escapeHtml(player.name || player.nick || i18n.unknown)}</strong>
             <span>${escapeHtml(player.side || player.coalition || '')}</span>
         </div>
     `).join('');
@@ -211,14 +234,14 @@ function createServerDetailCard(server, summary) {
     const weather = formatWeather(server.weather);
     const extensions = formatExtensions(server.extensions);
     const players = formatPlayers(getActivePlayersForDisplay(server, summary));
-    const restart = server.restart_time ? new Date(server.restart_time).toLocaleString() : 'N/A';
-    const status = server.status || 'Unknown';
+    const restart = server.restart_time ? new Date(server.restart_time).toLocaleString() : i18n.notAvailable;
+    const status = server.status || i18n.unknown;
     const statusClass = `detail-status status-${String(status).toLowerCase()}`;
 
     card.innerHTML = `
         <div class="server-detail-header">
             <div>
-                <h3>${escapeHtml(server.name || 'Unknown Server')}</h3>
+                <h3>${escapeHtml(server.name || i18n.unknownServer)}</h3>
                 <?php if (isFeatureEnabled('server_detail_description')): ?>
                 <p>${escapeHtml(server.description || '')}</p>
                 <?php endif; ?>
@@ -230,14 +253,14 @@ function createServerDetailCard(server, summary) {
         <?php if (isFeatureEnabled('server_detail_mission') || isFeatureEnabled('server_detail_slots') || isFeatureEnabled('server_detail_restart')): ?>
         <div class="detail-metrics">
             <?php if (isFeatureEnabled('server_detail_mission')): ?>
-            <div class="mission-metric"><span>Mission</span><strong>${escapeHtml(summary.missionName)}</strong></div>
-            <div><span>Theatre</span><strong>${escapeHtml(summary.theatre)}</strong></div>
+            <div class="mission-metric"><span>${escapeHtml(i18n.mission)}</span><strong>${escapeHtml(summary.missionName)}</strong></div>
+            <div><span>${escapeHtml(i18n.theatre)}</span><strong>${escapeHtml(summary.theatre)}</strong></div>
             <?php endif; ?>
             <?php if (isFeatureEnabled('server_detail_slots')): ?>
-            <div><span>Slots</span><strong>${escapeHtml(summary.slotSummary)}</strong></div>
+            <div><span>${escapeHtml(i18n.slots)}</span><strong>${escapeHtml(summary.slotSummary)}</strong></div>
             <?php endif; ?>
             <?php if (isFeatureEnabled('server_detail_restart')): ?>
-            <div><span>Restart</span><strong>${escapeHtml(restart)}</strong></div>
+            <div><span>${escapeHtml(i18n.restart)}</span><strong>${escapeHtml(restart)}</strong></div>
             <?php endif; ?>
         </div>
         <?php endif; ?>
@@ -245,19 +268,19 @@ function createServerDetailCard(server, summary) {
         <div class="detail-split">
             <?php if (isFeatureEnabled('server_detail_weather')): ?>
             <section>
-                <h4>Weather</h4>
+                <h4>${escapeHtml(i18n.weather)}</h4>
                 <p>${escapeHtml(weather)}</p>
             </section>
             <?php endif; ?>
             <?php if (isFeatureEnabled('server_detail_extensions')): ?>
             <section>
-                <h4>Extensions</h4>
+                <h4>${escapeHtml(i18n.extensions)}</h4>
                 ${extensions}
             </section>
             <?php endif; ?>
             <?php if (isFeatureEnabled('server_detail_active_players')): ?>
             <section>
-                <h4>Active Players</h4>
+                <h4>${escapeHtml(i18n.activePlayers)}</h4>
                 ${players}
             </section>
             <?php endif; ?>
@@ -268,11 +291,12 @@ function createServerDetailCard(server, summary) {
     return card;
 }
 
-// Load servers on page load
-document.addEventListener('DOMContentLoaded', loadServers);
-
-// Refresh every 30 seconds
-setInterval(loadServers, 30000);
+// Load servers on page load and refresh using the configured API interval
+document.addEventListener('DOMContentLoaded', async () => {
+    loadServers();
+    const refreshMs = window.dcsAPI ? await window.dcsAPI.getRefreshIntervalMs() : 600000;
+    setInterval(loadServers, refreshMs);
+});
 </script>
 
 <style>

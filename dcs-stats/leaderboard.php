@@ -7,6 +7,7 @@ include "header.php";
 require_once __DIR__ . '/site_features.php';
 require_once __DIR__ . '/table-responsive.php';
 require_once __DIR__ . '/chart_theme.php';
+require_once __DIR__ . '/language.php';
 include "nav.php"; ?>
 
 <?php $chartTheme = loadChartTheme(); ?>
@@ -173,10 +174,10 @@ include "nav.php"; ?>
 
 <main class="container leaderboard-page">
   <div class="dashboard-header">
-    <h1>Leaderboard</h1>
-    <p class="dashboard-subtitle">Top 10 pilots ranked by kills</p>
+    <h1><?php echo htmlspecialchars(dcs_t('leaderboard.title')); ?></h1>
+    <p class="dashboard-subtitle"><?php echo htmlspecialchars(dcs_t('leaderboard.subtitle')); ?></p>
   </div>
-  <div id="leaderboard-loading">Loading leaderboard...</div>
+  <div id="leaderboard-loading"><?php echo htmlspecialchars(dcs_t('leaderboard.loading')); ?></div>
 
   <div id="top3-wrapper">
     <div class="top-3-container" id="top3-leaderboard"></div>
@@ -186,43 +187,43 @@ include "nav.php"; ?>
     <table id="leaderboardTable">
       <thead>
         <tr>
-          <th>Rank</th>
-          <th>Name</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.rank')); ?></th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.name')); ?></th>
           <?php if (isFeatureEnabled('leaderboard_kills')): ?>
-          <th>Kills</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.kills')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_deaths')): ?>
-          <th>Deaths</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.deaths')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_kd_ratio')): ?>
-          <th>K/D</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.kd')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_pvp_kd_ratio')): ?>
-          <th>PvP K/D</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.pvp_kd')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_credits')): ?>
-          <th>Credits</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.credits')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_playtime')): ?>
-          <th>Playtime</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.playtime')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_sorties')): ?>
-          <th class="col-sorties">Sorties</th>
+          <th class="col-sorties"><?php echo htmlspecialchars(dcs_t('leaderboard.sorties')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_takeoffs')): ?>
-          <th>Takeoffs</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.takeoffs')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_landings')): ?>
-          <th>Landings</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.landings')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_crashes')): ?>
-          <th>Crashes</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.crashes')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_ejections')): ?>
-          <th>Ejections</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.ejections')); ?></th>
           <?php endif; ?>
           <?php if (isFeatureEnabled('leaderboard_aircraft')): ?>
-          <th>Most Used Aircraft</th>
+          <th><?php echo htmlspecialchars(dcs_t('leaderboard.aircraft')); ?></th>
           <?php endif; ?>
         </tr>
       </thead>
@@ -236,21 +237,21 @@ include "nav.php"; ?>
   <?php if (isFeatureEnabled('leaderboard_chart')): ?>
   <section class="leaderboard-chart-panel">
     <div class="leaderboard-chart-header">
-      <h2>Top 10 Visual Breakdown</h2>
+      <h2><?php echo htmlspecialchars(dcs_t('leaderboard.chart_title')); ?></h2>
       <div class="leaderboard-chart-controls">
         <label>
-          Data
+          <?php echo htmlspecialchars(dcs_t('leaderboard.chart_data')); ?>
           <select id="leaderboardChartMetric">
-            <option value="kills">Kills</option>
-            <option value="deaths">Deaths</option>
-            <option value="kd_ratio">K/D</option>
-            <option value="kdr_pvp">PvP K/D</option>
-            <option value="credits">Credits</option>
-            <option value="playtime_hours">Playtime Hours</option>
-            <option value="takeoffs">Takeoffs</option>
-            <option value="landings">Landings</option>
-            <option value="crashes">Crashes</option>
-            <option value="ejections">Ejections</option>
+            <option value="kills"><?php echo htmlspecialchars(dcs_t('leaderboard.kills')); ?></option>
+            <option value="deaths"><?php echo htmlspecialchars(dcs_t('leaderboard.deaths')); ?></option>
+            <option value="kd_ratio"><?php echo htmlspecialchars(dcs_t('leaderboard.kd')); ?></option>
+            <option value="kdr_pvp"><?php echo htmlspecialchars(dcs_t('leaderboard.pvp_kd')); ?></option>
+            <option value="credits"><?php echo htmlspecialchars(dcs_t('leaderboard.credits')); ?></option>
+            <option value="playtime_hours"><?php echo htmlspecialchars(dcs_t('leaderboard.playtime_hours')); ?></option>
+            <option value="takeoffs"><?php echo htmlspecialchars(dcs_t('leaderboard.takeoffs')); ?></option>
+            <option value="landings"><?php echo htmlspecialchars(dcs_t('leaderboard.landings')); ?></option>
+            <option value="crashes"><?php echo htmlspecialchars(dcs_t('leaderboard.crashes')); ?></option>
+            <option value="ejections"><?php echo htmlspecialchars(dcs_t('leaderboard.ejections')); ?></option>
           </select>
         </label>
       </div>
@@ -265,17 +266,31 @@ include "nav.php"; ?>
 <script>
 let leaderboardData = [];
 const leaderboardChartTheme = <?php echo json_encode($chartTheme); ?>;
+const i18n = <?php echo json_encode([
+  'kills' => dcs_t('leaderboard.kills'),
+  'deaths' => dcs_t('leaderboard.deaths'),
+  'kd' => dcs_t('leaderboard.kd'),
+  'pvpKd' => dcs_t('leaderboard.pvp_kd'),
+  'credits' => dcs_t('leaderboard.credits'),
+  'playtimeHours' => dcs_t('leaderboard.playtime_hours'),
+  'takeoffs' => dcs_t('leaderboard.takeoffs'),
+  'landings' => dcs_t('leaderboard.landings'),
+  'crashes' => dcs_t('leaderboard.crashes'),
+  'ejections' => dcs_t('leaderboard.ejections'),
+  'unknown' => dcs_t('leaderboard.unknown'),
+  'loadError' => dcs_t('leaderboard.load_error')
+], JSON_UNESCAPED_UNICODE); ?>;
 const leaderboardChartMetrics = {
-  kills: { label: 'Kills', value: player => Number(player.kills || 0) },
-  deaths: { label: 'Deaths', value: player => Number(player.deaths || 0) },
-  kd_ratio: { label: 'K/D', value: player => Number(player.kd_ratio || player.kdr || 0) },
-  kdr_pvp: { label: 'PvP K/D', value: player => Number(player.kdr_pvp || 0) },
-  credits: { label: 'Credits', value: player => Number(player.credits || 0) },
-  playtime_hours: { label: 'Playtime Hours', value: player => Math.round(Number(player.playtime || 0) / 3600) },
-  takeoffs: { label: 'Takeoffs', value: player => Number(player.takeoffs || 0) },
-  landings: { label: 'Landings', value: player => Number(player.landings || 0) },
-  crashes: { label: 'Crashes', value: player => Number(player.crashes || 0) },
-  ejections: { label: 'Ejections', value: player => Number(player.ejections || 0) }
+  kills: { label: i18n.kills, value: player => Number(player.kills || 0) },
+  deaths: { label: i18n.deaths, value: player => Number(player.deaths || 0) },
+  kd_ratio: { label: i18n.kd, value: player => Number(player.kd_ratio || player.kdr || 0) },
+  kdr_pvp: { label: i18n.pvpKd, value: player => Number(player.kdr_pvp || 0) },
+  credits: { label: i18n.credits, value: player => Number(player.credits || 0) },
+  playtime_hours: { label: i18n.playtimeHours, value: player => Math.round(Number(player.playtime || 0) / 3600) },
+  takeoffs: { label: i18n.takeoffs, value: player => Number(player.takeoffs || 0) },
+  landings: { label: i18n.landings, value: player => Number(player.landings || 0) },
+  crashes: { label: i18n.crashes, value: player => Number(player.crashes || 0) },
+  ejections: { label: i18n.ejections, value: player => Number(player.ejections || 0) }
 };
 
 function renderTable() {
@@ -379,15 +394,15 @@ function renderTable() {
     `;
     
     <?php if (isFeatureEnabled('leaderboard_kills')): ?>
-    cardHtml += `<div class="leaderboard-card-stat">Kills: <span>${escapeHtml(String(player.kills || 0))}</span></div>`;
+    cardHtml += `<div class="leaderboard-card-stat">${escapeHtml(i18n.kills)}: <span>${escapeHtml(String(player.kills || 0))}</span></div>`;
     <?php endif; ?>
     
     <?php if (isFeatureEnabled('leaderboard_deaths')): ?>
-    cardHtml += `<div class="leaderboard-card-stat">Deaths: <span>${escapeHtml(String(player.deaths || 0))}</span></div>`;
+    cardHtml += `<div class="leaderboard-card-stat">${escapeHtml(i18n.deaths)}: <span>${escapeHtml(String(player.deaths || 0))}</span></div>`;
     <?php endif; ?>
     
     <?php if (isFeatureEnabled('leaderboard_kd_ratio')): ?>
-    cardHtml += `<div class="leaderboard-card-stat">K/D: <span>${escapeHtml(String(player.kd_ratio || 0))}</span></div>`;
+    cardHtml += `<div class="leaderboard-card-stat">${escapeHtml(i18n.kd)}: <span>${escapeHtml(String(player.kd_ratio || 0))}</span></div>`;
     <?php endif; ?>
     
     cardHtml += `
@@ -430,14 +445,14 @@ async function loadLeaderboardFromMissionstats() {
     leaderboardData.slice(0, 3).forEach((player, i) => {
         const box = document.createElement("div");
         box.className = "trophy-box";
-        box.innerHTML = `<span class="trophy">${trophies[i]}</span><strong>${escapeHtml(player.nick || '')}</strong><br>${escapeHtml(String(player.kills || 0))} kills`;
+        box.innerHTML = `<span class="trophy">${trophies[i]}</span><strong>${escapeHtml(player.nick || '')}</strong><br>${escapeHtml(String(player.kills || 0))} ${escapeHtml(i18n.kills)}`;
         top3Container.appendChild(box);
     });
     
     renderTable();
     renderLeaderboardChart();
   } catch (error) {
-    document.getElementById("leaderboard-loading").innerText = "Failed to load leaderboard data. Please try again later.";
+    document.getElementById("leaderboard-loading").innerText = i18n.loadError;
     console.error("Error loading leaderboard:", error);
   }
 }
@@ -448,7 +463,7 @@ function renderLeaderboardChart() {
   if (!canvas || !metricSelect || !leaderboardData.length) return;
 
   const metric = leaderboardChartMetrics[metricSelect.value] || leaderboardChartMetrics.kills;
-  const labels = leaderboardData.slice(0, 10).map(player => player.nick || 'Unknown');
+  const labels = leaderboardData.slice(0, 10).map(player => player.nick || i18n.unknown);
   const values = leaderboardData.slice(0, 10).map(metric.value);
   drawLeaderboardCanvas(canvas, labels, values, metric.label);
 }

@@ -7,6 +7,7 @@ include 'header.php';
 ?>
 <?php require_once __DIR__ . '/site_features.php'; ?>
 <?php require_once __DIR__ . '/chart_theme.php'; ?>
+<?php require_once __DIR__ . '/language.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php include 'nav.php'; ?>
 
@@ -29,35 +30,35 @@ if (!$isConfigured):
 ?>
 <main>
     <div class="welcome-container" style="max-width: 800px; margin: 50px auto; padding: 40px; background: var(--card-bg); border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); text-align: center;">
-        <h1 style="color: var(--primary-color); margin-bottom: 20px;">🎉 Welcome to DCS Statistics Dashboard!</h1>
+        <h1 style="color: var(--primary-color); margin-bottom: 20px;">🎉 <?php echo htmlspecialchars(dcs_t('home.welcome_title')); ?></h1>
         <p style="font-size: 1.2em; color: var(--text-secondary); margin-bottom: 30px;">
-            It looks like this is your first time here. Let's get you set up!
+            <?php echo htmlspecialchars(dcs_t('home.welcome_intro')); ?>
         </p>
         
         <div style="background: rgba(0, 123, 255, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-            <h2 style="color: var(--accent-primary); margin-bottom: 15px;">Quick Setup Guide</h2>
+            <h2 style="color: var(--accent-primary); margin-bottom: 15px;"><?php echo htmlspecialchars(dcs_t('home.quick_setup')); ?></h2>
             <ol style="text-align: left; max-width: 500px; margin: 0 auto; line-height: 1.8;">
-                <li>Create your admin account</li>
-                <li>Configure your DCSServerBot API connection</li>
-                <li>Customize your dashboard settings</li>
-                <li>Start viewing your server statistics!</li>
+                <li><?php echo htmlspecialchars(dcs_t('home.setup_admin')); ?></li>
+                <li><?php echo htmlspecialchars(dcs_t('home.setup_api')); ?></li>
+                <li><?php echo htmlspecialchars(dcs_t('home.setup_customize')); ?></li>
+                <li><?php echo htmlspecialchars(dcs_t('home.setup_view')); ?></li>
             </ol>
         </div>
         
         <a href="./site-config/install.php" class="btn btn-primary" style="font-size: 1.2em; padding: 15px 40px; display: inline-block; text-decoration: none;">
-            🚀 Start Setup
+            🚀 <?php echo htmlspecialchars(dcs_t('home.start_setup')); ?>
         </a>
         
         <p style="margin-top: 30px; font-size: 0.9em; color: var(--text-muted);">
-            Need help? Check out the <a href="https://github.com/SocialOutcast-DCS/DCS-Statistics" target="_blank">documentation</a>
+            <a href="https://github.com/SocialOutcast-DCS/DCS-Statistics" target="_blank"><?php echo htmlspecialchars(dcs_t('home.need_help')); ?></a>
         </p>
     </div>
 </main>
 <?php else: ?>
 <main>
     <div class="dashboard-header">
-        <h1>DCS Statistics Dashboard</h1>
-        <p class="dashboard-subtitle">Real-time server performance and player metrics</p>
+        <h1><?php echo htmlspecialchars(dcs_t('home.title')); ?></h1>
+        <p class="dashboard-subtitle"><?php echo htmlspecialchars(dcs_t('home.subtitle')); ?></p>
     </div>
     
     <?php if (isFeatureEnabled('home_server_stats')): ?>
@@ -65,7 +66,7 @@ if (!$isConfigured):
         <div class="stat-card" id="totalPlayersCard">
             <div class="stat-icon">👥</div>
             <div class="stat-content">
-                <h3>Total Players</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.total_players')); ?></h3>
                 <p class="stat-number" id="totalPlayers">-</p>
             </div>
         </div>
@@ -73,7 +74,7 @@ if (!$isConfigured):
         <div class="stat-card" id="totalPlaytimeCard">
             <div class="stat-icon">✈️</div>
             <div class="stat-content">
-                <h3>Total Playtime (hrs)</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.total_playtime')); ?></h3>
                 <p class="stat-number" id="totalPlaytime">-</p>
             </div>
         </div>
@@ -81,7 +82,7 @@ if (!$isConfigured):
         <div class="stat-card" id="avgPlaytimeCard">
             <div class="stat-icon">🕐</div>
             <div class="stat-content">
-                <h3>Average Playtime (mins)</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.average_playtime')); ?></h3>
                 <p class="stat-number" id="avgPlaytime">-</p>
             </div>
         </div>
@@ -89,7 +90,7 @@ if (!$isConfigured):
         <div class="stat-card" id="totalSortiesCard">
             <div class="stat-icon">📊</div>
             <div class="stat-content">
-                <h3>Total Sorties</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.total_sorties')); ?></h3>
                 <p class="stat-number" id="totalSorties">-</p>
             </div>
         </div>
@@ -103,7 +104,7 @@ if (!$isConfigured):
             <div class="insight-card">
                 <div class="insight-icon">👥</div>
                 <div class="insight-content">
-                    <span>Players 24h</span>
+                    <span><?php echo htmlspecialchars(dcs_t('home.players_24h')); ?></span>
                     <strong id="players24h">-</strong>
                 </div>
             </div>
@@ -112,7 +113,7 @@ if (!$isConfigured):
             <div class="insight-card">
                 <div class="insight-icon">👥</div>
                 <div class="insight-content">
-                    <span>Players 7d</span>
+                    <span><?php echo htmlspecialchars(dcs_t('home.players_7d')); ?></span>
                     <strong id="players7d">-</strong>
                 </div>
             </div>
@@ -121,7 +122,7 @@ if (!$isConfigured):
             <div class="insight-card">
                 <div class="insight-icon">👥</div>
                 <div class="insight-content">
-                    <span>Players 30d</span>
+                    <span><?php echo htmlspecialchars(dcs_t('home.players_30d')); ?></span>
                     <strong id="players30d">-</strong>
                 </div>
             </div>
@@ -130,7 +131,7 @@ if (!$isConfigured):
             <div class="insight-card">
                 <div class="insight-icon">👥</div>
                 <div class="insight-content">
-                    <span>Current Players</span>
+                    <span><?php echo htmlspecialchars(dcs_t('home.current_players')); ?></span>
                     <strong id="currentPlayers">-</strong>
                 </div>
             </div>
@@ -141,31 +142,31 @@ if (!$isConfigured):
     
     <div class="charts-dashboard">
         <?php if (isFeatureEnabled('home_top_pilots')): ?>
-        <div class="chart-container" title="Shows the top 5 pilots ranked by their kills">
-            <h2>Top 5 Pilots <span class="chart-info">ⓘ</span></h2>
+        <div class="chart-container" title="<?php echo htmlspecialchars(dcs_t('home.chart_top_pilots_title')); ?>">
+            <h2><?php echo htmlspecialchars(dcs_t('home.chart_top_pilots')); ?> <span class="chart-info">ⓘ</span></h2>
             <canvas id="topPilotsChart"></canvas>
-            <p class="no-data-message" id="topPilotsNoData" style="display: none;">No mission data available yet</p>
+            <p class="no-data-message" id="topPilotsNoData" style="display: none;"><?php echo htmlspecialchars(dcs_t('home.no_mission_data')); ?></p>
         </div>
         <?php endif; ?>
         
         <?php if (isFeatureEnabled('home_mission_stats')): ?>
-        <div class="chart-container" title="Overview of total server-wide kills and deaths in combat">
-            <h2>Server Combat Statistics <span class="chart-info">ⓘ</span></h2>
+        <div class="chart-container" title="<?php echo htmlspecialchars(dcs_t('home.chart_combat_stats_title')); ?>">
+            <h2><?php echo htmlspecialchars(dcs_t('home.chart_combat_stats')); ?> <span class="chart-info">ⓘ</span></h2>
             <canvas id="combatStatsChart"></canvas>
         </div>
         <?php endif; ?>
         
         <?php if (isFeatureEnabled('squadrons_enabled') && isFeatureEnabled('home_top_pilots')): ?>
-        <div class="chart-container" title="Shows the top 3 squadrons based on member activity and performance">
-            <h2>Top 3 Most Active Squadrons <span class="chart-info">ⓘ</span></h2>
+        <div class="chart-container" title="<?php echo htmlspecialchars(dcs_t('home.chart_top_squadrons_title')); ?>">
+            <h2><?php echo htmlspecialchars(dcs_t('home.chart_top_squadrons')); ?> <span class="chart-info">ⓘ</span></h2>
             <canvas id="topSquadronsChart"></canvas>
-            <p class="no-data-message" id="squadronsNoData" style="display: none;">No squadron data available yet</p>
+            <p class="no-data-message" id="squadronsNoData" style="display: none;"><?php echo htmlspecialchars(dcs_t('home.no_squadron_data')); ?></p>
         </div>
         <?php endif; ?>
         
         <?php if (isFeatureEnabled('home_player_activity')): ?>
-        <div class="chart-container full-width" title="Displays player activity trends over time showing peak hours and player engagement">
-            <h2>Player Activity Overview <span class="chart-info">ⓘ</span></h2>
+        <div class="chart-container full-width" title="<?php echo htmlspecialchars(dcs_t('home.chart_activity_title')); ?>">
+            <h2><?php echo htmlspecialchars(dcs_t('home.chart_activity')); ?> <span class="chart-info">ⓘ</span></h2>
             <canvas id="playerActivityChart"></canvas>
         </div>
         <?php endif; ?>
@@ -177,19 +178,19 @@ if (!$isConfigured):
         <div class="insight-grid">
             <?php if (isFeatureEnabled('home_top_theatres')): ?>
             <section class="insight-panel">
-                <h3>Top Theatres</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.top_theatres')); ?></h3>
                 <div id="topTheatresList" class="rank-list"></div>
             </section>
             <?php endif; ?>
             <?php if (isFeatureEnabled('home_top_missions')): ?>
             <section class="insight-panel">
-                <h3>Top Missions</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.top_missions')); ?></h3>
                 <div id="topMissionsList" class="rank-list"></div>
             </section>
             <?php endif; ?>
             <?php if (isFeatureEnabled('home_top_modules')): ?>
             <section class="insight-panel">
-                <h3>Top Modules</h3>
+                <h3><?php echo htmlspecialchars(dcs_t('home.top_modules')); ?></h3>
                 <div id="topModulesList" class="rank-list"></div>
             </section>
             <?php endif; ?>
@@ -200,11 +201,36 @@ if (!$isConfigured):
     
     <div id="loading-overlay" class="loading-overlay">
         <div class="loader"></div>
-        <p>Loading server statistics...</p>
+        <p><?php echo htmlspecialchars(dcs_t('home.loading_stats')); ?></p>
     </div>
 </main>
 
 <script>
+const i18n = <?= json_encode([
+    'unknown' => dcs_t('home.unknown'),
+    'noData' => dcs_t('home.no_data'),
+    'kills' => dcs_t('home.kills'),
+    'deaths' => dcs_t('home.deaths'),
+    'kdRatio' => dcs_t('home.kill_death_ratio'),
+    'pilotNames' => dcs_t('home.pilot_names'),
+    'numberOfKills' => dcs_t('home.number_of_kills'),
+    'combatResults' => dcs_t('home.combat_results'),
+    'count' => dcs_t('home.count'),
+    'squadrons' => dcs_t('home.squadrons'),
+    'performanceScore' => dcs_t('home.performance_score'),
+    'hours' => dcs_t('home.hours'),
+    'pilots' => dcs_t('home.pilots'),
+    'players' => dcs_t('home.players'),
+    'numberOfPlayers' => dcs_t('home.number_of_players'),
+    'totalKills' => dcs_t('home.total_kills'),
+    'totalDeaths' => dcs_t('home.total_deaths'),
+    'totalCredits' => dcs_t('home.total_credits'),
+    'squadronCredits' => dcs_t('home.squadron_credits'),
+    'squadronNames' => dcs_t('home.squadron_names'),
+    'dailyPlayers' => dcs_t('home.daily_players'),
+    'date' => dcs_t('home.date')
+], JSON_UNESCAPED_UNICODE) ?>;
+
 // Chart instances
 let topPilotsChart = null;
 let combatStatsChart = null;
@@ -348,18 +374,18 @@ function renderApiInsights(attendance) {
     setText('currentPlayers', attendance.current_players ?? '-');
 
     renderRankList('topTheatresList', attendance.top_theatres || [], item => ({
-        title: item.theatre || 'Unknown',
-        value: `${Number(item.playtime_hours || 0).toLocaleString()} hrs`
+        title: item.theatre || i18n.unknown,
+        value: `${Number(item.playtime_hours || 0).toLocaleString()} ${i18n.hours}`
     }));
 
     renderRankList('topMissionsList', attendance.top_missions || [], item => ({
-        title: item.mission_name || 'Unknown',
-        value: `${Number(item.playtime_hours || 0).toLocaleString()} hrs`
+        title: item.mission_name || i18n.unknown,
+        value: `${Number(item.playtime_hours || 0).toLocaleString()} ${i18n.hours}`
     }));
 
     renderRankList('topModulesList', attendance.top_modules || [], item => ({
-        title: item.module || 'Unknown',
-        value: `${Number(item.playtime_hours || 0).toLocaleString()} hrs | ${Number(item.unique_players || 0).toLocaleString()} pilots`
+        title: item.module || i18n.unknown,
+        value: `${Number(item.playtime_hours || 0).toLocaleString()} ${i18n.hours} | ${Number(item.unique_players || 0).toLocaleString()} ${i18n.pilots}`
     }));
 }
 
@@ -384,7 +410,7 @@ function renderRankList(id, items, mapItem) {
         `;
     });
 
-    container.innerHTML = rows.length ? rows.join('') : '<p class="no-data-message">No data available</p>';
+    container.innerHTML = rows.length ? rows.join('') : `<p class="no-data-message">${escapeHtml(i18n.noData)}</p>`;
 }
 
 // Animate numbers counting up
@@ -428,7 +454,7 @@ function createTopPilotsChart(pilots) {
         data: {
             labels: pilots.map(p => p.nick),
             datasets: [{
-                label: 'Kills',
+                label: i18n.kills,
                 data: pilots.map(p => p.kills),
                 backgroundColor: gradient,
                 borderColor: hexToRgba(chartColors.topPilots.main, 1),
@@ -461,7 +487,7 @@ function createTopPilotsChart(pilots) {
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return `Kills: ${context.parsed.y.toLocaleString()}`;
+                            return `${i18n.kills}: ${context.parsed.y.toLocaleString()}`;
                         }
                     }
                 }
@@ -480,7 +506,7 @@ function createTopPilotsChart(pilots) {
                     },
                     title: {
                         display: true,
-                        text: 'Pilot Names',
+                        text: i18n.pilotNames,
                         color: hexToRgba(chartColors.topPilots.main, 1),
                         font: {
                             size: 14,
@@ -505,7 +531,7 @@ function createTopPilotsChart(pilots) {
                     },
                     title: {
                         display: true,
-                        text: 'Number of Kills',
+                        text: i18n.numberOfKills,
                         color: hexToRgba(chartColors.topPilots.main, 1),
                         font: {
                             size: 14,
@@ -536,7 +562,7 @@ function createCombatStatsChart(kills, deaths) {
     combatStatsChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Total Kills', 'Total Deaths'],
+            labels: [i18n.totalKills, i18n.totalDeaths],
             datasets: [{
                 data: [kills, deaths],
                 backgroundColor: [killGradient, deathGradient],
@@ -615,7 +641,7 @@ function createTopSquadronsChart(squadrons) {
         data: {
             labels: squadrons.map(s => s.name),
             datasets: [{
-                label: 'Squadron Credits',
+                label: i18n.squadronCredits,
                 data: squadrons.map(s => s.credits),
                 backgroundColor: gradient,
                 borderColor: hexToRgba(chartColors.squadrons.main, 1),
@@ -648,7 +674,7 @@ function createTopSquadronsChart(squadrons) {
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return `Total Credits: ${context.parsed.y.toLocaleString()}`;
+                            return `${i18n.totalCredits}: ${context.parsed.y.toLocaleString()}`;
                         }
                     }
                 }
@@ -667,7 +693,7 @@ function createTopSquadronsChart(squadrons) {
                     },
                     title: {
                         display: true,
-                        text: 'Squadron Names',
+                        text: i18n.squadronNames,
                         color: hexToRgba(chartColors.squadrons.main, 1),
                         font: {
                             size: 14,
@@ -692,7 +718,7 @@ function createTopSquadronsChart(squadrons) {
                     },
                     title: {
                         display: true,
-                        text: 'Squadron Credits',
+                        text: i18n.squadronCredits,
                         color: hexToRgba(chartColors.squadrons.main, 1),
                         font: {
                             size: 14,
@@ -733,7 +759,7 @@ function createPlayerActivityChart(daily_players) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Daily Players',
+                label: i18n.dailyPlayers,
                 data: data,
                 borderColor: hexToRgba(chartColors.activity.main, 1),
                 backgroundColor: gradient1,
@@ -774,7 +800,7 @@ function createPlayerActivityChart(daily_players) {
                             return context[0].label;
                         },
                         label: function(context) {
-                            return `Players: ${context.parsed.y}`;
+                            return `${i18n.players}: ${context.parsed.y}`;
                         }
                     }
                 }
@@ -794,7 +820,7 @@ function createPlayerActivityChart(daily_players) {
                     },
                     title: {
                         display: true,
-                        text: 'Date',
+                        text: i18n.date,
                         color: hexToRgba(chartColors.activity.main, 1),
                         font: {
                             size: 14,
@@ -819,7 +845,7 @@ function createPlayerActivityChart(daily_players) {
                     },
                     title: {
                         display: true,
-                        text: 'Number of Players',
+                        text: i18n.numberOfPlayers,
                         color: hexToRgba(chartColors.activity.main, 1),
                         font: {
                             size: 14,
@@ -836,11 +862,12 @@ function createPlayerActivityChart(daily_players) {
     });
 }
 
-// Load stats on page load
-document.addEventListener('DOMContentLoaded', loadServerStats);
-
-// Refresh stats every 30 seconds
-setInterval(loadServerStats, 30000);
+// Load stats on page load and refresh using the configured API interval
+document.addEventListener('DOMContentLoaded', async () => {
+    loadServerStats();
+    const refreshMs = window.dcsAPI ? await window.dcsAPI.getRefreshIntervalMs() : 600000;
+    setInterval(loadServerStats, refreshMs);
+});
 </script>
 
 <style>
