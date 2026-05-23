@@ -46,7 +46,7 @@ if (!isset($currentAdmin)) {
             </li>
             <?php endif; ?>
             <?php if (hasPermission('change_settings') || hasPermission('manage_admins') || hasPermission('manage_permissions') || hasPermission('manage_api') || hasPermission('manage_features') || hasPermission('manage_maintenance') || hasPermission('manage_updates') || hasPermission('manage_discord') || hasPermission('manage_squadrons') || hasPermission('manage_themes')): ?>
-<?php $isSettingsPage = in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php']); ?>
+<?php $isSettingsPage = in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'custom_links.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php']); ?>
             <li class="nav-dropdown <?= $isSettingsPage ? 'open' : '' ?>">
                 <a href="#" class="nav-dropdown-toggle <?= $isSettingsPage ? 'active' : '' ?>">
                     <span class="nav-icon">⚙️</span>
@@ -83,6 +83,12 @@ if (!isset($currentAdmin)) {
                         <a href="settings.php" <?= basename($_SERVER['PHP_SELF']) === 'settings.php' ? 'class="active"' : '' ?>>
                             <span class="nav-icon">🎛️</span>
                             Site Features
+                        </a>
+                    </li>
+                    <li>
+                        <a href="custom_links.php" <?= basename($_SERVER['PHP_SELF']) === 'custom_links.php' ? 'class="active"' : '' ?>>
+                            <span class="nav-icon">🔗</span>
+                            Custom Links
                         </a>
                     </li>
                     <?php endif; ?>
@@ -191,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.nav-dropdown')) {
             const currentPath = window.location.pathname;
-            const settingsPages = ['settings.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php'];
+            const settingsPages = ['settings.php', 'custom_links.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php'];
             const isOnSettingsPage = settingsPages.some(page => currentPath.includes(page));
             
             if (!isOnSettingsPage) {

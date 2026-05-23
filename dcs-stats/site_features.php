@@ -125,12 +125,15 @@ function loadSiteFeatures() {
         // Global Features
         'show_discord_link' => true,
         'show_last_update' => true,
+        'nav_custom_links' => true,
         
         // Custom Links
         'show_squadron_homepage' => false,
         'discord_link_url' => $siteConfig['discord_invite_url'] ?? 'https://discord.gg/DNENf6pUNX',
         'squadron_homepage_url' => '',
-        'squadron_homepage_text' => 'Squadron'
+        'squadron_homepage_text' => 'Squadron',
+        'custom_links_menu_text' => 'Squadron Links',
+        'custom_links' => []
     ];
     
     // Get settings file path
@@ -212,7 +215,8 @@ function getFeatureGroups() {
             'nav_pilot_credits' => 'Pilot Credits',
             'nav_pilot_statistics' => 'Pilot Statistics',
             'nav_squadrons' => 'Squadrons',
-            'nav_servers' => 'Servers'
+            'nav_servers' => 'Servers',
+            'nav_custom_links' => 'Squadron Links Dropdown'
         ],
         'Homepage Sections' => [
             'home_server_stats' => 'Server Statistics Box',

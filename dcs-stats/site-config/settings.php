@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // Note: Discord and Squadron settings are now handled in separate pages
+        // Note: Discord, Squadron homepage, and custom links are handled in separate pages.
 
         // Locked features are visible in the UI but cannot be enabled yet.
         foreach ($lockedFeatures as $lockedKey => $reason) {
@@ -92,7 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Save settings
-        if (saveSiteFeatures($allFeatures)) {
+        if ($messageType === 'error') {
+            // Keep the validation message set above.
+        } elseif (saveSiteFeatures($allFeatures)) {
             logAdminActivity('SETTINGS_CHANGE', $_SESSION['admin_id'], 'settings', 'site_features', $allFeatures);
             $message = SUCCESS_MESSAGES['settings_saved'];
             $messageType = 'success';
@@ -263,6 +265,7 @@ $pageTitle = 'Site Settings';
             display: flex;
             gap: 10px;
         }
+
     </style>
 </head>
 <body>
@@ -356,7 +359,7 @@ $pageTitle = 'Site Settings';
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        
+
                         <div class="settings-actions">
                             <button type="submit" class="btn btn-primary">Save Settings</button>
                             <span class="text-muted">Changes take effect immediately</span>
@@ -378,6 +381,10 @@ $pageTitle = 'Site Settings';
                                 <a href="squadron_settings.php" class="btn btn-secondary">
                                     <span class="nav-icon">🏆</span>
                                     Squadron Homepage Settings
+                                </a>
+                                <a href="custom_links.php" class="btn btn-secondary">
+                                    <span class="nav-icon">🔗</span>
+                                    Custom Links
                                 </a>
                                 <a href="themes.php" class="btn btn-secondary">
                                     <span class="nav-icon">🎨</span>
@@ -504,7 +511,7 @@ $pageTitle = 'Site Settings';
                 });
             }
         }
-        
+
         // Update dependencies when parent changes
         function updateDependencies() {
             for (const [parent, children] of Object.entries(dependencies)) {

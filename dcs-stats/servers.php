@@ -111,6 +111,7 @@ async function loadServers() {
             let playerCount = 'N/A';
             let uptime = 'N/A';
             let slotSummary = 'N/A';
+            let activeSlotCount = 0;
             
             if (server.mission) {
                 missionName = server.mission.name || 'N/A';
@@ -123,6 +124,7 @@ async function loadServers() {
                 const redTotal = server.mission.red_slots || 0;
                 const totalUsed = blueUsed + redUsed;
                 const totalSlots = blueTotal + redTotal;
+                activeSlotCount = totalUsed;
                 
                 playerCount = `${totalUsed}/${totalSlots} (B:${blueUsed}/${blueTotal} R:${redUsed}/${redTotal})`;
                 slotSummary = `${totalUsed}/${totalSlots} slots used`;
@@ -140,7 +142,8 @@ async function loadServers() {
                 theatre,
                 playerCount,
                 uptime,
-                slotSummary
+                slotSummary,
+                activeSlotCount
             }));
         });
 
@@ -190,13 +193,24 @@ function formatPlayers(players) {
     `).join('');
 }
 
+function getActivePlayersForDisplay(server, summary) {
+    const status = String(server.status || '').toLowerCase();
+    const inactiveStatuses = ['offline', 'paused', 'shutdown', 'stopped', 'not running'];
+
+    if (inactiveStatuses.includes(status) || Number(summary.activeSlotCount || 0) === 0) {
+        return [];
+    }
+
+    return Array.isArray(server.players) ? server.players : [];
+}
+
 function createServerDetailCard(server, summary) {
     const card = document.createElement('article');
     card.className = 'server-detail-card';
 
     const weather = formatWeather(server.weather);
     const extensions = formatExtensions(server.extensions);
-    const players = formatPlayers(server.players);
+    const players = formatPlayers(getActivePlayersForDisplay(server, summary));
     const restart = server.restart_time ? new Date(server.restart_time).toLocaleString() : 'N/A';
     const status = server.status || 'Unknown';
     const statusClass = `detail-status status-${String(status).toLowerCase()}`;

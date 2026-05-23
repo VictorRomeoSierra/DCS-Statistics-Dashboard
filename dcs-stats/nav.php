@@ -85,6 +85,21 @@ if (!$hasSquadronInMenu && isFeatureEnabled('show_squadron_homepage') && !empty(
         'type' => 'squadron_homepage'
     ];
 }
+
+$customLinks = getFeatureValue('custom_links', []);
+if (!is_array($customLinks)) {
+    $customLinks = [];
+}
+$customLinks = array_values(array_filter($customLinks, function($link) {
+    return is_array($link)
+        && ($link['enabled'] ?? true)
+        && !empty(trim($link['label'] ?? ''))
+        && !empty(trim($link['url'] ?? ''));
+}));
+$customLinksMenuText = trim((string)getFeatureValue('custom_links_menu_text', 'Squadron Links'));
+if ($customLinksMenuText === '') {
+    $customLinksMenuText = 'Squadron Links';
+}
 ?>
 <nav class="nav-bar" id="navBar">
   <div class="mobile-menu-header">
@@ -131,6 +146,29 @@ if (!$hasSquadronInMenu && isFeatureEnabled('show_squadron_homepage') && !empty(
         <?php endif; ?>
       <?php endif; ?>
     <?php endforeach; ?>
+
+    <?php if (isFeatureEnabled('nav_custom_links') && !empty($customLinks)): ?>
+      <li class="public-nav-dropdown">
+        <button type="button" class="nav-link nav-dropdown-button" aria-expanded="false">
+          <?= htmlspecialchars($customLinksMenuText) ?>
+          <span class="nav-dropdown-caret">▼</span>
+        </button>
+        <ul class="public-nav-dropdown-menu">
+          <?php foreach ($customLinks as $link): ?>
+            <?php
+              $linkUrl = trim((string)$link['url']);
+              $isExternal = preg_match('#^https?://#i', $linkUrl);
+              $target = ($link['new_tab'] ?? true) ? ' target="_blank" rel="noopener noreferrer"' : '';
+            ?>
+            <li>
+              <a class="nav-link public-nav-dropdown-link" href="<?= htmlspecialchars($linkUrl) ?>"<?= $isExternal ? $target : '' ?>>
+                <?= htmlspecialchars($link['label']) ?>
+              </a>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </li>
+    <?php endif; ?>
     
     <?php 
     // Check if user is logged in as admin
@@ -182,9 +220,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
+            if (link.classList.contains('nav-dropdown-button')) {
+                return;
+            }
             if (window.innerWidth <= 768) {
                 closeMenu();
             }
+        });
+    });
+
+    document.querySelectorAll('.public-nav-dropdown').forEach(dropdown => {
+        const button = dropdown.querySelector('.nav-dropdown-button');
+        if (!button) return;
+
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            document.querySelectorAll('.public-nav-dropdown.open').forEach(openDropdown => {
+                if (openDropdown !== dropdown) {
+                    openDropdown.classList.remove('open');
+                    const openButton = openDropdown.querySelector('.nav-dropdown-button');
+                    if (openButton) openButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            const isOpen = dropdown.classList.toggle('open');
+            button.setAttribute('aria-expanded', String(isOpen));
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.public-nav-dropdown')) {
+            return;
+        }
+
+        document.querySelectorAll('.public-nav-dropdown.open').forEach(dropdown => {
+            dropdown.classList.remove('open');
+            const button = dropdown.querySelector('.nav-dropdown-button');
+            if (button) button.setAttribute('aria-expanded', 'false');
         });
     });
 });
