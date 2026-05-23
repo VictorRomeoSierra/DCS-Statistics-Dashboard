@@ -6,6 +6,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
 require_once __DIR__ . '/../api_config_helper.php';
+require_once __DIR__ . '/../language.php';
 
 requireAdmin();
 requirePermission('manage_api');
@@ -14,7 +15,7 @@ $currentAdmin = getCurrentAdmin();
 $configResult = loadApiConfigWithFix();
 $apiConfig = $configResult['config'];
 $configFile = $configResult['config_path'];
-$pageTitle = 'API Health';
+$pageTitle = dcs_t('admin.api_health.title');
 
 $apiBaseUrl = rtrim((string)($apiConfig['api_base_url'] ?? ''), '/');
 $apiHost = $apiConfig['api_host'] ?? preg_replace('#^https?://#', '', $apiBaseUrl);
@@ -24,69 +25,69 @@ $cacheTtl = max(0, (int)($apiConfig['cache_ttl'] ?? 300));
 $hasApiKey = !empty($apiConfig['api_key']);
 
 $healthEndpoints = [
-    ['label' => 'Servers', 'method' => 'GET', 'endpoint' => '/servers', 'note' => 'Live server cards and server page'],
-    ['label' => 'Server Stats', 'method' => 'GET', 'endpoint' => '/serverstats', 'note' => 'Homepage totals and summary widgets'],
-    ['label' => 'Attendance', 'method' => 'GET', 'endpoint' => '/server_attendance', 'note' => 'Attendance cards and top insight lists'],
-    ['label' => 'Leaderboard', 'method' => 'GET', 'endpoint' => '/leaderboard?what=kills&limit=1', 'note' => 'Leaderboard availability check'],
-    ['label' => 'Squadrons', 'method' => 'GET', 'endpoint' => '/squadrons', 'note' => 'Squadrons page data'],
-    ['label' => 'Current Server', 'method' => 'GET', 'endpoint' => '/current_server', 'note' => 'Current server/status helper']
+    ['label' => dcs_t('servers.title'), 'method' => 'GET', 'endpoint' => '/servers', 'note' => dcs_t('admin.api_health.note_servers')],
+    ['label' => dcs_t('admin.api_health.server_stats'), 'method' => 'GET', 'endpoint' => '/serverstats', 'note' => dcs_t('admin.api_health.note_serverstats')],
+    ['label' => dcs_t('admin.api_health.attendance'), 'method' => 'GET', 'endpoint' => '/server_attendance', 'note' => dcs_t('admin.api_health.note_attendance')],
+    ['label' => dcs_t('leaderboard.title'), 'method' => 'GET', 'endpoint' => '/leaderboard?what=kills&limit=1', 'note' => dcs_t('admin.api_health.note_leaderboard')],
+    ['label' => dcs_t('squadrons.title'), 'method' => 'GET', 'endpoint' => '/squadrons', 'note' => dcs_t('admin.api_health.note_squadrons')],
+    ['label' => dcs_t('admin.api_health.current_server'), 'method' => 'GET', 'endpoint' => '/current_server', 'note' => dcs_t('admin.api_health.note_current_server')]
 ];
 
 function formatSeconds($seconds) {
     $seconds = (int)$seconds;
     if ($seconds >= 3600 && $seconds % 3600 === 0) {
-        return ($seconds / 3600) . ' hour' . ($seconds === 3600 ? '' : 's');
+        return dcs_t($seconds === 3600 ? 'admin.api_health.one_hour' : 'admin.api_health.hours', ['count' => ($seconds / 3600)]);
     }
     if ($seconds >= 60 && $seconds % 60 === 0) {
-        return ($seconds / 60) . ' minutes';
+        return dcs_t('admin.api_health.minutes', ['count' => ($seconds / 60)]);
     }
-    return $seconds . ' seconds';
+    return dcs_t('admin.api_health.seconds', ['count' => $seconds]);
 }
 
 function summarizePayload($raw) {
     $decoded = json_decode($raw, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        return 'Non-JSON response (' . strlen((string)$raw) . ' bytes)';
+        return dcs_t('admin.api_health.non_json_response', ['bytes' => strlen((string)$raw)]);
     }
 
     if (is_array($decoded)) {
         if (array_is_list($decoded)) {
-            return count($decoded) . ' list item' . (count($decoded) === 1 ? '' : 's');
+            return dcs_t(count($decoded) === 1 ? 'admin.api_health.one_list_item' : 'admin.api_health.list_items', ['count' => count($decoded)]);
         }
 
         if (isset($decoded['items']) && is_array($decoded['items'])) {
-            return count($decoded['items']) . ' item' . (count($decoded['items']) === 1 ? '' : 's') . ' in items';
+            return dcs_t(count($decoded['items']) === 1 ? 'admin.api_health.one_item_in_items' : 'admin.api_health.items_in_items', ['count' => count($decoded['items'])]);
         }
 
         if (isset($decoded['error'])) {
-            return 'Error: ' . (is_scalar($decoded['error']) ? $decoded['error'] : 'API returned an error object');
+            return dcs_t('admin.api_health.error_prefix') . ': ' . (is_scalar($decoded['error']) ? $decoded['error'] : dcs_t('admin.api_health.error_object'));
         }
 
         $keys = array_slice(array_keys($decoded), 0, 8);
-        return 'Object keys: ' . implode(', ', $keys);
+        return dcs_t('admin.api_health.object_keys') . ': ' . implode(', ', $keys);
     }
 
-    return 'JSON ' . gettype($decoded);
+    return dcs_t('admin.api_health.json_type', ['type' => gettype($decoded)]);
 }
 
 function runHealthCheck($baseUrl, $apiKey, $timeout, $endpoint) {
     if ($baseUrl === '') {
         return [
-            'status' => 'Not configured',
+            'status' => dcs_t('admin.api_health.not_configured'),
             'ok' => false,
             'http_code' => null,
             'time_ms' => null,
-            'summary' => 'API base URL is empty'
+            'summary' => dcs_t('admin.api_health.empty_base_url')
         ];
     }
 
     if (!function_exists('curl_init')) {
         return [
-            'status' => 'Unavailable',
+            'status' => dcs_t('admin.api_health.unavailable'),
             'ok' => false,
             'http_code' => null,
             'time_ms' => null,
-            'summary' => 'PHP cURL extension is not available'
+            'summary' => dcs_t('admin.api_health.curl_unavailable')
         ];
     }
 
@@ -113,7 +114,7 @@ function runHealthCheck($baseUrl, $apiKey, $timeout, $endpoint) {
 
     if ($error) {
         return [
-            'status' => 'Failed',
+            'status' => dcs_t('admin.api_health.failed'),
             'ok' => false,
             'http_code' => $httpCode ?: null,
             'time_ms' => $timeMs,
@@ -122,7 +123,7 @@ function runHealthCheck($baseUrl, $apiKey, $timeout, $endpoint) {
     }
 
     return [
-        'status' => ($httpCode >= 200 && $httpCode < 300) ? 'OK' : 'HTTP ' . $httpCode,
+        'status' => ($httpCode >= 200 && $httpCode < 300) ? dcs_t('admin.api_health.ok') : 'HTTP ' . $httpCode,
         'ok' => $httpCode >= 200 && $httpCode < 300,
         'http_code' => $httpCode,
         'time_ms' => $timeMs,
@@ -177,37 +178,37 @@ if ($runChecks) {
             <div class="admin-content">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">API Health / Debug</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.api_health.heading')) ?></h2>
                     </div>
 
                     <div class="health-grid">
                         <div class="health-card">
-                            <div class="health-label">API Host</div>
-                            <div class="health-value"><?= e($apiHost ?: 'Not configured') ?></div>
-                            <div class="health-note"><?= e($apiBaseUrl ?: 'No API base URL saved') ?></div>
+                            <div class="health-label"><?= e(dcs_t('admin.api.host')) ?></div>
+                            <div class="health-value"><?= e($apiHost ?: dcs_t('admin.api_health.not_configured')) ?></div>
+                            <div class="health-note"><?= e($apiBaseUrl ?: dcs_t('admin.api_health.no_base_url_saved')) ?></div>
                         </div>
                         <div class="health-card">
-                            <div class="health-label">Dashboard Refresh</div>
+                            <div class="health-label"><?= e(dcs_t('admin.api_health.dashboard_refresh')) ?></div>
                             <div class="health-value"><?= e(formatSeconds($refreshInterval)) ?></div>
-                            <div class="health-note">Used by live homepage and server page auto-refresh.</div>
+                            <div class="health-note"><?= e(dcs_t('admin.api_health.dashboard_refresh_note')) ?></div>
                         </div>
                         <div class="health-card">
-                            <div class="health-label">Timeout</div>
+                            <div class="health-label"><?= e(dcs_t('admin.api_health.timeout')) ?></div>
                             <div class="health-value"><?= e(formatSeconds($timeout)) ?></div>
-                            <div class="health-note">Maximum wait for each API request.</div>
+                            <div class="health-note"><?= e(dcs_t('admin.api_health.timeout_note')) ?></div>
                         </div>
                         <div class="health-card">
-                            <div class="health-label">Cache TTL</div>
+                            <div class="health-label"><?= e(dcs_t('admin.api.cache_ttl')) ?></div>
                             <div class="health-value"><?= e(formatSeconds($cacheTtl)) ?></div>
-                            <div class="health-note">Advanced API cache setting where caching is used.</div>
+                            <div class="health-note"><?= e(dcs_t('admin.api_health.cache_note')) ?></div>
                         </div>
                         <div class="health-card">
-                            <div class="health-label">API Key</div>
-                            <div class="health-value"><?= $hasApiKey ? 'Configured' : 'Not configured' ?></div>
-                            <div class="health-note">The key is never displayed on this page.</div>
+                            <div class="health-label"><?= e(dcs_t('admin.api_health.api_key')) ?></div>
+                            <div class="health-value"><?= e($hasApiKey ? dcs_t('admin.status.configured') : dcs_t('admin.api_health.not_configured')) ?></div>
+                            <div class="health-note"><?= e(dcs_t('admin.api_health.api_key_note')) ?></div>
                         </div>
                         <div class="health-card">
-                            <div class="health-label">Config File</div>
+                            <div class="health-label"><?= e(dcs_t('admin.api_health.config_file')) ?></div>
                             <div class="health-value"><?= e(basename($configFile)) ?></div>
                             <div class="health-note"><?= e($configFile) ?></div>
                         </div>
@@ -215,18 +216,18 @@ if ($runChecks) {
 
                     <form method="POST" class="actions">
                         <?= csrfField() ?>
-                        <button type="submit" name="run_checks" value="1" class="btn btn-primary">Run Health Check</button>
-                        <a href="api_settings.php" class="btn btn-secondary">API Settings</a>
+                        <button type="submit" name="run_checks" value="1" class="btn btn-primary"><?= e(dcs_t('admin.api_health.run_check')) ?></button>
+                        <a href="api_settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.api.title')) ?></a>
                     </form>
 
                     <div class="table-wrap">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Endpoint</th>
-                                    <th>Purpose</th>
-                                    <th>Status</th>
-                                    <th>Response</th>
+                                    <th><?= e(dcs_t('admin.api_health.endpoint')) ?></th>
+                                    <th><?= e(dcs_t('admin.api_health.purpose')) ?></th>
+                                    <th><?= e(dcs_t('admin.update.status')) ?></th>
+                                    <th><?= e(dcs_t('admin.api_health.response')) ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -242,10 +243,10 @@ if ($runChecks) {
                                                 <div class="health-note"><?= e($result['time_ms']) ?> ms</div>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <span class="status-pill">Not checked</span>
+                                            <span class="status-pill"><?= e(dcs_t('admin.api_health.not_checked')) ?></span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= e($result['summary'] ?? 'Run the health check to test this endpoint.') ?></td>
+                                    <td><?= e($result['summary'] ?? dcs_t('admin.api_health.run_to_test')) ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -255,14 +256,14 @@ if ($runChecks) {
 
                 <div class="card" style="margin-top: 24px;">
                     <div class="card-header">
-                        <h2 class="card-title">Configured Endpoint Map</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.api_health.configured_endpoint_map')) ?></h2>
                     </div>
                     <div class="table-wrap">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Dashboard Key</th>
-                                    <th>API Route</th>
+                                    <th><?= e(dcs_t('admin.api_health.dashboard_key')) ?></th>
+                                    <th><?= e(dcs_t('admin.api_health.api_route')) ?></th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -6,6 +6,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
 require_once __DIR__ . '/../api_config_helper.php';
+require_once __DIR__ . '/../language.php';
 
 // Require admin login and permission
 requireAdmin();
@@ -22,12 +23,12 @@ $autoFixMessage = '';
 
 // Show any auto-fix messages
 if (isset($configResult['fixed']) && $configResult['fixed'] && !empty($configResult['changes'])) {
-    $autoFixMessage = 'Configuration auto-fixed: ' . implode(', ', $configResult['changes']);
+    $autoFixMessage = dcs_t('admin.api.auto_fixed') . ': ' . implode(', ', $configResult['changes']);
 }
 
 // Show config location if not standard
 if ($configFile !== dirname(__DIR__) . '/api_config.json') {
-    $autoFixMessage .= ($autoFixMessage ? ' | ' : '') . 'Config location: ' . $configFile;
+    $autoFixMessage .= ($autoFixMessage ? ' | ' : '') . dcs_t('admin.api.config_location') . ': ' . $configFile;
 }
 
 // Handle form submission
@@ -65,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Save again with all settings
                         if (file_put_contents($configFile, json_encode($apiConfig, JSON_PRETTY_PRINT))) {
                             logAdminActivity('API_CONFIG_CHANGE', $_SESSION['admin_id'], 'settings', 'api_config', $apiConfig);
-                            $message = 'API configuration saved successfully with all endpoints enabled';
+                            $message = dcs_t('admin.api.save_success');
                             $messageType = 'success';
                         }
                     } else {
@@ -101,18 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if (@file_put_contents($configFile, json_encode($saveConfig, JSON_PRETTY_PRINT))) {
                                 $testResult = [
                                     'success' => true, 
-                                    'message' => "API connection successful! Detected and saved {$protocol}:// protocol.",
+                                    'message' => dcs_t('admin.api.test_success_saved', ['protocol' => $protocol]),
                                     'protocol' => $protocol
                                 ];
                             } else {
                                 $testResult = [
                                     'success' => true, 
-                                    'message' => "API connection successful using {$protocol}://",
+                                    'message' => dcs_t('admin.api.test_success', ['protocol' => $protocol]),
                                     'protocol' => $protocol
                                 ];
                             }
                         } else {
-                            $testResult = ['success' => false, 'message' => 'No response from API'];
+                            $testResult = ['success' => false, 'message' => dcs_t('admin.api.no_response')];
                         }
                     } catch (Exception $e) {
                         $errorMsg = $e->getMessage();
@@ -121,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // If we still get an error, it's a real connection issue
                         $testResult = [
                             'success' => false, 
-                            'message' => 'Unable to connect to API: ' . $errorMsg
+                            'message' => dcs_t('admin.api.connect_failed') . ': ' . $errorMsg
                         ];
                     }
                     break;
@@ -131,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Page title
-$pageTitle = 'API Settings';
+$pageTitle = dcs_t('admin.api.title');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -282,7 +283,7 @@ $pageTitle = 'API Settings';
                 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">DCSServerBot API Configuration</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.api.configuration_title')) ?></h2>
                     </div>
                     
                     <form method="POST" action="" class="api-form">
@@ -290,49 +291,49 @@ $pageTitle = 'API Settings';
                         <input type="hidden" name="action" value="save">
                         
                         <div class="form-group">
-                            <label for="api_host">API Host</label>
+                            <label for="api_host"><?= e(dcs_t('admin.api.host')) ?></label>
                             <input type="text" 
                                    id="api_host" 
                                    name="api_host" 
                                    value="<?= e($apiConfig['api_host'] ?? preg_replace('#^https?://#', '', $apiConfig['api_base_url'])) ?>"
                                    placeholder="localhost:8080"
                                    pattern="[a-zA-Z0-9.-]+:[0-9]+">
-                            <div class="help-text">Enter domain:port (e.g., dcs1.example.com:9876). Protocol will be auto-detected.</div>
+                            <div class="help-text"><?= e(dcs_t('admin.api.host_help')) ?></div>
                         </div>
                         
                         
                         <div class="form-group">
-                            <label for="timeout">Request Timeout (seconds)</label>
+                            <label for="timeout"><?= e(dcs_t('admin.api.timeout')) ?></label>
                             <input type="number" 
                                    id="timeout" 
                                    name="timeout" 
                                    value="<?= $apiConfig['timeout'] ?>"
                                    min="5" 
                                    max="300">
-                            <div class="help-text">Maximum time to wait for API responses</div>
+                            <div class="help-text"><?= e(dcs_t('admin.api.timeout_help')) ?></div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="refresh_interval">Dashboard Refresh Rate</label>
+                            <label for="refresh_interval"><?= e(dcs_t('admin.api.refresh_rate')) ?></label>
                             <?php $refreshInterval = (int)($apiConfig['refresh_interval'] ?? 300); ?>
                             <select id="refresh_interval" name="refresh_interval">
-                                <option value="300" <?= $refreshInterval === 300 ? 'selected' : '' ?>>5 minutes</option>
-                                <option value="600" <?= $refreshInterval === 600 ? 'selected' : '' ?>>10 minutes</option>
-                                <option value="1800" <?= $refreshInterval === 1800 ? 'selected' : '' ?>>30 minutes</option>
-                                <option value="3600" <?= $refreshInterval === 3600 ? 'selected' : '' ?>>1 hour</option>
+                                <option value="300" <?= $refreshInterval === 300 ? 'selected' : '' ?>><?= e(dcs_t('admin.api.refresh_5')) ?></option>
+                                <option value="600" <?= $refreshInterval === 600 ? 'selected' : '' ?>><?= e(dcs_t('admin.api.refresh_10')) ?></option>
+                                <option value="1800" <?= $refreshInterval === 1800 ? 'selected' : '' ?>><?= e(dcs_t('admin.api.refresh_30')) ?></option>
+                                <option value="3600" <?= $refreshInterval === 3600 ? 'selected' : '' ?>><?= e(dcs_t('admin.api.refresh_60')) ?></option>
                             </select>
-                            <div class="help-text">How often live dashboard pages automatically refresh API data. Default for new installs is 5 minutes.</div>
+                            <div class="help-text"><?= e(dcs_t('admin.api.refresh_help')) ?></div>
                         </div>
 
                         <div class="form-group">
-                            <label for="cache_ttl">Cache TTL (seconds)</label>
+                            <label for="cache_ttl"><?= e(dcs_t('admin.api.cache_ttl')) ?></label>
                             <input type="number" 
                                    id="cache_ttl" 
                                    name="cache_ttl" 
                                    value="<?= $apiConfig['cache_ttl'] ?>"
                                    min="0" 
                                    max="3600">
-                            <div class="help-text">Advanced: how long API responses may be cached where caching is used. Existing default is 300 seconds.</div>
+                            <div class="help-text"><?= e(dcs_t('admin.api.cache_help')) ?></div>
                         </div>
                         
                         <div class="checkbox-group">
@@ -341,21 +342,21 @@ $pageTitle = 'API Settings';
                                    name="use_api" 
                                    value="1"
                                    <?= $apiConfig['use_api'] ? 'checked' : '' ?>>
-                            <label for="use_api">Enable API Integration</label>
+                            <label for="use_api"><?= e(dcs_t('admin.api.enable_integration')) ?></label>
                         </div>
                         
                         
                         <div class="button-group">
-                            <button type="submit" class="btn btn-primary">Save Configuration</button>
-                            <button type="submit" class="btn btn-secondary" name="action" value="test">Test Connection</button>
-                            <a href="api_health.php" class="btn btn-secondary">API Health / Debug</a>
+                            <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.api.save_configuration')) ?></button>
+                            <button type="submit" class="btn btn-secondary" name="action" value="test"><?= e(dcs_t('admin.api.test_connection')) ?></button>
+                            <a href="api_health.php" class="btn btn-secondary"><?= e(dcs_t('admin.api.health_debug')) ?></a>
                         </div>
                     </form>
                 </div>
                 
                 <?php if ($testResult): ?>
                     <div class="test-section">
-                        <h3>Connection Test Result</h3>
+                        <h3><?= e(dcs_t('admin.api.connection_test_result')) ?></h3>
                         <div class="test-result <?= $testResult['success'] ? 'success' : 'error' ?>">
                             <?= e($testResult['message']) ?>
                         </div>
@@ -363,49 +364,49 @@ $pageTitle = 'API Settings';
                 <?php endif; ?>
                 
                 <div class="endpoints-info">
-                    <h4>Available Endpoints</h4>
+                    <h4><?= e(dcs_t('admin.api.available_endpoints')) ?></h4>
                     <div class="endpoints-list">
-                        <strong>DCSServerBot REST API endpoints:</strong>
+                        <strong><?= e(dcs_t('admin.api.rest_endpoints')) ?>:</strong>
                         <ul>
-                            <li><code>GET /servers</code> - Live server status, mission, weather, slots, extensions, and players</li>
-                            <li><code>GET /serverstats</code> - Server-wide totals for players, playtime, sorties, kills, deaths, and activity</li>
-                            <li><code>GET /server_attendance</code> - Current players, 24h/7d/30d attendance, top theatres, missions, and modules</li>
-                            <li><code>GET /leaderboard</code> - Ranked player data by kills, credits, playtime, and other supported metrics</li>
-                            <li><code>GET /highscore</code> - High score leaderboard data</li>
-                            <li><code>GET /trueskill</code> - TrueSkill ranking data</li>
-                            <li><code>POST /player_info</code> - Detailed individual player profile data</li>
-                            <li><code>POST /stats</code> - Enhanced individual player statistics</li>
-                            <li><code>POST /getuser</code> - Legacy individual user statistics</li>
-                            <li><code>POST /credits</code> - Player credits lookup</li>
-                            <li><code>POST /modulestats</code> - Module usage statistics</li>
-                            <li><code>POST /traps</code> - Carrier trap statistics</li>
-                            <li><code>POST /weaponpk</code> - Weapon probability of kill statistics</li>
-                            <li><code>GET /squadrons</code> - Squadron list and overview data</li>
-                            <li><code>POST /player_squadrons</code> - Squadrons for an individual player</li>
-                            <li><code>POST /squadron_members</code> - Members for a squadron</li>
-                            <li><code>POST /squadron_credits</code> - Squadron credits data</li>
-                            <li><code>GET /current_server</code> - Current server selection/status</li>
-                            <li><code>GET /airbases</code>, <code>GET /airbase</code>, <code>GET /airbase/atis</code>, <code>GET /airbase/warehouse</code> - Airbase data</li>
-                            <li><code>GET /convertCoordinates</code> - Coordinate conversion helper</li>
-                            <li><code>GET /mission/group/waypoints</code> - Mission group waypoint data</li>
+                            <li><code>GET /servers</code> - <?= e(dcs_t('admin.api.endpoint_servers')) ?></li>
+                            <li><code>GET /serverstats</code> - <?= e(dcs_t('admin.api.endpoint_serverstats')) ?></li>
+                            <li><code>GET /server_attendance</code> - <?= e(dcs_t('admin.api.endpoint_attendance')) ?></li>
+                            <li><code>GET /leaderboard</code> - <?= e(dcs_t('admin.api.endpoint_leaderboard')) ?></li>
+                            <li><code>GET /highscore</code> - <?= e(dcs_t('admin.api.endpoint_highscore')) ?></li>
+                            <li><code>GET /trueskill</code> - <?= e(dcs_t('admin.api.endpoint_trueskill')) ?></li>
+                            <li><code>POST /player_info</code> - <?= e(dcs_t('admin.api.endpoint_player_info')) ?></li>
+                            <li><code>POST /stats</code> - <?= e(dcs_t('admin.api.endpoint_stats')) ?></li>
+                            <li><code>POST /getuser</code> - <?= e(dcs_t('admin.api.endpoint_getuser')) ?></li>
+                            <li><code>POST /credits</code> - <?= e(dcs_t('admin.api.endpoint_credits')) ?></li>
+                            <li><code>POST /modulestats</code> - <?= e(dcs_t('admin.api.endpoint_modulestats')) ?></li>
+                            <li><code>POST /traps</code> - <?= e(dcs_t('admin.api.endpoint_traps')) ?></li>
+                            <li><code>POST /weaponpk</code> - <?= e(dcs_t('admin.api.endpoint_weaponpk')) ?></li>
+                            <li><code>GET /squadrons</code> - <?= e(dcs_t('admin.api.endpoint_squadrons')) ?></li>
+                            <li><code>POST /player_squadrons</code> - <?= e(dcs_t('admin.api.endpoint_player_squadrons')) ?></li>
+                            <li><code>POST /squadron_members</code> - <?= e(dcs_t('admin.api.endpoint_squadron_members')) ?></li>
+                            <li><code>POST /squadron_credits</code> - <?= e(dcs_t('admin.api.endpoint_squadron_credits')) ?></li>
+                            <li><code>GET /current_server</code> - <?= e(dcs_t('admin.api.endpoint_current_server')) ?></li>
+                            <li><code>GET /airbases</code>, <code>GET /airbase</code>, <code>GET /airbase/atis</code>, <code>GET /airbase/warehouse</code> - <?= e(dcs_t('admin.api.endpoint_airbases')) ?></li>
+                            <li><code>GET /convertCoordinates</code> - <?= e(dcs_t('admin.api.endpoint_coordinates')) ?></li>
+                            <li><code>GET /mission/group/waypoints</code> - <?= e(dcs_t('admin.api.endpoint_waypoints')) ?></li>
                         </ul>
 
-                        <strong>Dashboard PHP endpoints:</strong>
+                        <strong><?= e(dcs_t('admin.api.dashboard_endpoints')) ?>:</strong>
                         <ul>
-                            <li><code>get_servers_api.php</code> / <code>get_servers.php</code> - Server status page data</li>
-                            <li><code>get_server_stats.php</code> - Homepage server statistics, attendance, and top API lists</li>
-                            <li><code>get_leaderboard_api.php</code> / <code>get_leaderboard.php</code> - Leaderboard page data</li>
-                            <li><code>get_player_stats_api.php</code> / <code>get_player_stats.php</code> - Individual player statistics</li>
-                            <li><code>get_credits_api.php</code> / <code>get_credits.php</code> - Credits leaderboard data</li>
-                            <li><code>get_missionstats_api.php</code> / <code>get_missionstats.php</code> - Mission statistics</li>
-                            <li><code>get_squadrons_api.php</code> / <code>get_squadrons.php</code> - Squadron overview data</li>
-                            <li><code>get_squadron_members_api.php</code> / <code>get_squadron_members.php</code> - Squadron member data</li>
-                            <li><code>get_squadron_credits_api.php</code> / <code>get_squadron_credits.php</code> - Squadron credits data</li>
-                            <li><code>get_api_config.php</code> - Client-side API configuration</li>
-                            <li><code>get_leaderboard_client.php</code> - Client-side leaderboard bridge</li>
+                            <li><code>get_servers_api.php</code> / <code>get_servers.php</code> - <?= e(dcs_t('admin.api.dashboard_servers')) ?></li>
+                            <li><code>get_server_stats.php</code> - <?= e(dcs_t('admin.api.dashboard_server_stats')) ?></li>
+                            <li><code>get_leaderboard_api.php</code> / <code>get_leaderboard.php</code> - <?= e(dcs_t('admin.api.dashboard_leaderboard')) ?></li>
+                            <li><code>get_player_stats_api.php</code> / <code>get_player_stats.php</code> - <?= e(dcs_t('admin.api.dashboard_player_stats')) ?></li>
+                            <li><code>get_credits_api.php</code> / <code>get_credits.php</code> - <?= e(dcs_t('admin.api.dashboard_credits')) ?></li>
+                            <li><code>get_missionstats_api.php</code> / <code>get_missionstats.php</code> - <?= e(dcs_t('admin.api.dashboard_missionstats')) ?></li>
+                            <li><code>get_squadrons_api.php</code> / <code>get_squadrons.php</code> - <?= e(dcs_t('admin.api.dashboard_squadrons')) ?></li>
+                            <li><code>get_squadron_members_api.php</code> / <code>get_squadron_members.php</code> - <?= e(dcs_t('admin.api.dashboard_squadron_members')) ?></li>
+                            <li><code>get_squadron_credits_api.php</code> / <code>get_squadron_credits.php</code> - <?= e(dcs_t('admin.api.dashboard_squadron_credits')) ?></li>
+                            <li><code>get_api_config.php</code> - <?= e(dcs_t('admin.api.dashboard_api_config')) ?></li>
+                            <li><code>get_leaderboard_client.php</code> - <?= e(dcs_t('admin.api.dashboard_leaderboard_client')) ?></li>
                         </ul>
 
-                        <strong>Note:</strong> The dashboard now uses the expanded API routes where available.
+                        <strong><?= e(dcs_t('admin.common.note')) ?>:</strong> <?= e(dcs_t('admin.api.expanded_note')) ?>
                     </div>
                 </div>
 
@@ -423,7 +424,7 @@ $pageTitle = 'API Settings';
                 
                 const apiHostInput = document.getElementById('api_host');
                 if (!apiHostInput.value.trim()) {
-                    alert('Please enter an API host first');
+                    alert(<?= json_encode(dcs_t('admin.api.enter_host_first')) ?>);
                     return;
                 }
                 

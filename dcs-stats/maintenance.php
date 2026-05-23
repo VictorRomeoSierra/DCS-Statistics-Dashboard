@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Include path configuration for URL helper
 require_once __DIR__ . '/config_path.php';
+require_once __DIR__ . '/language.php';
 
 // Load maintenance configuration
 $maintenanceFile = __DIR__ . '/site-config/data/maintenance.json';
@@ -30,11 +31,11 @@ if (!defined('MAINTENANCE_OVERRIDE')) {
 http_response_code(503);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars(dcs_default_language(), ENT_QUOTES, 'UTF-8'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DCS Statistics Dashboard</title>
+    <title><?php echo htmlspecialchars(dcs_t('maintenance.page_title'), ENT_QUOTES, 'UTF-8'); ?></title>
     <link rel="stylesheet" href="<?php echo url('styles.php'); ?>">
     <link rel="stylesheet" href="<?php echo url('styles-mobile.css'); ?>">
     <?php if (file_exists(__DIR__ . '/custom_theme.css')): ?>
@@ -44,12 +45,12 @@ http_response_code(503);
 <body>
     <main>
         <div class="dashboard-header">
-            <h1>DCS Statistics Dashboard</h1>
-            <p class="dashboard-subtitle">Real-time server performance and player metrics</p>
+            <h1><?php echo htmlspecialchars(dcs_t('maintenance.header_title'), ENT_QUOTES, 'UTF-8'); ?></h1>
+            <p class="dashboard-subtitle"><?php echo htmlspecialchars(dcs_t('maintenance.header_subtitle'), ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
         <div class="maintenance-page">
             <div class="maintenance-icon">✖</div>
-            <p>The DCS Statistics Dashboard is currently undergoing maintenance. Please try again later.</p>
+            <p><?php echo htmlspecialchars(dcs_t('maintenance.message'), ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
     </main>
 </body>

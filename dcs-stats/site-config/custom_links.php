@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
+require_once dirname(__DIR__) . '/language.php';
 require_once dirname(__DIR__) . '/site_features.php';
 
 requireAdmin();
@@ -26,14 +27,14 @@ function normalizeCustomLinksFromPost($postedLinks, &$message, &$messageType) {
         }
 
         if ($label === '' || $url === '') {
-            $message = 'Custom links need both a label and a URL';
+            $message = dcs_t('admin.custom_links.error_label_url_required');
             $messageType = 'error';
             break;
         }
 
         $isValidUrl = preg_match('#^https?://#i', $url) || strpos($url, '/') === 0;
         if (!$isValidUrl) {
-            $message = 'Custom link URLs must start with http://, https://, or /';
+            $message = dcs_t('admin.custom_links.error_invalid_url');
             $messageType = 'error';
             break;
         }
@@ -51,7 +52,7 @@ function normalizeCustomLinksFromPost($postedLinks, &$message, &$messageType) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-        $message = ERROR_MESSAGES['csrf_invalid'];
+        $message = dcs_t('admin.custom_links.csrf_invalid');
         $messageType = 'error';
     } else {
         $allFeatures = loadSiteFeatures();
@@ -65,10 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'menu_text' => $allFeatures['custom_links_menu_text'],
                     'link_count' => count($allFeatures['custom_links'])
                 ]);
-                $message = 'Custom links saved successfully';
+                $message = dcs_t('admin.custom_links.save_success');
                 $messageType = 'success';
             } else {
-                $message = 'Failed to save custom links';
+                $message = dcs_t('admin.custom_links.save_failed');
                 $messageType = 'error';
             }
         }
@@ -81,14 +82,14 @@ if (empty($customLinks)) {
     $customLinks = [['label' => '', 'url' => '', 'enabled' => true, 'new_tab' => true]];
 }
 
-$pageTitle = 'Custom Links';
+$pageTitle = dcs_t('admin.custom_links.title');
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e(dcs_default_language()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?> - Carrier Air Wing Command</title>
+    <title><?= e($pageTitle) ?> - Carrier Air Wing Command</title>
     <link rel="stylesheet" href="css/admin.css">
     <style>
         .custom-links-editor {
@@ -143,13 +144,13 @@ $pageTitle = 'Custom Links';
 
         <main class="admin-main">
             <header class="admin-header">
-                <h1><?= $pageTitle ?></h1>
+                <h1><?= e($pageTitle) ?></h1>
                 <div class="admin-user-menu">
                     <div class="admin-user-info">
                         <div class="admin-username"><?= e($currentAdmin['username']) ?></div>
                         <div class="admin-role"><?= getRoleBadge($currentAdmin['role']) ?></div>
                     </div>
-                    <a href="logout.php" class="btn btn-secondary btn-small">Logout</a>
+                    <a href="logout.php" class="btn btn-secondary btn-small"><?= e(dcs_t('admin.common.logout')) ?></a>
                 </div>
             </header>
 
@@ -162,18 +163,18 @@ $pageTitle = 'Custom Links';
 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Squadron Links Menu</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.custom_links.menu_title')) ?></h2>
                     </div>
 
                     <div class="custom-links-note">
-                        These links appear in the public navigation dropdown. Turn the dropdown itself on or off from Site Features under Navigation.
+                        <?= e(dcs_t('admin.custom_links.note')) ?>
                     </div>
 
                     <form method="POST" id="customLinksForm">
                         <?= csrfField() ?>
 
                         <div class="form-group">
-                            <label for="custom_links_menu_text">Menu Item Name</label>
+                            <label for="custom_links_menu_text"><?= e(dcs_t('admin.custom_links.menu_item_name')) ?></label>
                             <input type="text"
                                    id="custom_links_menu_text"
                                    name="custom_links_menu_text"
@@ -186,7 +187,7 @@ $pageTitle = 'Custom Links';
                             <?php foreach ($customLinks as $index => $link): ?>
                                 <div class="custom-link-row">
                                     <div class="form-group">
-                                        <label>Label</label>
+                                        <label><?= e(dcs_t('admin.custom_links.label')) ?></label>
                                         <input type="text"
                                                name="custom_links[<?= $index ?>][label]"
                                                class="form-control"
@@ -194,7 +195,7 @@ $pageTitle = 'Custom Links';
                                                placeholder="Tacview">
                                     </div>
                                     <div class="form-group">
-                                        <label>URL</label>
+                                        <label><?= e(dcs_t('admin.custom_links.url')) ?></label>
                                         <input type="text"
                                                name="custom_links[<?= $index ?>][url]"
                                                class="form-control"
@@ -206,23 +207,23 @@ $pageTitle = 'Custom Links';
                                                name="custom_links[<?= $index ?>][enabled]"
                                                value="1"
                                                <?= ($link['enabled'] ?? true) ? 'checked' : '' ?>>
-                                        Enabled
+                                        <?= e(dcs_t('admin.status.enabled')) ?>
                                     </label>
                                     <label class="custom-link-check">
                                         <input type="checkbox"
                                                name="custom_links[<?= $index ?>][new_tab]"
                                                value="1"
                                                <?= ($link['new_tab'] ?? true) ? 'checked' : '' ?>>
-                                        New Tab
+                                        <?= e(dcs_t('admin.custom_links.new_tab')) ?>
                                     </label>
-                                    <button type="button" class="btn btn-danger btn-small" onclick="removeCustomLink(this)">Remove</button>
+                                    <button type="button" class="btn btn-danger btn-small" onclick="removeCustomLink(this)"><?= e(dcs_t('admin.custom_links.remove')) ?></button>
                                 </div>
                             <?php endforeach; ?>
                         </div>
 
                         <div class="settings-actions">
-                            <button type="button" class="btn btn-secondary" onclick="addCustomLink()">Add Link</button>
-                            <button type="submit" class="btn btn-primary">Save Custom Links</button>
+                            <button type="button" class="btn btn-secondary" onclick="addCustomLink()"><?= e(dcs_t('admin.custom_links.add_link')) ?></button>
+                            <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.custom_links.save_custom_links')) ?></button>
                         </div>
                     </form>
                 </div>
@@ -232,6 +233,13 @@ $pageTitle = 'Custom Links';
 
     <script>
         let customLinkIndex = <?= max(1, count($customLinks)) ?>;
+        const customLinksText = <?= json_encode([
+            'label' => dcs_t('admin.custom_links.label'),
+            'url' => dcs_t('admin.custom_links.url'),
+            'enabled' => dcs_t('admin.status.enabled'),
+            'newTab' => dcs_t('admin.custom_links.new_tab'),
+            'remove' => dcs_t('admin.custom_links.remove')
+        ]) ?>;
 
         function addCustomLink() {
             const editor = document.getElementById('customLinksEditor');
@@ -239,22 +247,22 @@ $pageTitle = 'Custom Links';
             row.className = 'custom-link-row';
             row.innerHTML = `
                 <div class="form-group">
-                    <label>Label</label>
+                    <label>${customLinksText.label}</label>
                     <input type="text" name="custom_links[${customLinkIndex}][label]" class="form-control" placeholder="Tacview">
                 </div>
                 <div class="form-group">
-                    <label>URL</label>
+                    <label>${customLinksText.url}</label>
                     <input type="text" name="custom_links[${customLinkIndex}][url]" class="form-control" placeholder="https://example.com">
                 </div>
                 <label class="custom-link-check">
                     <input type="checkbox" name="custom_links[${customLinkIndex}][enabled]" value="1" checked>
-                    Enabled
+                    ${customLinksText.enabled}
                 </label>
                 <label class="custom-link-check">
                     <input type="checkbox" name="custom_links[${customLinkIndex}][new_tab]" value="1" checked>
-                    New Tab
+                    ${customLinksText.newTab}
                 </label>
-                <button type="button" class="btn btn-danger btn-small" onclick="removeCustomLink(this)">Remove</button>
+                <button type="button" class="btn btn-danger btn-small" onclick="removeCustomLink(this)">${customLinksText.remove}</button>
             `;
             editor.appendChild(row);
             customLinkIndex++;

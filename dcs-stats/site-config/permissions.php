@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
+require_once dirname(__DIR__) . '/language.php';
 
 // Require admin login and permission
 requireAdmin();
@@ -42,21 +43,21 @@ function getPermissionsConfigPath() {
 // Default LSO permissions
 $defaultLSOPermissions = [
     // Core Permissions
-    'view_dashboard' => ['enabled' => true, 'label' => 'View Dashboard', 'description' => 'Access the main dashboard and statistics'],
-    'export_data' => ['enabled' => true, 'label' => 'Export Data', 'description' => 'Export player and mission data'],
-    'view_logs' => ['enabled' => true, 'label' => 'View Logs', 'description' => 'View activity logs and audit trails'],
+    'view_dashboard' => ['enabled' => true, 'label' => dcs_t('admin.permissions.view_dashboard'), 'description' => dcs_t('admin.permissions.view_dashboard_desc')],
+    'export_data' => ['enabled' => true, 'label' => dcs_t('admin.permissions.export_data'), 'description' => dcs_t('admin.permissions.export_data_desc')],
+    'view_logs' => ['enabled' => true, 'label' => dcs_t('admin.permissions.view_logs'), 'description' => dcs_t('admin.permissions.view_logs_desc')],
     
     // Management Permissions
-    'manage_api' => ['enabled' => false, 'label' => 'Manage API', 'description' => 'Configure API settings and connections'],
-    'manage_features' => ['enabled' => false, 'label' => 'Manage Features', 'description' => 'Enable/disable site features'],
-    'manage_themes' => ['enabled' => false, 'label' => 'Manage Themes', 'description' => 'Customize site appearance and themes'],
-    'manage_discord' => ['enabled' => false, 'label' => 'Manage Discord', 'description' => 'Configure Discord integration and links'],
-    'manage_squadrons' => ['enabled' => false, 'label' => 'Manage Squadrons', 'description' => 'Configure squadron homepage settings'],
-    'manage_maintenance' => ['enabled' => false, 'label' => 'Manage Maintenance', 'description' => 'Configure maintenance mode settings'],
-    'manage_updates' => ['enabled' => false, 'label' => 'Manage Updates', 'description' => 'Install updates and manage backups'],
+    'manage_api' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_api'), 'description' => dcs_t('admin.permissions.manage_api_desc')],
+    'manage_features' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_features'), 'description' => dcs_t('admin.permissions.manage_features_desc')],
+    'manage_themes' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_themes'), 'description' => dcs_t('admin.permissions.manage_themes_desc')],
+    'manage_discord' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_discord'), 'description' => dcs_t('admin.permissions.manage_discord_desc')],
+    'manage_squadrons' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_squadrons'), 'description' => dcs_t('admin.permissions.manage_squadrons_desc')],
+    'manage_maintenance' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_maintenance'), 'description' => dcs_t('admin.permissions.manage_maintenance_desc')],
+    'manage_updates' => ['enabled' => false, 'label' => dcs_t('admin.permissions.manage_updates'), 'description' => dcs_t('admin.permissions.manage_updates_desc')],
     
     // Additional Permissions
-    'change_settings' => ['enabled' => false, 'label' => 'Change Settings', 'description' => 'General permission to access settings menu']
+    'change_settings' => ['enabled' => false, 'label' => dcs_t('admin.permissions.change_settings'), 'description' => dcs_t('admin.permissions.change_settings_desc')]
 ];
 
 // Load current permissions
@@ -78,7 +79,7 @@ if (file_exists($permissionsFile)) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $error = 'Invalid request token';
+        $error = dcs_t('admin.permissions.invalid_token');
     } else {
         $enabledPerms = $_POST['permissions'] ?? [];
         
@@ -90,9 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Save to file
         $result = @file_put_contents($permissionsFile, json_encode($lsoPermissions, JSON_PRETTY_PRINT));
         if ($result === false) {
-            $error = 'Failed to save permissions. Please check file permissions.';
+            $error = dcs_t('admin.permissions.save_failed');
         } else {
-            $message = 'LSO permissions updated successfully';
+            $message = dcs_t('admin.permissions.save_success');
             if (function_exists('logActivity')) {
                 logActivity('PERMISSIONS_UPDATE', 'Updated LSO group permissions');
             }
@@ -113,7 +114,7 @@ function updateLSOPermissionsInConfig($permissions) {
 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
 // Page title
-$pageTitle = 'LSO Permissions Management';
+$pageTitle = dcs_t('admin.permissions.title');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -261,7 +262,7 @@ $pageTitle = 'LSO Permissions Management';
                         <div class="admin-username"><?= e(getCurrentAdmin()['username']) ?></div>
                         <div class="admin-role"><?= getRoleBadge(getCurrentAdmin()['role']) ?></div>
                     </div>
-                    <a href="logout.php" class="btn btn-secondary btn-small">Logout</a>
+                    <a href="logout.php" class="btn btn-secondary btn-small"><?= e(dcs_t('admin.common.logout')) ?></a>
                 </div>
             </header>
             
@@ -277,22 +278,21 @@ $pageTitle = 'LSO Permissions Management';
                     <?php endif; ?>
                     
                     <div class="permissions-info">
-                        <strong>About LSO Permissions:</strong><br>
-                        Configure what members of the Landing Signal Officer (LSO) group can access in the admin panel. 
-                        These permissions apply to all users with the LSO role. Air Boss users always have full access to all features.
+                        <strong><?= e(dcs_t('admin.permissions.about_title')) ?>:</strong><br>
+                        <?= e(dcs_t('admin.permissions.about_text')) ?>
                     </div>
                     
                     <form method="POST" action="">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         
                         <div class="quick-actions">
-                            <button type="button" class="btn btn-sm" onclick="selectAll()">Select All</button>
-                            <button type="button" class="btn btn-sm" onclick="selectNone()">Select None</button>
-                            <button type="button" class="btn btn-sm" onclick="selectDefault()">Reset to Default</button>
+                            <button type="button" class="btn btn-sm" onclick="selectAll()"><?= e(dcs_t('admin.permissions.select_all')) ?></button>
+                            <button type="button" class="btn btn-sm" onclick="selectNone()"><?= e(dcs_t('admin.permissions.select_none')) ?></button>
+                            <button type="button" class="btn btn-sm" onclick="selectDefault()"><?= e(dcs_t('admin.themes.reset_to_default')) ?></button>
                         </div>
                         
                         <div class="section-header">
-                            <h3>Core Permissions</h3>
+                            <h3><?= e(dcs_t('admin.permissions.core_permissions')) ?></h3>
                             <span class="permission-count" id="core-count">0</span>
                         </div>
                         
@@ -325,7 +325,7 @@ $pageTitle = 'LSO Permissions Management';
                         </div>
                         
                         <div class="section-header">
-                            <h3>Management Permissions</h3>
+                            <h3><?= e(dcs_t('admin.permissions.management_permissions')) ?></h3>
                             <span class="permission-count" id="mgmt-count">0</span>
                         </div>
                         
@@ -358,7 +358,7 @@ $pageTitle = 'LSO Permissions Management';
                         </div>
                         
                         
-                        <button type="submit" class="btn btn-primary" style="margin-top: 30px;">Save Permissions</button>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 30px;"><?= e(dcs_t('admin.permissions.save_permissions')) ?></button>
                     </form>
                 </div>
             </div>

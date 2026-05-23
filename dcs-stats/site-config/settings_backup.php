@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
+require_once dirname(__DIR__) . '/language.php';
 require_once dirname(__DIR__) . '/site_features.php';
 require_once dirname(__DIR__) . '/site_metadata.php';
 
@@ -19,6 +20,12 @@ $messageType = '';
 
 function settingsBackupDataPath($fileName) {
     return __DIR__ . '/data/' . $fileName;
+}
+
+function settingsBackupSectionLabel($section) {
+    $key = 'admin.settings_backup.section.' . preg_replace('/[^a-z0-9]+/', '_', strtolower(trim((string)$section)));
+    $translated = dcs_t($key);
+    return $translated === $key ? str_replace('_', ' ', $section) : $translated;
 }
 
 function readJsonFileForBackup($path, $fallback = null) {
@@ -106,13 +113,13 @@ function cleanSiteConfigForImport($config) {
 
 function importSiteSettingsBackup($backup, &$error) {
     if (!is_array($backup) || ($backup['type'] ?? '') !== 'dcs_statistics_dashboard_site_settings') {
-        $error = 'Invalid site settings backup file';
+        $error = dcs_t('admin.settings_backup.invalid_file');
         return false;
     }
 
     $data = $backup['data'] ?? null;
     if (!is_array($data)) {
-        $error = 'Backup file does not contain settings data';
+        $error = dcs_t('admin.settings_backup.no_settings_data');
         return false;
     }
 
@@ -122,21 +129,21 @@ function importSiteSettingsBackup($backup, &$error) {
         $existing = readJsonFileForBackup($root . '/site_config.json', []);
         $safeConfig = array_merge($existing ?: [], cleanSiteConfigForImport($data['site_config']));
         if (!writeJsonFileFromBackup($root . '/site_config.json', $safeConfig)) {
-            $error = 'Could not restore site configuration';
+            $error = dcs_t('admin.settings_backup.restore_site_config_failed');
             return false;
         }
     }
 
     if (isset($data['site_features']) && is_array($data['site_features'])) {
         if (!saveSiteFeatures($data['site_features'])) {
-            $error = 'Could not restore site feature settings';
+            $error = dcs_t('admin.settings_backup.restore_site_features_failed');
             return false;
         }
     }
 
     if (isset($data['site_metadata']) && is_array($data['site_metadata'])) {
         if (!saveSiteMetadata($data['site_metadata'])) {
-            $error = 'Could not restore privacy and SEO settings';
+            $error = dcs_t('admin.settings_backup.restore_site_metadata_failed');
             return false;
         }
     }
@@ -150,7 +157,7 @@ function importSiteSettingsBackup($backup, &$error) {
     foreach ($jsonSections as $section => $path) {
         if (isset($data[$section]) && is_array($data[$section])) {
             if (!writeJsonFileFromBackup($path, $data[$section])) {
-                $error = 'Could not restore ' . str_replace('_', ' ', $section);
+                $error = dcs_t('admin.settings_backup.restore_section_failed', ['section' => settingsBackupSectionLabel($section)]);
                 return false;
             }
         }
@@ -164,7 +171,7 @@ function importSiteSettingsBackup($backup, &$error) {
     foreach ($textSections as $section => $path) {
         if (isset($data[$section]) && is_string($data[$section])) {
             if (@file_put_contents($path, $data[$section]) === false) {
-                $error = 'Could not restore ' . str_replace('_', ' ', $section);
+                $error = dcs_t('admin.settings_backup.restore_section_failed', ['section' => settingsBackupSectionLabel($section)]);
                 return false;
             }
         }
@@ -175,7 +182,7 @@ function importSiteSettingsBackup($backup, &$error) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-        $message = ERROR_MESSAGES['csrf_invalid'];
+        $message = dcs_t('admin.settings_backup.csrf_invalid');
         $messageType = 'error';
     } else {
         $action = $_POST['action'] ?? '';
@@ -192,10 +199,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($action === 'import_settings') {
             if (!isset($_FILES['settings_file']) || $_FILES['settings_file']['error'] !== UPLOAD_ERR_OK) {
-                $message = 'Please select a site settings backup file';
+                $message = dcs_t('admin.settings_backup.select_file');
                 $messageType = 'error';
             } elseif ($_FILES['settings_file']['size'] > 2 * 1024 * 1024) {
-                $message = 'Settings backup must be less than 2MB';
+                $message = dcs_t('admin.settings_backup.file_too_large');
                 $messageType = 'error';
             } else {
                 $backup = json_decode(file_get_contents($_FILES['settings_file']['tmp_name']), true);
@@ -206,10 +213,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'schema_version' => $backup['schema_version'] ?? null,
                         'exported_at' => $backup['exported_at'] ?? null
                     ]);
-                    $message = 'Site settings restored successfully';
+                    $message = dcs_t('admin.settings_backup.restore_success');
                     $messageType = 'success';
                 } else {
-                    $message = $importError ?: 'Invalid site settings backup file';
+                    $message = $importError ?: dcs_t('admin.settings_backup.invalid_file');
                     $messageType = 'error';
                 }
             }
@@ -217,15 +224,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Settings Backup';
+$pageTitle = dcs_t('admin.settings_backup.title');
 $backupPreview = buildSiteSettingsBackup();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= e(dcs_default_language()) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?> - Carrier Air Wing Command</title>
+    <title><?= e($pageTitle) ?> - Carrier Air Wing Command</title>
     <link rel="stylesheet" href="css/admin.css">
     <style>
         .backup-grid {
@@ -267,13 +274,13 @@ $backupPreview = buildSiteSettingsBackup();
 
     <main class="admin-main">
         <header class="admin-header">
-            <h1><?= $pageTitle ?></h1>
+            <h1><?= e($pageTitle) ?></h1>
             <div class="admin-user-menu">
                 <div class="admin-user-info">
                     <div class="admin-username"><?= e($currentAdmin['username']) ?></div>
                     <div class="admin-role"><?= getRoleBadge($currentAdmin['role']) ?></div>
                 </div>
-                <a href="logout.php" class="btn btn-secondary btn-small">Logout</a>
+                <a href="logout.php" class="btn btn-secondary btn-small"><?= e(dcs_t('admin.common.logout')) ?></a>
             </div>
         </header>
 
@@ -285,56 +292,56 @@ $backupPreview = buildSiteSettingsBackup();
             <?php endif; ?>
 
             <div class="settings-note">
-                Export and restore portable site settings without including sensitive data. API keys, admin users, passwords, logs, sessions, bans, maintenance IPs, uploads, backups, and version metadata are deliberately excluded.
+                <?= e(dcs_t('admin.settings_backup.note')) ?>
             </div>
 
             <div class="backup-grid">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Export Settings</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.settings_backup.export_settings')) ?></h2>
                     </div>
-                    <p class="text-muted">Download a JSON backup of the current non-sensitive site settings.</p>
+                    <p class="text-muted"><?= e(dcs_t('admin.settings_backup.export_text')) ?></p>
                     <form method="POST">
                         <?= csrfField() ?>
                         <input type="hidden" name="action" value="export_settings">
-                        <button type="submit" class="btn btn-primary">Download Settings Backup</button>
+                        <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.settings_backup.download_button')) ?></button>
                     </form>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Restore Settings</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.settings_backup.restore_settings')) ?></h2>
                     </div>
-                    <p class="text-muted">Upload a settings backup from this dashboard. This will replace the matching settings on this install.</p>
-                    <form method="POST" enctype="multipart/form-data" onsubmit="return confirm('Restore this settings backup? Current matching settings will be replaced.');">
+                    <p class="text-muted"><?= e(dcs_t('admin.settings_backup.restore_text')) ?></p>
+                    <form method="POST" enctype="multipart/form-data" onsubmit="return confirm(this.dataset.confirmMessage);" data-confirm-message="<?= e(dcs_t('admin.settings_backup.restore_confirm')) ?>">
                         <?= csrfField() ?>
                         <input type="hidden" name="action" value="import_settings">
                         <div class="file-input-row">
                             <input type="file" name="settings_file" id="settings_file" accept=".json,application/json" required>
                         </div>
-                        <button type="submit" class="btn btn-warning">Restore Settings Backup</button>
+                        <button type="submit" class="btn btn-warning"><?= e(dcs_t('admin.settings_backup.restore_button')) ?></button>
                     </form>
                 </div>
             </div>
 
             <div class="card" style="margin-top: 20px;">
                 <div class="card-header">
-                    <h2 class="card-title">Backup Contents</h2>
+                    <h2 class="card-title"><?= e(dcs_t('admin.settings_backup.backup_contents')) ?></h2>
                 </div>
                 <div class="backup-grid">
                     <div>
-                        <h3>Included</h3>
+                        <h3><?= e(dcs_t('admin.settings_backup.included')) ?></h3>
                         <ul class="included-list">
                             <?php foreach ($backupPreview['includes'] as $item): ?>
-                                <li><?= e(str_replace('_', ' ', $item)) ?></li>
+                                <li><?= e(settingsBackupSectionLabel($item)) ?></li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
                     <div>
-                        <h3>Excluded</h3>
+                        <h3><?= e(dcs_t('admin.settings_backup.excluded')) ?></h3>
                         <ul class="excluded-list">
                             <?php foreach ($backupPreview['excluded'] as $item): ?>
-                                <li><?= e(str_replace('_', ' ', $item)) ?></li>
+                                <li><?= e(settingsBackupSectionLabel($item)) ?></li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
