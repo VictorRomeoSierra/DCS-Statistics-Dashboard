@@ -10,7 +10,7 @@ function getCurrentVersionInfo() {
     
     // Default values
     $info = [
-        'version' => defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : 'V0.0.04',
+        'version' => defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : 'V1.2',
         'branch' => 'main',
         'commit_sha' => null,
         'commit_date' => null,
