@@ -219,7 +219,7 @@ $pageTitle = 'Export Data';
                     </div>
                     
                     <!-- Full Database Export -->
-                    <?php if ($currentAdmin['role'] == ROLE_SUPER_ADMIN): ?>
+                    <?php if ($currentAdmin['role'] == ROLE_AIR_BOSS): ?>
                     <div class="export-option" style="border: 2px solid var(--accent-danger);">
                         <h3 style="color: var(--accent-danger);">Full Data Export</h3>
                         <p style="color: var(--accent-warning);">

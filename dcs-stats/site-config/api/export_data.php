@@ -95,7 +95,7 @@ switch ($exportType) {
         break;
         
     case 'full':
-        if (getCurrentAdmin()['role'] != ROLE_SUPER_ADMIN) {
+        if (getCurrentAdmin()['role'] != ROLE_AIR_BOSS) {
             http_response_code(403);
             die('Permission denied');
         }
