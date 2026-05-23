@@ -105,6 +105,7 @@ function getDefaultThemeColors() {
         'primary_color' => '#1a1a1a',
         'secondary_color' => '#2a2a2a',
         'background_color' => '#121212',
+        'background_gradient_color' => '#1f2b22',
         'surface_color' => '#2c2c2c',
         'surface_dark_color' => '#1e1e1e',
         'card_color' => '#2c2c2c',
@@ -144,6 +145,7 @@ function getThemeColorGroups() {
     return [
         dcs_t('admin.themes.group_page_text') => [
             'background_color' => dcs_t('admin.themes.page_background'),
+            'background_gradient_color' => dcs_t('admin.themes.page_gradient_end'),
             'text_color' => dcs_t('admin.themes.main_text'),
             'muted_text_color' => dcs_t('admin.themes.muted_text'),
             'heading_color' => dcs_t('admin.themes.headings'),
@@ -194,7 +196,8 @@ function getThemeColorGroups() {
 
 function getDefaultThemeOptions() {
     return [
-        'header_title_gradient_enabled' => false
+        'header_title_gradient_enabled' => false,
+        'page_background_gradient_enabled' => false
     ];
 }
 
@@ -202,6 +205,9 @@ function loadThemeOptionsFromCss($content) {
     $options = getDefaultThemeOptions();
     if (preg_match('/--header_title_gradient_enabled:\s*(0|1);/', $content, $match)) {
         $options['header_title_gradient_enabled'] = $match[1] === '1';
+    }
+    if (preg_match('/--page_background_gradient_enabled:\s*(0|1);/', $content, $match)) {
+        $options['page_background_gradient_enabled'] = $match[1] === '1';
     }
     return $options;
 }
@@ -244,7 +250,8 @@ function cleanThemeColors($colors) {
 
 function cleanThemeOptions($options) {
     return [
-        'header_title_gradient_enabled' => !empty($options['header_title_gradient_enabled'])
+        'header_title_gradient_enabled' => !empty($options['header_title_gradient_enabled']),
+        'page_background_gradient_enabled' => !empty($options['page_background_gradient_enabled'])
     ];
 }
 
@@ -519,6 +526,8 @@ function buildCustomThemeCss($colors, $options = []) {
     }
     $gradientEnabled = !empty($options['header_title_gradient_enabled']);
     $cssVars .= "    --header_title_gradient_enabled: " . ($gradientEnabled ? "1" : "0") . ";\n";
+    $pageGradientEnabled = !empty($options['page_background_gradient_enabled']);
+    $cssVars .= "    --page_background_gradient_enabled: " . ($pageGradientEnabled ? "1" : "0") . ";\n";
     if ($gradientEnabled) {
         $cssVars .= "    --header_title_background: linear-gradient(135deg, var(--header_text_color) 0%, var(--header_title_gradient_color) 100%);\n";
         $cssVars .= "    --header_title_fill: transparent;\n";
@@ -526,10 +535,16 @@ function buildCustomThemeCss($colors, $options = []) {
         $cssVars .= "    --header_title_background: none;\n";
         $cssVars .= "    --header_title_fill: var(--header_text_color);\n";
     }
+    if ($pageGradientEnabled) {
+        $cssVars .= "    --page_background_css: radial-gradient(circle at top left, color-mix(in srgb, var(--background_gradient_color) 36%, transparent) 0%, transparent 34%), linear-gradient(135deg, var(--background_color) 0%, var(--background_gradient_color) 100%);\n";
+    } else {
+        $cssVars .= "    --page_background_css: var(--background_color);\n";
+    }
     $cssVars .= "}\n\n";
 
     $cssVars .= <<<'CSS'
 body {
+    background: var(--page_background_css) !important;
     background-color: var(--background_color) !important;
     color: var(--text_color) !important;
 }
@@ -1369,7 +1384,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $colors[$key] = $_POST[$key] ?? $defaultValue;
                 }
                 $themeOptions = [
-                    'header_title_gradient_enabled' => isset($_POST['header_title_gradient_enabled'])
+                    'header_title_gradient_enabled' => isset($_POST['header_title_gradient_enabled']),
+                    'page_background_gradient_enabled' => isset($_POST['page_background_gradient_enabled'])
                 ];
                 
                 // Save to custom theme file
@@ -2006,6 +2022,7 @@ $pageTitle = dcs_t('admin.themes.title');
                         $previewParams[$colorKey] = substr($colorValue, 1);
                     }
                     $previewParams['header_title_gradient_enabled'] = !empty($themeOptions['header_title_gradient_enabled']) ? '1' : '0';
+                    $previewParams['page_background_gradient_enabled'] = !empty($themeOptions['page_background_gradient_enabled']) ? '1' : '0';
                     // Build URL to parent directory
                     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
                     $host = $_SERVER['HTTP_HOST'];
@@ -2049,6 +2066,13 @@ $pageTitle = dcs_t('admin.themes.title');
                         <?php foreach (getThemeColorGroups() as $groupName => $fields): ?>
                             <fieldset class="color-fieldset">
                                 <legend><?= htmlspecialchars($groupName) ?></legend>
+                                <?php if ($groupName === dcs_t('admin.themes.group_page_text')): ?>
+                                    <div class="color-input-group" style="margin-bottom: 14px;">
+                                        <label for="page_background_gradient_enabled"><?= e(dcs_t('admin.themes.page_background_gradient')) ?>:</label>
+                                        <input type="checkbox" id="page_background_gradient_enabled" name="page_background_gradient_enabled"
+                                               <?= !empty($themeOptions['page_background_gradient_enabled']) ? 'checked' : '' ?>>
+                                    </div>
+                                <?php endif; ?>
                                 <?php if ($groupName === dcs_t('admin.themes.group_header_nav')): ?>
                                     <div class="color-input-group" style="margin-bottom: 14px;">
                                         <label for="header_title_gradient_enabled"><?= e(dcs_t('admin.themes.header_soft_gradient')) ?>:</label>
@@ -2682,6 +2706,10 @@ $pageTitle = dcs_t('admin.themes.title');
             if (titleGradient) {
                 params.set('header_title_gradient_enabled', titleGradient.checked ? '1' : '0');
             }
+            const pageGradient = document.getElementById('page_background_gradient_enabled');
+            if (pageGradient) {
+                params.set('page_background_gradient_enabled', pageGradient.checked ? '1' : '0');
+            }
             
             // Update iframe source with preview parameters
             // Build URL to parent directory  
@@ -2722,6 +2750,18 @@ $pageTitle = dcs_t('admin.themes.title');
         const titleGradientToggle = document.getElementById('header_title_gradient_enabled');
         if (titleGradientToggle) {
             titleGradientToggle.addEventListener('change', function() {
+                updatePreviewColors();
+                const status = document.getElementById('preview-status');
+                status.textContent = themeText.previewUpdated;
+                status.style.color = '#4CAF50';
+                setTimeout(() => {
+                    status.textContent = '';
+                }, 2000);
+            });
+        }
+        const pageGradientToggle = document.getElementById('page_background_gradient_enabled');
+        if (pageGradientToggle) {
+            pageGradientToggle.addEventListener('change', function() {
                 updatePreviewColors();
                 const status = document.getElementById('preview-status');
                 status.textContent = themeText.previewUpdated;
@@ -2862,6 +2902,8 @@ $pageTitle = dcs_t('admin.themes.title');
             }
             const titleGradient = document.getElementById('header_title_gradient_enabled');
             if (titleGradient) titleGradient.checked = false;
+            const pageGradient = document.getElementById('page_background_gradient_enabled');
+            if (pageGradient) pageGradient.checked = false;
             
             // Update preview immediately
             updatePreviewColors();

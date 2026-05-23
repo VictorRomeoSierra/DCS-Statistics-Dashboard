@@ -514,6 +514,8 @@ return [
     'admin.themes.group_footer' => 'Footer',
     'admin.themes.group_tables' => 'Tables',
     'admin.themes.page_background' => 'Page Background',
+    'admin.themes.page_gradient_end' => 'Page Gradient End',
+    'admin.themes.page_background_gradient' => 'Page Background Gradient',
     'admin.themes.main_text' => 'Main Text',
     'admin.themes.muted_text' => 'Muted Text',
     'admin.themes.headings' => 'Headings',

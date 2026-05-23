@@ -95,7 +95,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-i
 $previewColors = null;
 if (isset($_GET['preview']) && $_GET['preview'] === '1') {
     $previewColorKeys = [
-        'primary_color', 'secondary_color', 'background_color', 'surface_color', 'surface_dark_color',
+        'primary_color', 'secondary_color', 'background_color', 'background_gradient_color', 'surface_color', 'surface_dark_color',
         'card_color', 'card_alt_color', 'card_heading_color', 'card_text_color',
         'card_muted_text_color', 'text_color', 'muted_text_color', 'heading_color', 'link_color',
         'accent_color', 'accent_hover_color', 'border_color', 'nav_background_color',
@@ -173,6 +173,17 @@ if (file_exists($maintenanceFile)) {
       --header_title_background: none !important;
       --header_title_fill: var(--header_text_color) !important;
       <?php endif; ?>
+      <?php if (($_GET['page_background_gradient_enabled'] ?? '0') === '1'): ?>
+      --page_background_gradient_enabled: 1 !important;
+      --page_background_css: radial-gradient(circle at top left, color-mix(in srgb, var(--background_gradient_color) 36%, transparent) 0%, transparent 34%), linear-gradient(135deg, var(--background_color) 0%, var(--background_gradient_color) 100%) !important;
+      <?php else: ?>
+      --page_background_gradient_enabled: 0 !important;
+      --page_background_css: var(--background_color) !important;
+      <?php endif; ?>
+    }
+    body {
+      background: var(--page_background_css) !important;
+      background-color: var(--background_color) !important;
     }
   </style>
   <?php endif; ?>
