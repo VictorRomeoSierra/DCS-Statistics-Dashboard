@@ -216,15 +216,56 @@ function formatPlayers(players) {
     `).join('');
 }
 
-function getActivePlayersForDisplay(server, summary) {
+function getCoalitionPlayerCount(server, keys) {
+    if (!server.mission) return 0;
+
+    return keys.reduce((total, key) => total + Number(server.mission[key] || 0), 0);
+}
+
+function takePlayersBySide(players, side, count) {
+    if (count <= 0) return [];
+
+    return players
+        .filter(player => String(player.side || player.coalition || '').toUpperCase() === side && hasActivePlayerUnit(player))
+        .slice(-count);
+}
+
+function hasActivePlayerUnit(player) {
+    const unitType = String(player.unit_type || player.unit || player.aircraft || '').trim();
+    const inactiveUnits = ['observer', 'spectator', 'cvn_71'];
+    const activeUnit = unitType && !inactiveUnits.includes(unitType.toLowerCase());
+    const callsign = String(player.callsign || '').trim();
+
+    return activeUnit || callsign !== '';
+}
+
+function getLiveActivePlayersForDisplay(server, summary) {
     const status = String(server.status || '').toLowerCase();
     const inactiveStatuses = ['offline', 'paused', 'shutdown', 'stopped', 'not running'];
+    const activeSlotCount = Number(summary.activeSlotCount || 0);
 
-    if (inactiveStatuses.includes(status) || Number(summary.activeSlotCount || 0) === 0) {
+    if (inactiveStatuses.includes(status) || activeSlotCount === 0) {
         return [];
     }
 
-    return Array.isArray(server.players) ? server.players : [];
+    const players = Array.isArray(server.players) ? server.players : [];
+    const activePlayers = players.filter(hasActivePlayerUnit);
+    if (activePlayers.length > 0 && activePlayers.length <= activeSlotCount) {
+        return activePlayers;
+    }
+
+    const blueCount = getCoalitionPlayerCount(server, ['blue_slots_used', 'blue_players', 'blue_count']);
+    const redCount = getCoalitionPlayerCount(server, ['red_slots_used', 'red_players', 'red_count']);
+    const coalitionPlayers = [
+        ...takePlayersBySide(players, 'BLUE', blueCount),
+        ...takePlayersBySide(players, 'RED', redCount)
+    ];
+
+    if (coalitionPlayers.length > 0) {
+        return coalitionPlayers.slice(0, activeSlotCount);
+    }
+
+    return activePlayers.slice(-activeSlotCount);
 }
 
 function createServerDetailCard(server, summary) {
@@ -233,7 +274,7 @@ function createServerDetailCard(server, summary) {
 
     const weather = formatWeather(server.weather);
     const extensions = formatExtensions(server.extensions);
-    const players = formatPlayers(getActivePlayersForDisplay(server, summary));
+    const players = formatPlayers(getLiveActivePlayersForDisplay(server, summary));
     const restart = server.restart_time ? new Date(server.restart_time).toLocaleString() : i18n.notAvailable;
     const status = server.status || i18n.unknown;
     const statusClass = `detail-status status-${String(status).toLowerCase()}`;
