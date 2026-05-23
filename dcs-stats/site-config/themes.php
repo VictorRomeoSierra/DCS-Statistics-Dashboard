@@ -8,6 +8,7 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
 require_once __DIR__ . '/../config_path.php';
 require_once __DIR__ . '/../chart_theme.php';
+require_once __DIR__ . '/../language.php';
 
 // Require admin login and permission
 requireAdmin();
@@ -141,52 +142,52 @@ function getDefaultThemeColors() {
 
 function getThemeColorGroups() {
     return [
-        'Page & Text' => [
-            'background_color' => 'Page Background',
-            'text_color' => 'Main Text',
-            'muted_text_color' => 'Muted Text',
-            'heading_color' => 'Headings',
-            'link_color' => 'Links'
+        dcs_t('admin.themes.group_page_text') => [
+            'background_color' => dcs_t('admin.themes.page_background'),
+            'text_color' => dcs_t('admin.themes.main_text'),
+            'muted_text_color' => dcs_t('admin.themes.muted_text'),
+            'heading_color' => dcs_t('admin.themes.headings'),
+            'link_color' => dcs_t('admin.themes.links')
         ],
-        'Brand & Accents' => [
-            'accent_color' => 'Main Accent',
-            'accent_hover_color' => 'Accent Hover',
-            'border_color' => 'Borders',
-            'success_color' => 'Success',
-            'warning_color' => 'Warning',
-            'danger_color' => 'Danger',
-            'info_color' => 'Info'
+        dcs_t('admin.themes.group_brand') => [
+            'accent_color' => dcs_t('admin.themes.main_accent'),
+            'accent_hover_color' => dcs_t('admin.themes.accent_hover'),
+            'border_color' => dcs_t('admin.themes.borders'),
+            'success_color' => dcs_t('admin.themes.success'),
+            'warning_color' => dcs_t('admin.themes.warning'),
+            'danger_color' => dcs_t('admin.themes.danger'),
+            'info_color' => dcs_t('admin.themes.info')
         ],
-        'Panels & Cards' => [
-            'surface_color' => 'Panel Top',
-            'surface_dark_color' => 'Panel Bottom',
-            'card_color' => 'Card Top',
-            'card_alt_color' => 'Card Bottom',
-            'card_heading_color' => 'Card Headings',
-            'card_text_color' => 'Card Text',
-            'card_muted_text_color' => 'Card Muted Text',
-            'secondary_color' => 'Secondary Surface'
+        dcs_t('admin.themes.group_panels') => [
+            'surface_color' => dcs_t('admin.themes.panel_top'),
+            'surface_dark_color' => dcs_t('admin.themes.panel_bottom'),
+            'card_color' => dcs_t('admin.themes.card_top'),
+            'card_alt_color' => dcs_t('admin.themes.card_bottom'),
+            'card_heading_color' => dcs_t('admin.themes.card_headings'),
+            'card_text_color' => dcs_t('admin.themes.card_text'),
+            'card_muted_text_color' => dcs_t('admin.themes.card_muted_text'),
+            'secondary_color' => dcs_t('admin.themes.secondary_surface')
         ],
-        'Header & Navigation' => [
-            'primary_color' => 'Primary Background',
-            'nav_background_color' => 'Nav Background',
-            'nav_text_color' => 'Nav Text',
-            'nav_hover_color' => 'Nav Hover',
-            'header_text_color' => 'Header Title',
-            'header_title_gradient_color' => 'Header Title Gradient End',
-            'header_subtitle_color' => 'Header Subtitle'
+        dcs_t('admin.themes.group_header_nav') => [
+            'primary_color' => dcs_t('admin.themes.primary_background'),
+            'nav_background_color' => dcs_t('admin.themes.nav_background'),
+            'nav_text_color' => dcs_t('admin.themes.nav_text'),
+            'nav_hover_color' => dcs_t('admin.themes.nav_hover'),
+            'header_text_color' => dcs_t('admin.themes.header_title'),
+            'header_title_gradient_color' => dcs_t('admin.themes.header_gradient_end'),
+            'header_subtitle_color' => dcs_t('admin.themes.header_subtitle')
         ],
-        'Footer' => [
-            'footer_background_color' => 'Footer Background',
-            'footer_text_color' => 'Footer Text'
+        dcs_t('admin.themes.group_footer') => [
+            'footer_background_color' => dcs_t('admin.themes.footer_background'),
+            'footer_text_color' => dcs_t('admin.themes.footer_text')
         ],
-        'Tables' => [
-            'table_header_color' => 'Table Header',
-            'table_header_text_color' => 'Table Header Text',
-            'table_row_color' => 'Table Row',
-            'table_text_color' => 'Table Text',
-            'table_player_name_color' => 'Table Player Names',
-            'table_hover_color' => 'Table Hover'
+        dcs_t('admin.themes.group_tables') => [
+            'table_header_color' => dcs_t('admin.themes.table_header'),
+            'table_header_text_color' => dcs_t('admin.themes.table_header_text'),
+            'table_row_color' => dcs_t('admin.themes.table_row'),
+            'table_text_color' => dcs_t('admin.themes.table_text'),
+            'table_player_name_color' => dcs_t('admin.themes.table_player_names'),
+            'table_hover_color' => dcs_t('admin.themes.table_hover')
         ]
     ];
 }
@@ -256,15 +257,15 @@ function getBuiltInThemePresets() {
 
     return [
         'carrier_night' => [
-            'name' => 'Carrier Night',
-            'description' => 'Dark carrier deck style with green command accents.',
+            'name' => dcs_t('admin.themes.preset_carrier_night'),
+            'description' => dcs_t('admin.themes.preset_carrier_night_desc'),
             'colors' => $defaults,
             'options' => ['header_title_gradient_enabled' => false],
             'chart_colors' => getDefaultChartTheme()
         ],
         'blue_angels' => [
-            'name' => 'Blue Angels',
-            'description' => 'Deep navy, gold highlights, and bright readable text.',
+            'name' => dcs_t('admin.themes.preset_blue_angels'),
+            'description' => dcs_t('admin.themes.preset_blue_angels_desc'),
             'colors' => array_merge($defaults, [
                 'primary_color' => '#071426',
                 'secondary_color' => '#102b4e',
@@ -313,8 +314,8 @@ function getBuiltInThemePresets() {
             ])
         ],
         'red_flag' => [
-            'name' => 'Red Flag',
-            'description' => 'Charcoal panels with red and amber exercise accents.',
+            'name' => dcs_t('admin.themes.preset_red_flag'),
+            'description' => dcs_t('admin.themes.preset_red_flag_desc'),
             'colors' => array_merge($defaults, [
                 'primary_color' => '#171717',
                 'secondary_color' => '#292323',
@@ -363,8 +364,8 @@ function getBuiltInThemePresets() {
             ])
         ],
         'arctic_ops' => [
-            'name' => 'Arctic Ops',
-            'description' => 'Cool grey and blue palette for clean high-contrast dashboards.',
+            'name' => dcs_t('admin.themes.preset_arctic_ops'),
+            'description' => dcs_t('admin.themes.preset_arctic_ops_desc'),
             'colors' => array_merge($defaults, [
                 'primary_color' => '#17202a',
                 'secondary_color' => '#243241',
@@ -1561,7 +1562,7 @@ $headerPreviewImage = '../' . ltrim($headerImageSettings['image'], '/');
 $headerLogoPreview = !empty($headerImageSettings['logo']) ? '../' . ltrim($headerImageSettings['logo'], '/') : '';
 
 // Page title
-$pageTitle = 'Theme Management';
+$pageTitle = dcs_t('admin.themes.title');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -1976,7 +1977,7 @@ $pageTitle = 'Theme Management';
                         <div class="admin-username"><?= e($currentAdmin['username']) ?></div>
                         <div class="admin-role"><?= getRoleBadge($currentAdmin['role']) ?></div>
                     </div>
-                    <a href="logout.php" class="btn btn-secondary btn-small">Logout</a>
+                    <a href="logout.php" class="btn btn-secondary btn-small"><?= e(dcs_t('admin.common.logout')) ?></a>
                 </div>
             </header>
             
@@ -1993,8 +1994,8 @@ $pageTitle = 'Theme Management';
                 
                 <!-- Theme Preview Section -->
                 <div class="theme-section">
-                    <h2>Theme Preview</h2>
-                    <p>Preview how the site looks with current theme settings:</p>
+                    <h2><?= e(dcs_t('admin.themes.preview')) ?></h2>
+                    <p><?= e(dcs_t('admin.themes.preview_help')) ?></p>
                     
                     <?php
                     // Build initial preview URL with current colors
@@ -2021,24 +2022,24 @@ $pageTitle = 'Theme Management';
                 
                 <!-- Theme Tabs -->
                 <div class="theme-tabs">
-                    <button class="theme-tab active" onclick="switchTab('simple')">Simple Customization</button>
-                    <button class="theme-tab" onclick="switchTab('presets')">Theme Presets</button>
-                    <button class="theme-tab" onclick="switchTab('header-image')">Header Image</button>
-                    <button class="theme-tab" onclick="switchTab('menu')">Menu Configuration</button>
-                    <button class="theme-tab" onclick="switchTab('charts')">Chart Colours</button>
+                    <button class="theme-tab active" onclick="switchTab('simple')"><?= e(dcs_t('admin.themes.simple_customization')) ?></button>
+                    <button class="theme-tab" onclick="switchTab('presets')"><?= e(dcs_t('admin.themes.theme_presets')) ?></button>
+                    <button class="theme-tab" onclick="switchTab('header-image')"><?= e(dcs_t('admin.themes.header_image')) ?></button>
+                    <button class="theme-tab" onclick="switchTab('menu')"><?= e(dcs_t('admin.themes.menu_configuration')) ?></button>
+                    <button class="theme-tab" onclick="switchTab('charts')"><?= e(dcs_t('admin.themes.chart_colours')) ?></button>
                     <?php if ($isAirBoss): ?>
-                    <button class="theme-tab" onclick="switchTab('advanced')">Advanced CSS Upload</button>
-                    <button class="theme-tab" onclick="switchTab('backups')">Backup & Restore</button>
+                    <button class="theme-tab" onclick="switchTab('advanced')"><?= e(dcs_t('admin.themes.advanced_css_upload')) ?></button>
+                    <button class="theme-tab" onclick="switchTab('backups')"><?= e(dcs_t('admin.themes.backup_restore')) ?></button>
                     <?php endif; ?>
                 </div>
                 
                 <!-- Simple Customization Tab -->
                 <div id="simple-tab" class="tab-content active">
                     <div class="theme-section">
-                        <h2>Colour Customization</h2>
-                        <p>Control the site colours so each squadron can match its own branding.</p>
+                        <h2><?= e(dcs_t('admin.themes.colour_customization')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.colour_help')) ?></p>
                         <p style="font-size: 0.9em; color: var(--text-muted); margin-top: 10px;">
-                            Tip: Click any colour swatch to change it. Use the preview above before saving.
+                            <?= e(dcs_t('admin.themes.colour_tip')) ?>
                         </p>
                         
                         <form method="POST" action="">
@@ -2048,9 +2049,9 @@ $pageTitle = 'Theme Management';
                         <?php foreach (getThemeColorGroups() as $groupName => $fields): ?>
                             <fieldset class="color-fieldset">
                                 <legend><?= htmlspecialchars($groupName) ?></legend>
-                                <?php if ($groupName === 'Header & Navigation'): ?>
+                                <?php if ($groupName === dcs_t('admin.themes.group_header_nav')): ?>
                                     <div class="color-input-group" style="margin-bottom: 14px;">
-                                        <label for="header_title_gradient_enabled">Header Title Soft Gradient:</label>
+                                        <label for="header_title_gradient_enabled"><?= e(dcs_t('admin.themes.header_soft_gradient')) ?>:</label>
                                         <input type="checkbox" id="header_title_gradient_enabled" name="header_title_gradient_enabled"
                                                <?= !empty($themeOptions['header_title_gradient_enabled']) ? 'checked' : '' ?>>
                                     </div>
@@ -2068,8 +2069,8 @@ $pageTitle = 'Theme Management';
                             <?php endforeach; ?>
                             
                             <div style="margin-top: 20px; display: flex; gap: 10px;">
-                                <button type="submit" class="btn btn-primary">Update Colours</button>
-                                <button type="button" class="btn btn-secondary" onclick="restoreDefaultColors()">Restore Defaults</button>
+                                <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.themes.update_colours')) ?></button>
+                                <button type="button" class="btn btn-secondary" onclick="restoreDefaultColors()"><?= e(dcs_t('admin.themes.restore_defaults')) ?></button>
                             </div>
                         </form>
                     </div>
@@ -2077,8 +2078,8 @@ $pageTitle = 'Theme Management';
 
                 <div id="presets-tab" class="tab-content">
                     <div class="theme-section">
-                        <h2>Theme Presets</h2>
-                        <p>Start with a complete colour preset, then fine tune it in Simple Customization and Chart Colours.</p>
+                        <h2><?= e(dcs_t('admin.themes.theme_presets')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.presets_help')) ?></p>
 
                         <div class="preset-grid">
                             <?php foreach ($builtInThemePresets as $presetId => $preset): ?>
@@ -2100,7 +2101,7 @@ $pageTitle = 'Theme Management';
                                         <input type="hidden" name="action" value="apply_theme_preset">
                                         <input type="hidden" name="preset_type" value="built_in">
                                         <input type="hidden" name="preset_id" value="<?= htmlspecialchars($presetId) ?>">
-                                        <button type="submit" class="btn btn-primary btn-small">Apply Preset</button>
+                                        <button type="submit" class="btn btn-primary btn-small"><?= e(dcs_t('admin.themes.apply_preset')) ?></button>
                                     </form>
                                 </div>
                             <?php endforeach; ?>
@@ -2108,17 +2109,17 @@ $pageTitle = 'Theme Management';
                     </div>
 
                     <div class="theme-section">
-                        <h2>Custom Presets</h2>
-                        <p>Save your current colours and chart settings as a reusable preset for your squadron.</p>
+                        <h2><?= e(dcs_t('admin.themes.custom_presets')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.custom_presets_help')) ?></p>
 
                         <form method="POST" action="" class="save-preset-row">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <input type="hidden" name="action" value="save_theme_preset">
                             <div>
-                                <label for="preset_name">Preset Name</label>
-                                <input type="text" id="preset_name" name="preset_name" maxlength="60" placeholder="Example: 252 Sky Pirates" required>
+                                <label for="preset_name"><?= e(dcs_t('admin.themes.preset_name')) ?></label>
+                                <input type="text" id="preset_name" name="preset_name" maxlength="60" placeholder="<?= e(dcs_t('admin.themes.preset_placeholder')) ?>" required>
                             </div>
-                            <button type="submit" class="btn btn-secondary">Save Current Theme</button>
+                            <button type="submit" class="btn btn-secondary"><?= e(dcs_t('admin.themes.save_current_theme')) ?></button>
                         </form>
 
                         <?php if (!empty($customThemePresets)): ?>
@@ -2146,13 +2147,13 @@ $pageTitle = 'Theme Management';
                                                 <input type="hidden" name="action" value="apply_theme_preset">
                                                 <input type="hidden" name="preset_type" value="custom">
                                                 <input type="hidden" name="preset_id" value="<?= (int)$presetIndex ?>">
-                                                <button type="submit" class="btn btn-primary btn-small">Apply</button>
+                                                <button type="submit" class="btn btn-primary btn-small"><?= e(dcs_t('admin.themes.apply')) ?></button>
                                             </form>
-                                            <form method="POST" action="" onsubmit="return confirm('Delete this custom theme preset?');">
+                                            <form method="POST" action="" onsubmit='return confirm(<?= json_encode(dcs_t('admin.themes.confirm_delete_preset')) ?>);'>
                                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                                 <input type="hidden" name="action" value="delete_theme_preset">
                                                 <input type="hidden" name="preset_id" value="<?= (int)$presetIndex ?>">
-                                                <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-small"><?= e(dcs_t('admin.themes.delete')) ?></button>
                                             </form>
                                         </div>
                                     </div>
@@ -2166,15 +2167,15 @@ $pageTitle = 'Theme Management';
 
                 <div id="header-image-tab" class="tab-content">
                     <div class="theme-section">
-                        <h2>Header Image</h2>
-                        <p>Upload a wide header image and choose which part stays in view. The image keeps its proportions and is cropped to fit the header.</p>
+                        <h2><?= e(dcs_t('admin.themes.header_image')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.header_image_help')) ?></p>
                         <p style="font-size: 0.9em; color: var(--text-muted); margin-top: 10px;">
                             Best fit: 2400 x 500 pixels or wider, JPG/PNG/WebP, under 5MB.
                         </p>
 
                         <div class="header-image-preview"
                              style="background-image: url('<?= htmlspecialchars($headerPreviewImage) ?>'); background-position: <?= (int)$headerImageSettings['position_x'] ?>% <?= (int)$headerImageSettings['position_y'] ?>%;">
-                            <span>Current Header Framing</span>
+                            <span><?= e(dcs_t('admin.themes.current_header_framing')) ?></span>
                         </div>
 
                         <form method="POST" action="" enctype="multipart/form-data" class="upload-section">
@@ -2183,44 +2184,44 @@ $pageTitle = 'Theme Management';
 
                             <div class="file-input-wrapper">
                                 <input type="file" name="header_image" id="header_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-                                <label for="header_image" class="file-input-button">Choose Header Image</label>
+                                <label for="header_image" class="file-input-button"><?= e(dcs_t('admin.themes.choose_header_image')) ?></label>
                             </div>
                             <span id="header-image-file-name" style="margin-left: 10px;">No new image selected</span>
 
                             <div class="color-input-group" style="margin-top: 18px; max-width: 420px;">
-                                <label for="use_default_header_image">Use Default Header Image:</label>
+                                <label for="use_default_header_image"><?= e(dcs_t('admin.themes.use_default_header_image')) ?>:</label>
                                 <input type="checkbox" id="use_default_header_image" name="use_default_header_image">
                             </div>
 
                             <div class="header-position-controls">
                                 <label for="position_x">
-                                    Horizontal Position
+                                    <?= e(dcs_t('admin.themes.horizontal_position')) ?>
                                     <input type="range" id="position_x" name="position_x" min="0" max="100" value="<?= (int)$headerImageSettings['position_x'] ?>">
                                 </label>
                                 <label for="position_y">
-                                    Vertical Position
+                                    <?= e(dcs_t('admin.themes.vertical_position')) ?>
                                     <input type="range" id="position_y" name="position_y" min="0" max="100" value="<?= (int)$headerImageSettings['position_y'] ?>">
                                 </label>
                             </div>
 
                             <fieldset class="color-fieldset">
-                                <legend>Header Branding</legend>
+                                <legend><?= e(dcs_t('admin.themes.header_branding')) ?></legend>
                                 <p style="font-size: 0.9em; color: var(--text-muted); margin-top: 0;">
                                     Recommended logo size: transparent PNG/WebP/SVG around 360 x 96 pixels. Keep it under 2MB so the header stays the same height.
                                 </p>
 
                                 <div class="color-inputs">
                                     <div class="color-input-group">
-                                        <label for="branding_mode">Header Branding:</label>
+                                        <label for="branding_mode"><?= e(dcs_t('admin.themes.header_branding')) ?>:</label>
                                         <select id="branding_mode" name="branding_mode" class="form-control">
-                                            <option value="text" <?= $headerImageSettings['branding_mode'] === 'text' ? 'selected' : '' ?>>Text Only</option>
-                                            <option value="both" <?= $headerImageSettings['branding_mode'] === 'both' ? 'selected' : '' ?>>Logo and Text</option>
-                                            <option value="logo" <?= $headerImageSettings['branding_mode'] === 'logo' ? 'selected' : '' ?>>Logo Only</option>
+                                            <option value="text" <?= $headerImageSettings['branding_mode'] === 'text' ? 'selected' : '' ?>><?= e(dcs_t('admin.themes.text_only')) ?></option>
+                                            <option value="both" <?= $headerImageSettings['branding_mode'] === 'both' ? 'selected' : '' ?>><?= e(dcs_t('admin.themes.logo_and_text')) ?></option>
+                                            <option value="logo" <?= $headerImageSettings['branding_mode'] === 'logo' ? 'selected' : '' ?>><?= e(dcs_t('admin.themes.logo_only')) ?></option>
                                         </select>
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="logo_height">Logo Height:</label>
+                                        <label for="logo_height"><?= e(dcs_t('admin.themes.logo_height')) ?>:</label>
                                         <input type="range" id="logo_height" name="logo_height" min="32" max="96" value="<?= (int)$headerImageSettings['logo_height'] ?>">
                                     </div>
                                 </div>
@@ -2235,17 +2236,17 @@ $pageTitle = 'Theme Management';
 
                                 <div class="file-input-wrapper">
                                     <input type="file" name="header_logo" id="header_logo" accept=".jpg,.jpeg,.png,.webp,.svg,image/jpeg,image/png,image/webp,image/svg+xml">
-                                    <label for="header_logo" class="file-input-button">Choose Header Logo</label>
+                                    <label for="header_logo" class="file-input-button"><?= e(dcs_t('admin.themes.choose_header_logo')) ?></label>
                                 </div>
                                 <span id="header-logo-file-name" style="margin-left: 10px;">No new logo selected</span>
 
                                 <div class="color-input-group" style="margin-top: 18px; max-width: 420px;">
-                                    <label for="remove_header_logo">Remove Header Logo:</label>
+                                    <label for="remove_header_logo"><?= e(dcs_t('admin.themes.remove_header_logo')) ?>:</label>
                                     <input type="checkbox" id="remove_header_logo" name="remove_header_logo">
                                 </div>
                             </fieldset>
 
-                            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Update Header Image</button>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 20px;"><?= e(dcs_t('admin.themes.update_header_image')) ?></button>
                         </form>
                     </div>
                 </div>
@@ -2253,7 +2254,7 @@ $pageTitle = 'Theme Management';
                 <!-- Chart Colours Tab -->
                 <div id="charts-tab" class="tab-content">
                     <div class="theme-section">
-                        <h2>Chart Colours</h2>
+                        <h2><?= e(dcs_t('admin.themes.chart_colours')) ?></h2>
                         <p>Customize the colours used by the leaderboard and homepage charts.</p>
                         
                         <form method="POST" action="">
@@ -2261,28 +2262,28 @@ $pageTitle = 'Theme Management';
                             <input type="hidden" name="action" value="update_chart_colors">
                             
                             <fieldset class="color-fieldset">
-                                <legend>Leaderboard Chart</legend>
+                                <legend><?= e(dcs_t('admin.themes.leaderboard_chart')) ?></legend>
                                 <div class="color-inputs">
                                     <div class="color-input-group">
-                                        <label for="chart_primary_color" title="Main chart fill colour">Chart Primary:</label>
+                                        <label for="chart_primary_color" title="<?= e(dcs_t('admin.themes.chart_primary_title')) ?>"><?= e(dcs_t('admin.themes.chart_primary')) ?>:</label>
                                         <input type="color" id="chart_primary_color" name="chart_primary_color" 
                                                value="<?= htmlspecialchars($chartColors['chart_primary_color']) ?>">
                                     </div>
                                     
                                     <div class="color-input-group">
-                                        <label for="chart_secondary_color" title="Line and border colour">Chart Secondary:</label>
+                                        <label for="chart_secondary_color" title="<?= e(dcs_t('admin.themes.chart_secondary_title')) ?>"><?= e(dcs_t('admin.themes.chart_secondary')) ?>:</label>
                                         <input type="color" id="chart_secondary_color" name="chart_secondary_color" 
                                                value="<?= htmlspecialchars($chartColors['chart_secondary_color']) ?>">
                                     </div>
                                     
                                     <div class="color-input-group">
-                                        <label for="chart_grid_color" title="Chart grid line colour">Grid Lines:</label>
+                                        <label for="chart_grid_color" title="<?= e(dcs_t('admin.themes.grid_lines_title')) ?>"><?= e(dcs_t('admin.themes.grid_lines')) ?>:</label>
                                         <input type="color" id="chart_grid_color" name="chart_grid_color" 
                                                value="<?= htmlspecialchars($chartColors['chart_grid_color']) ?>">
                                     </div>
                                     
                                     <div class="color-input-group">
-                                        <label for="chart_text_color" title="Chart label and legend colour">Chart Text:</label>
+                                        <label for="chart_text_color" title="<?= e(dcs_t('admin.themes.chart_text_title')) ?>"><?= e(dcs_t('admin.themes.chart_text')) ?>:</label>
                                         <input type="color" id="chart_text_color" name="chart_text_color" 
                                                value="<?= htmlspecialchars($chartColors['chart_text_color']) ?>">
                                     </div>
@@ -2290,22 +2291,22 @@ $pageTitle = 'Theme Management';
                             </fieldset>
 
                             <fieldset class="color-fieldset">
-                                <legend>Homepage: Top 5 Pilots</legend>
+                                <legend><?= e(dcs_t('admin.themes.home_top_pilots')) ?></legend>
                                 <div class="color-inputs">
                                     <div class="color-input-group">
-                                        <label for="home_top_pilots_color" title="Top pilots bar colour">Bars:</label>
+                                        <label for="home_top_pilots_color" title="<?= e(dcs_t('admin.themes.bars_title')) ?>"><?= e(dcs_t('admin.themes.bars')) ?>:</label>
                                         <input type="color" id="home_top_pilots_color" name="home_top_pilots_color" 
                                                value="<?= htmlspecialchars($chartColors['home_top_pilots_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_top_pilots_grid_color" title="Top pilots grid line colour">Grid Lines:</label>
+                                        <label for="home_top_pilots_grid_color" title="<?= e(dcs_t('admin.themes.grid_lines_title')) ?>"><?= e(dcs_t('admin.themes.grid_lines')) ?>:</label>
                                         <input type="color" id="home_top_pilots_grid_color" name="home_top_pilots_grid_color" 
                                                value="<?= htmlspecialchars($chartColors['home_top_pilots_grid_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_top_pilots_text_color" title="Top pilots labels and tooltip text colour">Text:</label>
+                                        <label for="home_top_pilots_text_color" title="<?= e(dcs_t('admin.themes.chart_text_title')) ?>"><?= e(dcs_t('admin.themes.text')) ?>:</label>
                                         <input type="color" id="home_top_pilots_text_color" name="home_top_pilots_text_color" 
                                                value="<?= htmlspecialchars($chartColors['home_top_pilots_text_color']) ?>">
                                     </div>
@@ -2313,22 +2314,22 @@ $pageTitle = 'Theme Management';
                             </fieldset>
 
                             <fieldset class="color-fieldset">
-                                <legend>Homepage: Combat Statistics</legend>
+                                <legend><?= e(dcs_t('admin.themes.home_combat_stats')) ?></legend>
                                 <div class="color-inputs">
                                     <div class="color-input-group">
-                                        <label for="home_combat_kills_color" title="Combat kills slice colour">Kills:</label>
+                                        <label for="home_combat_kills_color" title="<?= e(dcs_t('admin.themes.combat_kills_title')) ?>"><?= e(dcs_t('home.kills')) ?>:</label>
                                         <input type="color" id="home_combat_kills_color" name="home_combat_kills_color" 
                                                value="<?= htmlspecialchars($chartColors['home_combat_kills_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_combat_deaths_color" title="Combat deaths slice colour">Deaths:</label>
+                                        <label for="home_combat_deaths_color" title="<?= e(dcs_t('admin.themes.combat_deaths_title')) ?>"><?= e(dcs_t('home.deaths')) ?>:</label>
                                         <input type="color" id="home_combat_deaths_color" name="home_combat_deaths_color" 
                                                value="<?= htmlspecialchars($chartColors['home_combat_deaths_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_combat_text_color" title="Combat chart legend and tooltip text colour">Text:</label>
+                                        <label for="home_combat_text_color" title="<?= e(dcs_t('admin.themes.chart_text_title')) ?>"><?= e(dcs_t('admin.themes.text')) ?>:</label>
                                         <input type="color" id="home_combat_text_color" name="home_combat_text_color" 
                                                value="<?= htmlspecialchars($chartColors['home_combat_text_color']) ?>">
                                     </div>
@@ -2336,22 +2337,22 @@ $pageTitle = 'Theme Management';
                             </fieldset>
 
                             <fieldset class="color-fieldset">
-                                <legend>Homepage: Top Squadrons</legend>
+                                <legend><?= e(dcs_t('admin.themes.home_top_squadrons')) ?></legend>
                                 <div class="color-inputs">
                                     <div class="color-input-group">
-                                        <label for="home_squadrons_color" title="Top squadrons bar colour">Bars:</label>
+                                        <label for="home_squadrons_color" title="<?= e(dcs_t('admin.themes.bars_title')) ?>"><?= e(dcs_t('admin.themes.bars')) ?>:</label>
                                         <input type="color" id="home_squadrons_color" name="home_squadrons_color" 
                                                value="<?= htmlspecialchars($chartColors['home_squadrons_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_squadrons_grid_color" title="Top squadrons grid line colour">Grid Lines:</label>
+                                        <label for="home_squadrons_grid_color" title="<?= e(dcs_t('admin.themes.grid_lines_title')) ?>"><?= e(dcs_t('admin.themes.grid_lines')) ?>:</label>
                                         <input type="color" id="home_squadrons_grid_color" name="home_squadrons_grid_color" 
                                                value="<?= htmlspecialchars($chartColors['home_squadrons_grid_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_squadrons_text_color" title="Top squadrons labels and tooltip text colour">Text:</label>
+                                        <label for="home_squadrons_text_color" title="<?= e(dcs_t('admin.themes.chart_text_title')) ?>"><?= e(dcs_t('admin.themes.text')) ?>:</label>
                                         <input type="color" id="home_squadrons_text_color" name="home_squadrons_text_color" 
                                                value="<?= htmlspecialchars($chartColors['home_squadrons_text_color']) ?>">
                                     </div>
@@ -2359,22 +2360,22 @@ $pageTitle = 'Theme Management';
                             </fieldset>
 
                             <fieldset class="color-fieldset">
-                                <legend>Homepage: Player Activity</legend>
+                                <legend><?= e(dcs_t('admin.themes.home_player_activity')) ?></legend>
                                 <div class="color-inputs">
                                     <div class="color-input-group">
-                                        <label for="home_activity_color" title="Player activity line and fill colour">Line and Fill:</label>
+                                        <label for="home_activity_color" title="<?= e(dcs_t('admin.themes.line_fill_title')) ?>"><?= e(dcs_t('admin.themes.line_and_fill')) ?>:</label>
                                         <input type="color" id="home_activity_color" name="home_activity_color" 
                                                value="<?= htmlspecialchars($chartColors['home_activity_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_activity_grid_color" title="Player activity grid line colour">Grid Lines:</label>
+                                        <label for="home_activity_grid_color" title="<?= e(dcs_t('admin.themes.grid_lines_title')) ?>"><?= e(dcs_t('admin.themes.grid_lines')) ?>:</label>
                                         <input type="color" id="home_activity_grid_color" name="home_activity_grid_color" 
                                                value="<?= htmlspecialchars($chartColors['home_activity_grid_color']) ?>">
                                     </div>
 
                                     <div class="color-input-group">
-                                        <label for="home_activity_text_color" title="Player activity labels and tooltip text colour">Text:</label>
+                                        <label for="home_activity_text_color" title="<?= e(dcs_t('admin.themes.chart_text_title')) ?>"><?= e(dcs_t('admin.themes.text')) ?>:</label>
                                         <input type="color" id="home_activity_text_color" name="home_activity_text_color" 
                                                value="<?= htmlspecialchars($chartColors['home_activity_text_color']) ?>">
                                     </div>
@@ -2382,8 +2383,8 @@ $pageTitle = 'Theme Management';
                             </fieldset>
                             
                             <div style="margin-top: 20px; display: flex; gap: 10px;">
-                                <button type="submit" class="btn btn-primary">Update Chart Colours</button>
-                                <button type="button" class="btn btn-secondary" onclick="restoreDefaultChartColors()">Restore Defaults</button>
+                                <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.themes.update_chart_colours')) ?></button>
+                                <button type="button" class="btn btn-secondary" onclick="restoreDefaultChartColors()"><?= e(dcs_t('admin.themes.restore_defaults')) ?></button>
                             </div>
                         </form>
                     </div>
@@ -2392,8 +2393,8 @@ $pageTitle = 'Theme Management';
                 <!-- Menu Configuration Tab -->
                 <div id="menu-tab" class="tab-content">
                     <div class="theme-section">
-                        <h2>Navigation Menu Configuration</h2>
-                        <p>Customize the navigation menu by renaming items, changing their order, or hiding them.</p>
+                        <h2><?= e(dcs_t('admin.themes.navigation_menu_configuration')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.navigation_menu_help')) ?></p>
                         
                         <form method="POST" action="" id="menu-form">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -2406,7 +2407,7 @@ $pageTitle = 'Theme Management';
                                     <input type="hidden" name="menu_order[]" value="<?= $index ?>">
                                     <input type="hidden" name="menu_types[<?= $index ?>]" value="<?= htmlspecialchars($item['type'] ?? 'page') ?>">
                                     <div class="menu-item-fields">
-                                        <input type="text" name="menu_names[<?= $index ?>]" value="<?= htmlspecialchars($item['name']) ?>" placeholder="Menu Name" required>
+                                        <input type="text" name="menu_names[<?= $index ?>]" value="<?= htmlspecialchars($item['name']) ?>" placeholder="<?= e(dcs_t('admin.themes.menu_name')) ?>" required>
                                         <?php if (in_array($item['type'] ?? 'page', ['discord', 'squadron_homepage'])): ?>
                                             <input type="text" name="menu_urls[<?= $index ?>]" value="<?= htmlspecialchars($item['url']) ?>" placeholder="URL" required title="External URL">
                                         <?php else: ?>
@@ -2414,15 +2415,15 @@ $pageTitle = 'Theme Management';
                                         <?php endif; ?>
                                         <label class="checkbox-label">
                                             <input type="checkbox" name="menu_enabled[<?= $index ?>]" <?= $item['enabled'] ? 'checked' : '' ?>>
-                                            <span>Enabled</span>
+                                            <span><?= e(dcs_t('admin.status.enabled')) ?></span>
                                         </label>
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Save Menu Configuration</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetMenu()" style="margin-top: 20px;">Reset to Default</button>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 20px;"><?= e(dcs_t('admin.themes.save_menu_configuration')) ?></button>
+                            <button type="button" class="btn btn-secondary" onclick="resetMenu()" style="margin-top: 20px;"><?= e(dcs_t('admin.themes.reset_to_default')) ?></button>
                         </form>
                     </div>
                 </div>
@@ -2431,10 +2432,9 @@ $pageTitle = 'Theme Management';
                 <!-- Advanced CSS Upload Tab -->
                 <div id="advanced-tab" class="tab-content">
                     <div class="theme-section">
-                        <h2>Upload Custom CSS</h2>
+                        <h2><?= e(dcs_t('admin.themes.upload_custom_css')) ?></h2>
                         <div class="alert alert-warning">
-                            <strong>Warning:</strong> Uploading a new CSS file will completely replace the current site styling. 
-                            Make sure to backup the current theme first!
+                            <strong><?= e(dcs_t('admin.themes.warning')) ?>:</strong> <?= e(dcs_t('admin.themes.css_warning')) ?>
                         </div>
                         
                         <form method="POST" action="" enctype="multipart/form-data" class="upload-section">
@@ -2443,22 +2443,22 @@ $pageTitle = 'Theme Management';
                             
                             <div class="file-input-wrapper">
                                 <input type="file" name="css_file" id="css_file" accept=".css">
-                                <label for="css_file" class="file-input-button">Choose CSS File</label>
+                                <label for="css_file" class="file-input-button"><?= e(dcs_t('admin.themes.choose_css_file')) ?></label>
                             </div>
-                            <span id="file-name" style="margin-left: 10px;">No file selected</span>
+                            <span id="file-name" style="margin-left: 10px;"><?= e(dcs_t('admin.themes.no_file_selected')) ?></span>
                             
                             <div style="margin-top: 20px;">
-                                <button type="submit" class="btn btn-primary">Upload CSS</button>
+                                <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.themes.upload_css')) ?></button>
                             </div>
                         </form>
                         
                         <div style="margin-top: 30px;">
-                            <h3>CSS Guidelines</h3>
+                            <h3><?= e(dcs_t('admin.themes.css_guidelines')) ?></h3>
                             <ul>
-                                <li>Maximum file size: 1MB</li>
-                                <li>Use CSS variables for easy color management</li>
-                                <li>Test thoroughly before uploading</li>
-                                <li>Ensure mobile responsiveness</li>
+                                <li><?= e(dcs_t('admin.themes.css_guideline_size')) ?></li>
+                                <li><?= e(dcs_t('admin.themes.css_guideline_variables')) ?></li>
+                                <li><?= e(dcs_t('admin.themes.css_guideline_test')) ?></li>
+                                <li><?= e(dcs_t('admin.themes.css_guideline_mobile')) ?></li>
                             </ul>
                         </div>
                     </div>
@@ -2467,19 +2467,19 @@ $pageTitle = 'Theme Management';
                 <!-- Backup & Restore Tab -->
                 <div id="backups-tab" class="tab-content">
                     <div class="theme-section">
-                        <h2>Theme Settings Backup</h2>
-                        <p>Download the current theme settings, then upload the same file later to restore them.</p>
+                        <h2><?= e(dcs_t('admin.themes.theme_settings_backup')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.theme_settings_backup_help')) ?></p>
 
                         <div class="backup-list">
                             <div class="backup-item">
                                 <div class="backup-info">
-                                    <strong>Current Theme Settings</strong><br>
-                                    <small>Includes colour controls, chart colours, header image framing, and menu configuration.</small>
+                                    <strong><?= e(dcs_t('admin.themes.current_theme_settings')) ?></strong><br>
+                                    <small><?= e(dcs_t('admin.themes.current_theme_settings_help')) ?></small>
                                 </div>
                                 <form method="POST" action="" style="display: inline;">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="action" value="export_theme_settings">
-                                    <button type="submit" class="btn btn-primary btn-sm">Download Backup</button>
+                                    <button type="submit" class="btn btn-primary btn-sm"><?= e(dcs_t('admin.themes.download_backup')) ?></button>
                                 </form>
                             </div>
                         </div>
@@ -2490,25 +2490,25 @@ $pageTitle = 'Theme Management';
 
                             <div class="file-input-wrapper">
                                 <input type="file" name="theme_settings_file" id="theme_settings_file" accept=".json,application/json">
-                                <label for="theme_settings_file" class="file-input-button">Choose Settings Backup</label>
+                                <label for="theme_settings_file" class="file-input-button"><?= e(dcs_t('admin.themes.choose_settings_backup')) ?></label>
                             </div>
-                            <span id="theme-settings-file-name" style="margin-left: 10px;">No file selected</span>
+                            <span id="theme-settings-file-name" style="margin-left: 10px;"><?= e(dcs_t('admin.themes.no_file_selected')) ?></span>
 
                             <div style="margin-top: 20px;">
                                 <button type="submit" class="btn btn-primary"
-                                        onclick="return confirm('Restore these theme settings? This will replace the current theme configuration.')">
-                                    Upload and Restore
+                                        onclick='return confirm(<?= json_encode(dcs_t('admin.themes.confirm_restore_settings')) ?>)'>
+                                    <?= e(dcs_t('admin.themes.upload_and_restore')) ?>
                                 </button>
                             </div>
                         </form>
                     </div>
 
                     <div class="theme-section">
-                        <h2>Advanced CSS Backups</h2>
-                        <p>These are automatic backups made when replacing the raw CSS file.</p>
+                        <h2><?= e(dcs_t('admin.themes.advanced_css_backups')) ?></h2>
+                        <p><?= e(dcs_t('admin.themes.advanced_css_backups_help')) ?></p>
                         
                         <?php if (empty($backups)): ?>
-                            <p>No backups found.</p>
+                            <p><?= e(dcs_t('admin.update.no_backups')) ?></p>
                         <?php else: ?>
                             <div class="backup-list">
                                 <?php foreach ($backups as $backup): ?>
@@ -2516,8 +2516,8 @@ $pageTitle = 'Theme Management';
                                         <div class="backup-info">
                                             <strong><?= htmlspecialchars($backup['filename']) ?></strong><br>
                                             <small>
-                                                Created: <?= date('Y-m-d H:i:s', $backup['date']) ?> | 
-                                                Size: <?= number_format($backup['size'] / 1024, 2) ?> KB
+                                                <?= e(dcs_t('admin.admins.created')) ?>: <?= date('Y-m-d H:i:s', $backup['date']) ?> | 
+                                                <?= e(dcs_t('admin.update.size')) ?>: <?= number_format($backup['size'] / 1024, 2) ?> KB
                                             </small>
                                         </div>
                                         <form method="POST" action="" style="display: inline;">
@@ -2525,8 +2525,8 @@ $pageTitle = 'Theme Management';
                                             <input type="hidden" name="action" value="restore_backup">
                                             <input type="hidden" name="backup_file" value="<?= htmlspecialchars($backup['filename']) ?>">
                                             <button type="submit" class="btn btn-sm" 
-                                                    onclick="return confirm('Are you sure you want to restore this backup?')">
-                                                Restore
+                                                    onclick='return confirm(<?= json_encode(dcs_t('admin.update.confirm_restore')) ?>)'>
+                                                <?= e(dcs_t('admin.update.restore')) ?>
                                             </button>
                                         </form>
                                     </div>
@@ -2542,6 +2542,18 @@ $pageTitle = 'Theme Management';
     </div>
     
     <script>
+        const themeText = <?= json_encode([
+            'noFileSelected' => dcs_t('admin.themes.no_file_selected'),
+            'noNewImageSelected' => dcs_t('admin.themes.no_new_image_selected'),
+            'defaultImageSelected' => dcs_t('admin.themes.default_image_selected'),
+            'noNewLogoSelected' => dcs_t('admin.themes.no_new_logo_selected'),
+            'logoWillBeRemoved' => dcs_t('admin.themes.logo_will_be_removed'),
+            'updatingPreview' => dcs_t('admin.themes.updating_preview'),
+            'previewUpdated' => dcs_t('admin.themes.preview_updated'),
+            'resetMenuConfirm' => dcs_t('admin.themes.reset_menu_confirm'),
+            'colorsRestored' => dcs_t('admin.themes.colors_restored')
+        ], JSON_UNESCAPED_UNICODE) ?>;
+
         // Tab switching
         function switchTab(tabName) {
             // Remove active class from all tabs and contents
@@ -2557,7 +2569,7 @@ $pageTitle = 'Theme Management';
         const cssFileInput = document.getElementById('css_file');
         if (cssFileInput) {
             cssFileInput.addEventListener('change', function(e) {
-                const fileName = e.target.files[0]?.name || 'No file selected';
+                const fileName = e.target.files[0]?.name || themeText.noFileSelected;
                 document.getElementById('file-name').textContent = fileName;
             });
         }
@@ -2581,7 +2593,7 @@ $pageTitle = 'Theme Management';
         if (headerImageInput) {
             headerImageInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                document.getElementById('header-image-file-name').textContent = file?.name || 'No new image selected';
+                document.getElementById('header-image-file-name').textContent = file?.name || themeText.noNewImageSelected;
                 if (file && headerImagePreview) {
                     if (useDefaultHeaderImage) useDefaultHeaderImage.checked = false;
                     headerImagePreview.style.backgroundImage = `url('${URL.createObjectURL(file)}')`;
@@ -2593,7 +2605,7 @@ $pageTitle = 'Theme Management';
         const themeSettingsInput = document.getElementById('theme_settings_file');
         if (themeSettingsInput) {
             themeSettingsInput.addEventListener('change', function(e) {
-                const fileName = e.target.files[0]?.name || 'No file selected';
+                const fileName = e.target.files[0]?.name || themeText.noFileSelected;
                 document.getElementById('theme-settings-file-name').textContent = fileName;
             });
         }
@@ -2602,7 +2614,7 @@ $pageTitle = 'Theme Management';
             useDefaultHeaderImage.addEventListener('change', function() {
                 if (this.checked && headerImagePreview) {
                     headerImagePreview.style.backgroundImage = `url('${defaultHeaderImageUrl}')`;
-                    document.getElementById('header-image-file-name').textContent = 'Default image selected';
+                    document.getElementById('header-image-file-name').textContent = themeText.defaultImageSelected;
                     if (headerImageInput) headerImageInput.value = '';
                     updateHeaderImagePreview();
                 }
@@ -2618,7 +2630,7 @@ $pageTitle = 'Theme Management';
         if (headerLogoInput) {
             headerLogoInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                document.getElementById('header-logo-file-name').textContent = file?.name || 'No new logo selected';
+                document.getElementById('header-logo-file-name').textContent = file?.name || themeText.noNewLogoSelected;
                 if (file && headerLogoPreview) {
                     if (removeHeaderLogo) removeHeaderLogo.checked = false;
                     headerLogoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Header logo preview">`;
@@ -2635,8 +2647,8 @@ $pageTitle = 'Theme Management';
         if (removeHeaderLogo && headerLogoPreview) {
             removeHeaderLogo.addEventListener('change', function() {
                 if (this.checked) {
-                    headerLogoPreview.innerHTML = '<span class="header-logo-placeholder">Logo will be removed</span>';
-                    document.getElementById('header-logo-file-name').textContent = 'No new logo selected';
+                    headerLogoPreview.innerHTML = `<span class="header-logo-placeholder">${themeText.logoWillBeRemoved}</span>`;
+                    document.getElementById('header-logo-file-name').textContent = themeText.noNewLogoSelected;
                     if (headerLogoInput) headerLogoInput.value = '';
                 }
             });
@@ -2689,7 +2701,7 @@ $pageTitle = 'Theme Management';
             input.addEventListener('input', function() {
                 // Show status message immediately
                 const status = document.getElementById('preview-status');
-                status.textContent = '⏳ Updating preview...';
+                status.textContent = themeText.updatingPreview;
                 status.style.color = '#ff9800';
                 
                 // Update preview with debounce
@@ -2699,7 +2711,7 @@ $pageTitle = 'Theme Management';
             input.addEventListener('change', function() {
                 // Show completed message
                 const status = document.getElementById('preview-status');
-                status.textContent = '✨ Preview updated';
+                status.textContent = themeText.previewUpdated;
                 status.style.color = '#4CAF50';
                 setTimeout(() => {
                     status.textContent = '';
@@ -2712,7 +2724,7 @@ $pageTitle = 'Theme Management';
             titleGradientToggle.addEventListener('change', function() {
                 updatePreviewColors();
                 const status = document.getElementById('preview-status');
-                status.textContent = '✨ Preview updated';
+                status.textContent = themeText.previewUpdated;
                 status.style.color = '#4CAF50';
                 setTimeout(() => {
                     status.textContent = '';
@@ -2801,7 +2813,7 @@ $pageTitle = 'Theme Management';
         }
         
         function resetMenu() {
-            if (confirm('Are you sure you want to reset the menu to default settings?')) {
+            if (confirm(themeText.resetMenuConfirm)) {
                 // Create a form to submit reset action
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -2856,7 +2868,7 @@ $pageTitle = 'Theme Management';
             
             // Show status message
             const status = document.getElementById('preview-status');
-            status.textContent = '🔄 Colors restored to defaults';
+            status.textContent = themeText.colorsRestored;
             status.style.color = '#2196F3';
             setTimeout(() => {
                 status.textContent = '';
