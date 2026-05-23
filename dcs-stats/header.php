@@ -1,6 +1,7 @@
 <?php
 // Include path configuration
 require_once __DIR__ . '/config_path.php';
+require_once __DIR__ . '/site_metadata.php';
 
 // Load site configuration
 $siteConfig = [];
@@ -13,6 +14,7 @@ if (file_exists($siteConfigFile)) {
 }
 
 $siteName = $siteConfig['site_name'] ?? 'DCS Statistics';
+$siteMetadata = loadSiteMetadata();
 $headerSettingsPath = __DIR__ . '/site-config/data/header_image.json';
 $headerBranding = [
     'branding_mode' => 'text',
@@ -132,6 +134,17 @@ if (file_exists($maintenanceFile)) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <?php if (!empty($siteMetadata['description'])): ?>
+  <meta name="description" content="<?php echo htmlspecialchars($siteMetadata['description'], ENT_QUOTES); ?>" />
+  <?php endif; ?>
+  <?php if (!empty($siteMetadata['keywords'])): ?>
+  <meta name="keywords" content="<?php echo htmlspecialchars($siteMetadata['keywords'], ENT_QUOTES); ?>" />
+  <?php endif; ?>
+  <?php if (!empty($siteMetadata['block_search_engines'])): ?>
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <?php else: ?>
+  <meta name="robots" content="index,follow" />
+  <?php endif; ?>
   <title><?php echo htmlspecialchars($siteName); ?> Dashboard</title>
   <link rel="stylesheet" href="<?php echo url('styles.php'); ?>" />
   <link rel="stylesheet" href="<?php echo url('styles-mobile.css'); ?>" />
