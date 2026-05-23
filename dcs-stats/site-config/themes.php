@@ -247,6 +247,226 @@ function cleanThemeOptions($options) {
     ];
 }
 
+function getThemePresetPath() {
+    return __DIR__ . '/data/theme_presets.json';
+}
+
+function getBuiltInThemePresets() {
+    $defaults = getDefaultThemeColors();
+
+    return [
+        'carrier_night' => [
+            'name' => 'Carrier Night',
+            'description' => 'Dark carrier deck style with green command accents.',
+            'colors' => $defaults,
+            'options' => ['header_title_gradient_enabled' => false],
+            'chart_colors' => getDefaultChartTheme()
+        ],
+        'blue_angels' => [
+            'name' => 'Blue Angels',
+            'description' => 'Deep navy, gold highlights, and bright readable text.',
+            'colors' => array_merge($defaults, [
+                'primary_color' => '#071426',
+                'secondary_color' => '#102b4e',
+                'background_color' => '#06111f',
+                'surface_color' => '#12355d',
+                'surface_dark_color' => '#081b31',
+                'card_color' => '#12355d',
+                'card_alt_color' => '#081b31',
+                'card_heading_color' => '#f4c542',
+                'card_text_color' => '#ffffff',
+                'card_muted_text_color' => '#c9d8ee',
+                'text_color' => '#f4f8ff',
+                'muted_text_color' => '#b8c7da',
+                'heading_color' => '#f4c542',
+                'link_color' => '#73b7ff',
+                'accent_color' => '#f4c542',
+                'accent_hover_color' => '#ffe27a',
+                'border_color' => '#315b89',
+                'nav_background_color' => '#071426',
+                'nav_text_color' => '#f4f8ff',
+                'nav_hover_color' => '#f4c542',
+                'header_text_color' => '#ffffff',
+                'header_title_gradient_color' => '#f4c542',
+                'header_subtitle_color' => '#c9d8ee',
+                'footer_background_color' => '#081b31',
+                'footer_text_color' => '#dce8f7',
+                'table_header_color' => '#081b31',
+                'table_header_text_color' => '#f4c542',
+                'table_row_color' => '#102b4e',
+                'table_text_color' => '#f4f8ff',
+                'table_player_name_color' => '#ffe27a',
+                'table_hover_color' => '#173e6d'
+            ]),
+            'options' => ['header_title_gradient_enabled' => true],
+            'chart_colors' => array_merge(getDefaultChartTheme(), [
+                'chart_primary_color' => '#f4c542',
+                'chart_secondary_color' => '#73b7ff',
+                'chart_grid_color' => '#315b89',
+                'chart_text_color' => '#f4f8ff',
+                'home_top_pilots_color' => '#f4c542',
+                'home_top_pilots_grid_color' => '#315b89',
+                'home_top_pilots_text_color' => '#f4f8ff',
+                'home_activity_color' => '#73b7ff',
+                'home_activity_grid_color' => '#315b89',
+                'home_activity_text_color' => '#f4f8ff'
+            ])
+        ],
+        'red_flag' => [
+            'name' => 'Red Flag',
+            'description' => 'Charcoal panels with red and amber exercise accents.',
+            'colors' => array_merge($defaults, [
+                'primary_color' => '#171717',
+                'secondary_color' => '#292323',
+                'background_color' => '#101010',
+                'surface_color' => '#342525',
+                'surface_dark_color' => '#1d1818',
+                'card_color' => '#342525',
+                'card_alt_color' => '#1d1818',
+                'card_heading_color' => '#ff4d4d',
+                'card_text_color' => '#fff3ef',
+                'card_muted_text_color' => '#d8c8c0',
+                'text_color' => '#fff3ef',
+                'muted_text_color' => '#c7b8b0',
+                'heading_color' => '#ff4d4d',
+                'link_color' => '#ffb454',
+                'accent_color' => '#d92828',
+                'accent_hover_color' => '#ff6b6b',
+                'border_color' => '#744040',
+                'nav_background_color' => '#171717',
+                'nav_text_color' => '#fff3ef',
+                'nav_hover_color' => '#ff4d4d',
+                'header_text_color' => '#fff3ef',
+                'header_title_gradient_color' => '#ffb454',
+                'header_subtitle_color' => '#d8c8c0',
+                'footer_background_color' => '#1d1818',
+                'footer_text_color' => '#d8c8c0',
+                'table_header_color' => '#1d1818',
+                'table_header_text_color' => '#ff4d4d',
+                'table_row_color' => '#292323',
+                'table_text_color' => '#fff3ef',
+                'table_player_name_color' => '#ffb454',
+                'table_hover_color' => '#3f2d2d'
+            ]),
+            'options' => ['header_title_gradient_enabled' => true],
+            'chart_colors' => array_merge(getDefaultChartTheme(), [
+                'chart_primary_color' => '#d92828',
+                'chart_secondary_color' => '#ffb454',
+                'chart_grid_color' => '#744040',
+                'chart_text_color' => '#fff3ef',
+                'home_combat_kills_color' => '#d92828',
+                'home_combat_deaths_color' => '#ffb454',
+                'home_combat_text_color' => '#fff3ef',
+                'home_activity_color' => '#ff4d4d',
+                'home_activity_grid_color' => '#744040',
+                'home_activity_text_color' => '#fff3ef'
+            ])
+        ],
+        'arctic_ops' => [
+            'name' => 'Arctic Ops',
+            'description' => 'Cool grey and blue palette for clean high-contrast dashboards.',
+            'colors' => array_merge($defaults, [
+                'primary_color' => '#17202a',
+                'secondary_color' => '#243241',
+                'background_color' => '#101820',
+                'surface_color' => '#2d3d4f',
+                'surface_dark_color' => '#1a2632',
+                'card_color' => '#2d3d4f',
+                'card_alt_color' => '#1a2632',
+                'card_heading_color' => '#79d7ff',
+                'card_text_color' => '#f4fbff',
+                'card_muted_text_color' => '#c3d5e0',
+                'text_color' => '#f4fbff',
+                'muted_text_color' => '#b7c8d4',
+                'heading_color' => '#79d7ff',
+                'link_color' => '#93c5fd',
+                'accent_color' => '#38bdf8',
+                'accent_hover_color' => '#8bdfff',
+                'border_color' => '#466075',
+                'nav_background_color' => '#17202a',
+                'nav_text_color' => '#f4fbff',
+                'nav_hover_color' => '#79d7ff',
+                'header_text_color' => '#ffffff',
+                'header_title_gradient_color' => '#79d7ff',
+                'header_subtitle_color' => '#c3d5e0',
+                'footer_background_color' => '#1a2632',
+                'footer_text_color' => '#c3d5e0',
+                'table_header_color' => '#1a2632',
+                'table_header_text_color' => '#79d7ff',
+                'table_row_color' => '#243241',
+                'table_text_color' => '#f4fbff',
+                'table_player_name_color' => '#93c5fd',
+                'table_hover_color' => '#33475c'
+            ]),
+            'options' => ['header_title_gradient_enabled' => true],
+            'chart_colors' => array_merge(getDefaultChartTheme(), [
+                'chart_primary_color' => '#38bdf8',
+                'chart_secondary_color' => '#93c5fd',
+                'chart_grid_color' => '#466075',
+                'chart_text_color' => '#f4fbff',
+                'home_top_pilots_color' => '#38bdf8',
+                'home_squadrons_color' => '#93c5fd',
+                'home_activity_color' => '#79d7ff',
+                'home_activity_grid_color' => '#466075',
+                'home_activity_text_color' => '#f4fbff'
+            ])
+        ]
+    ];
+}
+
+function loadCustomThemePresets() {
+    $path = getThemePresetPath();
+    if (!file_exists($path)) {
+        return [];
+    }
+
+    $presets = json_decode(file_get_contents($path), true);
+    return is_array($presets) ? $presets : [];
+}
+
+function saveCustomThemePresets($presets) {
+    $path = getThemePresetPath();
+    $dir = dirname($path);
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+
+    return @file_put_contents($path, json_encode(array_values($presets), JSON_PRETTY_PRINT)) !== false;
+}
+
+function getThemePresetById($presetId, $presetType) {
+    if ($presetType === 'custom') {
+        foreach (loadCustomThemePresets() as $index => $preset) {
+            if ((string)$index === (string)$presetId) {
+                return $preset;
+            }
+        }
+        return null;
+    }
+
+    $builtIns = getBuiltInThemePresets();
+    return $builtIns[$presetId] ?? null;
+}
+
+function applyThemePreset($preset) {
+    if (!is_array($preset)) {
+        return false;
+    }
+
+    $colors = cleanThemeColors(array_merge(getDefaultThemeColors(), $preset['colors'] ?? []));
+    $options = cleanThemeOptions($preset['options'] ?? []);
+
+    if (file_put_contents(__DIR__ . '/../custom_theme.css', buildCustomThemeCss($colors, $options)) === false) {
+        return false;
+    }
+
+    if (isset($preset['chart_colors']) && is_array($preset['chart_colors'])) {
+        saveChartTheme($preset['chart_colors']);
+    }
+
+    return true;
+}
+
 function buildThemeSettingsBackup($menuConfigFile) {
     $customCSS = __DIR__ . '/../custom_theme.css';
 
@@ -307,8 +527,6 @@ function buildCustomThemeCss($colors, $options = []) {
     }
     $cssVars .= "}\n\n";
 
-    return $cssVars;
-
     $cssVars .= <<<'CSS'
 body {
     background-color: var(--background_color) !important;
@@ -334,7 +552,12 @@ a,
 .section-heading h2,
 .leaderboard-chart-header h2,
 .stat-content h3,
-.credits-box h2 {
+.credits-box h2,
+.squadron-title,
+.squadron-card h3,
+.squadron-member h4,
+.pilot-header h1,
+.pilot-stat-card h3 {
     color: var(--heading_color) !important;
     text-shadow: 0 0 10px color-mix(in srgb, var(--accent_color) 35%, transparent) !important;
 }
@@ -354,9 +577,9 @@ a,
 .site-title {
     background: var(--header_title_background, none) !important;
     color: var(--header_text_color) !important;
-    -webkit-background-clip: initial !important;
+    -webkit-background-clip: text !important;
     -webkit-text-fill-color: var(--header_title_fill, var(--header_text_color)) !important;
-    background-clip: initial !important;
+    background-clip: text !important;
 }
 
 .site-subtitle {
@@ -382,6 +605,13 @@ nav a:hover,
 }
 
 .stat-card,
+.stats-card,
+.squadron-card,
+.squadron-member,
+.api-attendance .insight-card,
+.api-insights .insight-card,
+.api-insights .insight-panel,
+.api-insights .top-api-card,
 .leaderboard-chart-panel,
 .server-detail-card,
 .credits-box,
@@ -393,6 +623,13 @@ nav a:hover,
 }
 
 .stat-card:hover,
+.stats-card:hover,
+.squadron-card:hover,
+.squadron-member:hover,
+.api-attendance .insight-card:hover,
+.api-insights .insight-card:hover,
+.api-insights .insight-panel:hover,
+.chart-container:hover,
 .leaderboard-chart-panel:hover,
 .server-detail-card:hover,
 .trophy-box:hover {
@@ -402,9 +639,281 @@ nav a:hover,
 
 .detail-metrics div,
 .detail-split section,
-.credits-list a {
+.credits-list a,
+.detail-list-item,
+.server-detail-meta,
+.chart-filter-group,
+.chart-stat,
+.api-insights .rank-row,
+.api-insights .insight-list li {
     background: color-mix(in srgb, var(--surface_dark_color) 78%, transparent) !important;
     border-color: color-mix(in srgb, var(--border_color) 55%, transparent) !important;
+}
+
+.stat-card,
+.api-attendance .insight-card,
+.api-insights .insight-card,
+.api-insights .insight-panel,
+.api-insights .top-api-card,
+.leaderboard-chart-panel,
+.server-detail-card,
+.credits-box,
+.trophy-box,
+.chart-container,
+.table-wrapper {
+    color: var(--card_text_color) !important;
+}
+
+.stat-content h3,
+.stat-number,
+.insight-card strong,
+.api-attendance .insight-content span,
+.api-insights .insight-card strong,
+.api-insights .insight-panel h3,
+.api-insights .rank-row strong,
+.api-insights .rank-number,
+.rank-number,
+.api-insights h3,
+.server-detail-header h3,
+.detail-metrics span,
+.detail-split h4,
+.leaderboard-chart-header h2,
+.chart-container h2,
+.credits-box h2,
+.trophy-box strong,
+.chart-info:hover,
+.loading-overlay p {
+    color: var(--card_heading_color) !important;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--accent_color) 28%, transparent) !important;
+}
+
+.api-attendance .insight-content span {
+    font-weight: 700 !important;
+}
+
+.stat-content p,
+.api-attendance .insight-content strong,
+.api-insights .insight-card span,
+.api-insights .rank-row em,
+.server-detail-header p,
+.detail-list-item span,
+.detail-list-item small,
+.leaderboard-chart-panel p,
+.chart-filter-group label,
+.chart-stat span,
+.credits-box p {
+    color: var(--card_muted_text_color) !important;
+}
+
+.pilot-card,
+.chart-wrapper,
+.no-stats-message {
+    background: linear-gradient(135deg, var(--card_color) 0%, var(--card_alt_color) 100%) !important;
+    border: 1px solid color-mix(in srgb, var(--accent_color) 32%, transparent) !important;
+    color: var(--card_text_color) !important;
+}
+
+.pilot-card h3,
+.chart-wrapper h4,
+.stat-group h4,
+.no-stats-message p:first-child {
+    color: var(--card_heading_color) !important;
+    border-bottom-color: color-mix(in srgb, var(--border_color) 70%, transparent) !important;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--accent_color) 28%, transparent) !important;
+}
+
+.stat-item {
+    background-color: color-mix(in srgb, var(--surface_dark_color) 88%, transparent) !important;
+    border: 1px solid color-mix(in srgb, var(--border_color) 35%, transparent) !important;
+    color: var(--card_text_color) !important;
+}
+
+.stat-label,
+.no-stats-message,
+.no-stats-message p,
+.chart-info {
+    color: var(--card_muted_text_color) !important;
+}
+
+.stat-value {
+    color: var(--card_text_color) !important;
+}
+
+.chart-wrapper:hover {
+    box-shadow: 0 0 15px color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+.chart-wrapper:hover::after {
+    background-color: var(--surface_dark_color) !important;
+    color: var(--card_text_color) !important;
+}
+
+.chart-wrapper:hover::before {
+    border-top-color: var(--surface_dark_color) !important;
+}
+
+.pagination-controls button,
+.pagination-container button {
+    background: linear-gradient(135deg, var(--surface_color) 0%, var(--surface_dark_color) 100%) !important;
+    border-color: color-mix(in srgb, var(--accent_color) 35%, transparent) !important;
+    color: var(--accent_color) !important;
+}
+
+.pagination-controls button:hover,
+.pagination-container button:hover {
+    background: linear-gradient(135deg, var(--accent_color) 0%, var(--accent_hover_color) 100%) !important;
+    border-color: var(--accent_color) !important;
+    color: var(--card_text_color) !important;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+.pagination-controls button:disabled,
+.pagination-container button:disabled {
+    background: var(--surface_dark_color) !important;
+    border-color: color-mix(in srgb, var(--border_color) 40%, transparent) !important;
+    color: var(--muted_text_color) !important;
+}
+
+.pagination-controls span,
+.pagination-container {
+    color: var(--muted_text_color) !important;
+}
+
+.loader {
+    border-color: color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+    border-top-color: var(--accent_color) !important;
+}
+
+.chart-info:hover,
+.status-dot {
+    background-color: var(--accent_color) !important;
+}
+
+.status-indicator {
+    border-color: color-mix(in srgb, var(--accent_color) 60%, transparent) !important;
+}
+
+.status-text {
+    color: var(--accent_color) !important;
+}
+
+input[type="text"]#searchInput,
+input[type="text"]#playerSearchInput,
+input[type="text"]#pilot-name,
+.search-container input[type="text"],
+.search-bar input[type="text"] {
+    background-color: color-mix(in srgb, var(--surface_dark_color) 82%, transparent) !important;
+    border-color: color-mix(in srgb, var(--border_color) 70%, transparent) !important;
+    color: var(--text_color) !important;
+}
+
+input[type="text"]:focus {
+    border-color: var(--accent_color) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent_color) 22%, transparent) !important;
+}
+
+.search-container button,
+.search-button,
+button[onclick*="search"] {
+    background: linear-gradient(135deg, var(--accent_color) 0%, var(--accent_hover_color) 100%) !important;
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+.search-container button:hover,
+.search-button:hover,
+button[onclick*="search"]:hover {
+    background: linear-gradient(135deg, var(--accent_hover_color) 0%, var(--accent_color) 100%) !important;
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--accent_color) 40%, transparent) !important;
+}
+
+#multiple-results h3,
+#search-results h3 {
+    color: var(--heading_color) !important;
+}
+
+.results-list {
+    background: linear-gradient(135deg, var(--card_color) 0%, var(--card_alt_color) 100%) !important;
+    border: 1px solid color-mix(in srgb, var(--border_color) 60%, transparent) !important;
+    color: var(--card_text_color) !important;
+}
+
+.result-item {
+    background-color: color-mix(in srgb, var(--surface_dark_color) 88%, transparent) !important;
+    border: 1px solid color-mix(in srgb, var(--border_color) 35%, transparent) !important;
+    color: var(--card_text_color) !important;
+}
+
+.result-item:hover,
+.result-item:focus {
+    background-color: color-mix(in srgb, var(--accent_color) 16%, var(--surface_dark_color)) !important;
+    border-color: color-mix(in srgb, var(--accent_color) 55%, transparent) !important;
+    color: var(--accent_hover_color) !important;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent_color) 20%, transparent) !important;
+}
+
+.result-item:active {
+    background-color: color-mix(in srgb, var(--accent_color) 24%, var(--surface_dark_color)) !important;
+    color: var(--accent_hover_color) !important;
+}
+
+#squadronsTable,
+#membersTable,
+#leaderboardTable {
+    border-color: color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+main h2,
+main h2::before,
+.toggle-header td:last-child::after,
+.toggle-header:hover em,
+.member-count,
+.leaderboard-card-rank,
+.squadron-card-name,
+.expand-indicator {
+    color: var(--heading_color) !important;
+}
+
+.toggle-header {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent_color) 10%, transparent) 0%, color-mix(in srgb, var(--surface_dark_color) 60%, transparent) 100%) !important;
+    border-bottom-color: color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+.toggle-header:hover {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent_color) 18%, transparent) 0%, color-mix(in srgb, var(--surface_dark_color) 70%, transparent) 100%) !important;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--accent_color) 20%, transparent) !important;
+}
+
+#membersTable tbody tr:not(.toggle-header):hover,
+#leaderboardTable tbody tr:hover,
+.member-item:active {
+    background: color-mix(in srgb, var(--accent_color) 8%, transparent) !important;
+}
+
+#membersTable tbody tr:not(.toggle-header):hover {
+    border-left-color: var(--accent_color) !important;
+}
+
+.member-name a:hover {
+    color: var(--accent_hover_color) !important;
+}
+
+#squadronsTable img,
+#membersTable img,
+#leaderboardTable img,
+.squadron-card-logo {
+    border-color: color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+#squadronsTable tr:hover img,
+#membersTable tr:hover img,
+#leaderboardTable tr:hover img {
+    border-color: var(--accent_color) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent_color) 30%, transparent) !important;
+}
+
+.member-count,
+.squadron-placeholder {
+    background: color-mix(in srgb, var(--accent_color) 12%, transparent) !important;
 }
 
 table,
@@ -602,6 +1111,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
         
         switch ($action) {
+            case 'apply_theme_preset':
+                $presetId = $_POST['preset_id'] ?? '';
+                $presetType = $_POST['preset_type'] ?? 'built_in';
+                $preset = getThemePresetById($presetId, $presetType);
+
+                if ($preset && applyThemePreset($preset)) {
+                    $message = 'Theme preset applied successfully';
+                    if (function_exists('logActivity')) {
+                        logActivity('THEME_PRESET_APPLY', 'Applied theme preset: ' . ($preset['name'] ?? $presetId));
+                    }
+                } else {
+                    $error = 'Theme preset could not be applied';
+                }
+                break;
+
+            case 'save_theme_preset':
+                $presetName = trim($_POST['preset_name'] ?? '');
+                if ($presetName === '') {
+                    $error = 'Please enter a preset name';
+                    break;
+                }
+
+                if (strlen($presetName) > 60) {
+                    $error = 'Preset name must be 60 characters or fewer';
+                    break;
+                }
+
+                $customCSS = __DIR__ . '/../custom_theme.css';
+                $presets = loadCustomThemePresets();
+                $presets[] = [
+                    'name' => $presetName,
+                    'description' => 'Saved custom squadron theme',
+                    'created_at' => date('c'),
+                    'colors' => loadThemeColorsFromCss($customCSS),
+                    'options' => loadThemeOptionsFile($customCSS),
+                    'chart_colors' => loadChartTheme()
+                ];
+
+                if (saveCustomThemePresets($presets)) {
+                    $message = 'Custom theme preset saved successfully';
+                    if (function_exists('logActivity')) {
+                        logActivity('THEME_PRESET_SAVE', 'Saved custom theme preset: ' . $presetName);
+                    }
+                } else {
+                    $error = 'Failed to save custom theme preset';
+                }
+                break;
+
+            case 'delete_theme_preset':
+                $presetIndex = (int)($_POST['preset_id'] ?? -1);
+                $presets = loadCustomThemePresets();
+                if (!isset($presets[$presetIndex])) {
+                    $error = 'Custom preset not found';
+                    break;
+                }
+
+                $deletedName = $presets[$presetIndex]['name'] ?? 'Custom preset';
+                array_splice($presets, $presetIndex, 1);
+
+                if (saveCustomThemePresets($presets)) {
+                    $message = 'Custom theme preset deleted successfully';
+                    if (function_exists('logActivity')) {
+                        logActivity('THEME_PRESET_DELETE', 'Deleted custom theme preset: ' . $deletedName);
+                    }
+                } else {
+                    $error = 'Failed to delete custom theme preset';
+                }
+                break;
+
             case 'export_theme_settings':
                 $backup = buildThemeSettingsBackup($menuConfigFile);
                 $fileName = 'dcs-theme-settings-' . date('Y-m-d-H-i-s') . '.json';
@@ -907,6 +1485,8 @@ if (is_dir($backupDir)) {
 $customCSS = __DIR__ . '/../custom_theme.css';
 $customColors = loadThemeColorsFromCss($customCSS);
 $themeOptions = loadThemeOptionsFile($customCSS);
+$builtInThemePresets = getBuiltInThemePresets();
+$customThemePresets = loadCustomThemePresets();
 
 $chartColors = loadChartTheme();
 $headerImageSettings = loadHeaderImageSettings();
@@ -938,6 +1518,72 @@ $pageTitle = 'Theme Management';
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
+        }
+
+        .preset-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            margin-top: 18px;
+        }
+
+        .preset-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            justify-content: space-between;
+            padding: 16px;
+        }
+
+        .preset-card h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+            margin: 0 0 6px;
+        }
+
+        .preset-card p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .preset-swatches {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .preset-swatch {
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 999px;
+            height: 24px;
+            width: 24px;
+        }
+
+        .preset-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .save-preset-row {
+            align-items: flex-end;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: minmax(220px, 420px) auto;
+            margin-top: 16px;
+        }
+
+        .save-preset-row input[type="text"] {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            padding: 10px 12px;
+            width: 100%;
         }
         
         .color-inputs {
@@ -1011,6 +1657,9 @@ $pageTitle = 'Theme Management';
         
         @media (max-width: 600px) {
             .color-inputs {
+                grid-template-columns: 1fr;
+            }
+            .save-preset-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -1306,6 +1955,7 @@ $pageTitle = 'Theme Management';
                 <!-- Theme Tabs -->
                 <div class="theme-tabs">
                     <button class="theme-tab active" onclick="switchTab('simple')">Simple Customization</button>
+                    <button class="theme-tab" onclick="switchTab('presets')">Theme Presets</button>
                     <button class="theme-tab" onclick="switchTab('header-image')">Header Image</button>
                     <button class="theme-tab" onclick="switchTab('menu')">Menu Configuration</button>
                     <button class="theme-tab" onclick="switchTab('charts')">Chart Colours</button>
@@ -1355,6 +2005,95 @@ $pageTitle = 'Theme Management';
                                 <button type="button" class="btn btn-secondary" onclick="restoreDefaultColors()">Restore Defaults</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <div id="presets-tab" class="tab-content">
+                    <div class="theme-section">
+                        <h2>Theme Presets</h2>
+                        <p>Start with a complete colour preset, then fine tune it in Simple Customization and Chart Colours.</p>
+
+                        <div class="preset-grid">
+                            <?php foreach ($builtInThemePresets as $presetId => $preset): ?>
+                                <?php $presetColors = array_merge(getDefaultThemeColors(), $preset['colors'] ?? []); ?>
+                                <div class="preset-card">
+                                    <div>
+                                        <h3><?= htmlspecialchars($preset['name']) ?></h3>
+                                        <p><?= htmlspecialchars($preset['description']) ?></p>
+                                        <div class="preset-swatches" aria-hidden="true">
+                                            <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['background_color']) ?>"></span>
+                                            <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['card_color']) ?>"></span>
+                                            <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['accent_color']) ?>"></span>
+                                            <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['heading_color']) ?>"></span>
+                                            <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['link_color']) ?>"></span>
+                                        </div>
+                                    </div>
+                                    <form method="POST" action="" class="preset-actions">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="action" value="apply_theme_preset">
+                                        <input type="hidden" name="preset_type" value="built_in">
+                                        <input type="hidden" name="preset_id" value="<?= htmlspecialchars($presetId) ?>">
+                                        <button type="submit" class="btn btn-primary btn-small">Apply Preset</button>
+                                    </form>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div class="theme-section">
+                        <h2>Custom Presets</h2>
+                        <p>Save your current colours and chart settings as a reusable preset for your squadron.</p>
+
+                        <form method="POST" action="" class="save-preset-row">
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <input type="hidden" name="action" value="save_theme_preset">
+                            <div>
+                                <label for="preset_name">Preset Name</label>
+                                <input type="text" id="preset_name" name="preset_name" maxlength="60" placeholder="Example: 252 Sky Pirates" required>
+                            </div>
+                            <button type="submit" class="btn btn-secondary">Save Current Theme</button>
+                        </form>
+
+                        <?php if (!empty($customThemePresets)): ?>
+                            <div class="preset-grid">
+                                <?php foreach ($customThemePresets as $presetIndex => $preset): ?>
+                                    <?php $presetColors = array_merge(getDefaultThemeColors(), $preset['colors'] ?? []); ?>
+                                    <div class="preset-card">
+                                        <div>
+                                            <h3><?= htmlspecialchars($preset['name'] ?? 'Custom Preset') ?></h3>
+                                            <p><?= htmlspecialchars($preset['description'] ?? 'Saved custom squadron theme') ?></p>
+                                            <?php if (!empty($preset['created_at'])): ?>
+                                                <p>Saved <?= htmlspecialchars(date('Y-m-d H:i', strtotime($preset['created_at']))) ?></p>
+                                            <?php endif; ?>
+                                            <div class="preset-swatches" aria-hidden="true">
+                                                <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['background_color']) ?>"></span>
+                                                <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['card_color']) ?>"></span>
+                                                <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['accent_color']) ?>"></span>
+                                                <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['heading_color']) ?>"></span>
+                                                <span class="preset-swatch" style="background: <?= htmlspecialchars($presetColors['link_color']) ?>"></span>
+                                            </div>
+                                        </div>
+                                        <div class="preset-actions">
+                                            <form method="POST" action="">
+                                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                <input type="hidden" name="action" value="apply_theme_preset">
+                                                <input type="hidden" name="preset_type" value="custom">
+                                                <input type="hidden" name="preset_id" value="<?= (int)$presetIndex ?>">
+                                                <button type="submit" class="btn btn-primary btn-small">Apply</button>
+                                            </form>
+                                            <form method="POST" action="" onsubmit="return confirm('Delete this custom theme preset?');">
+                                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                <input type="hidden" name="action" value="delete_theme_preset">
+                                                <input type="hidden" name="preset_id" value="<?= (int)$presetIndex ?>">
+                                                <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted" style="margin-top: 16px;">No custom presets saved yet.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
 

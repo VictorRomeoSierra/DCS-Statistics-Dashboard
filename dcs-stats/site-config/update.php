@@ -86,6 +86,66 @@ $pageTitle = 'Update Dashboard';
         .mt-2 {
             margin-top: 10px;
         }
+        .version-summary-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-bottom: 16px;
+        }
+        .version-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+        }
+        .version-label {
+            color: var(--text-muted);
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .version-value {
+            color: var(--text-primary);
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+        .version-details {
+            display: grid;
+            gap: 8px;
+            margin: 0 0 14px;
+        }
+        .version-detail-row {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: space-between;
+        }
+        .version-detail-row strong {
+            color: var(--text-muted);
+        }
+        .version-status-panel {
+            background: rgba(33, 150, 243, 0.08);
+            border: 1px solid rgba(33, 150, 243, 0.22);
+            border-radius: 6px;
+            margin-top: 14px;
+            padding: 12px;
+        }
+        .version-status-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .version-status-meta {
+            color: var(--text-muted);
+            display: grid;
+            gap: 4px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -114,41 +174,82 @@ $pageTitle = 'Update Dashboard';
                             require_once __DIR__ . '/version_tracker.php';
                             require_once dirname(__DIR__) . '/dev_mode.php';
                             $versionInfo = initializeVersionTracking();
+                            $dashboardVersion = defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : 'Unknown';
                             $currentBranch = $versionInfo['branch'];
                             $isDev = isDevMode();
                             $installedBuild = $versionInfo['version'] ?? 'Unknown';
                             if (empty($versionInfo['commit_sha']) && preg_match('/^V?\d+\.\d+\.\d+/i', $installedBuild)) {
                                 $installedBuild .= ' (legacy - refreshes after next update)';
                             }
+                            $installedCommit = !empty($versionInfo['commit_sha']) ? substr($versionInfo['commit_sha'], 0, 12) : 'Unknown';
+                            $installedDate = !empty($versionInfo['commit_date']) ? date('Y-m-d H:i:s', strtotime($versionInfo['commit_date'])) : 'Unknown';
+                            $lastUpdated = $versionInfo['updated_at'] ?? 'Unknown';
                             $supportInfo = [
+                                'Dashboard Version' => $dashboardVersion,
                                 'Installed Build' => $installedBuild,
+                                'Current Branch' => $currentBranch,
                                 'Update Channel' => $updateChannel['channel'],
-                                'Update Source' => $updateChannel['branch'],
-                                'Installed Commit' => !empty($versionInfo['commit_sha']) ? substr($versionInfo['commit_sha'], 0, 12) : 'Unknown',
-                                'Installed Date' => !empty($versionInfo['commit_date']) ? date('Y-m-d H:i:s', strtotime($versionInfo['commit_date'])) : 'Unknown',
+                                'GitHub Branch' => $updateChannel['branch'],
+                                'Installed Commit' => $installedCommit,
+                                'Installed Date' => $installedDate,
                                 'PHP Version' => PHP_VERSION,
-                                'Last Updated' => $versionInfo['updated_at'] ?? 'Unknown'
+                                'Last Updated' => $lastUpdated
                             ];
                             ?>
-                            <p><strong>Installed Build:</strong> <?= e($installedBuild) ?></p>
-                            <p><strong>Current Branch:</strong> <span class="badge badge-<?= $currentBranch === 'Dev' ? 'warning' : 'primary' ?>"><?= $currentBranch ?></span></p>
-                            <p><strong>Update Channel:</strong> <span class="badge badge-<?= $updateChannel['is_dev'] ? 'warning' : 'primary' ?>"><?= e($updateChannel['channel']) ?></span></p>
-                            <p><strong>Update Source:</strong> GitHub branch <code><?= e($updateChannel['branch']) ?></code></p>
-                            <?php if (!empty($versionInfo['commit_sha'])): ?>
-                                <p><strong>Installed Commit:</strong> <code><?= e(substr($versionInfo['commit_sha'], 0, 12)) ?></code></p>
-                            <?php endif; ?>
-                            <?php if (!empty($versionInfo['commit_date'])): ?>
-                                <p><strong>Installed Date:</strong> <?= e(date('Y-m-d H:i:s', strtotime($versionInfo['commit_date']))) ?></p>
-                            <?php endif; ?>
-                            <p><strong>PHP Version:</strong> <?= PHP_VERSION ?></p>
-                            <p><strong>Last Updated:</strong> <?= $versionInfo['updated_at'] ?? 'Unknown' ?></p>
+                            <div class="version-summary-grid">
+                                <div class="version-card">
+                                    <span class="version-label">Dashboard Version</span>
+                                    <span class="version-value"><?= e($dashboardVersion) ?></span>
+                                </div>
+                                <div class="version-card">
+                                    <span class="version-label">Installed Build</span>
+                                    <span class="version-value"><?= e($installedBuild) ?></span>
+                                </div>
+                                <div class="version-card">
+                                    <span class="version-label">Update Channel</span>
+                                    <span class="badge badge-<?= $updateChannel['is_dev'] ? 'warning' : 'primary' ?>"><?= e($updateChannel['channel']) ?></span>
+                                </div>
+                            </div>
+
+                            <div class="version-details">
+                                <div class="version-detail-row">
+                                    <strong>Current Branch</strong>
+                                    <span class="badge badge-<?= $currentBranch === 'Dev' ? 'warning' : 'primary' ?>"><?= e($currentBranch) ?></span>
+                                </div>
+                                <div class="version-detail-row">
+                                    <strong>GitHub Source</strong>
+                                    <code><?= e($updateChannel['repo'] . ':' . $updateChannel['branch']) ?></code>
+                                </div>
+                                <div class="version-detail-row">
+                                    <strong>Installed Commit</strong>
+                                    <code><?= e($installedCommit) ?></code>
+                                </div>
+                                <div class="version-detail-row">
+                                    <strong>Installed Date</strong>
+                                    <span><?= e($installedDate) ?></span>
+                                </div>
+                                <div class="version-detail-row">
+                                    <strong>Last Updated</strong>
+                                    <span><?= e($lastUpdated) ?></span>
+                                </div>
+                                <div class="version-detail-row">
+                                    <strong>PHP Version</strong>
+                                    <span><?= e(PHP_VERSION) ?></span>
+                                </div>
+                            </div>
+
                             <button class="btn btn-secondary btn-small" type="button" onclick="copySupportInfo()" style="margin-top: 8px;">
                                 Copy Support Info
                             </button>
                             <pre id="support-info" class="update-log" style="display: none; height: auto; max-height: 180px; margin-top: 10px;"><?php foreach ($supportInfo as $label => $value): ?><?= e($label . ': ' . $value) . "\n" ?><?php endforeach; ?></pre>
                             
-                            <div id="update-status" style="margin-top: 15px;">
-                                <p class="text-muted">Checking for updates...</p>
+                            <div class="version-status-panel">
+                                <div class="version-status-title" id="update-status-title">Checking GitHub source...</div>
+                                <div class="version-status-meta">
+                                    <span id="update-status">Checking for updates...</span>
+                                    <span>Latest GitHub commit: <code id="remote-commit">Checking...</code></span>
+                                    <span>Latest GitHub date: <span id="remote-date">Checking...</span></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -263,6 +364,20 @@ function checkUpdateStatus() {
         .then(response => response.text())
         .then(data => {
             const statusDiv = document.getElementById('update-status');
+            const statusTitle = document.getElementById('update-status-title');
+            const remoteCommit = document.getElementById('remote-commit');
+            const remoteDate = document.getElementById('remote-date');
+            const latestCommitMatch = data.match(/Latest Commit: ([^\n]+)/);
+            const latestDateMatch = data.match(/Latest Date: ([^\n]+)/);
+            const branchMatch = data.match(/GitHub Branch: ([^\n]+)/);
+            const sourceLabel = branchMatch ? branchMatch[1].trim() : 'selected branch';
+
+            if (remoteCommit) {
+                remoteCommit.textContent = latestCommitMatch ? latestCommitMatch[1].trim() : 'Unavailable';
+            }
+            if (remoteDate) {
+                remoteDate.textContent = latestDateMatch ? latestDateMatch[1].trim() : 'Unavailable';
+            }
             
             // Parse the response to check if update is available
             if (data.includes('✅ Update Available!')) {
@@ -272,20 +387,17 @@ function checkUpdateStatus() {
                 if (versionMatch) {
                     latestVersion = versionMatch[1];
                 }
-                const branchMatch = data.match(/GitHub Branch: ([^\n]+)/);
-                const sourceLabel = branchMatch ? branchMatch[1].trim() : 'selected branch';
-                statusDiv.innerHTML = `
-                    <div class="alert alert-info">
-                        <strong>Update Ready.</strong> Latest code from ${sourceLabel}
-                        <button class="btn btn-primary btn-small" onclick="performUpdate()" style="margin-left: 10px;">
-                            Update Now
-                        </button>
-                    </div>
-                `;
+                statusTitle.textContent = 'Update Ready';
+                statusDiv.innerHTML = `Latest code is available from ${sourceLabel}. <button class="btn btn-primary btn-small" onclick="performUpdate()" style="margin-left: 10px;">Update Now</button>`;
             } else if (data.includes('✓ You are running the latest')) {
-                statusDiv.innerHTML = '<p class="text-success">✓ System is up to date</p>';
+                statusTitle.textContent = 'Up to Date';
+                statusDiv.innerHTML = '<span class="text-success">System is running the latest selected branch build.</span>';
+            } else if (data.includes('Could not fetch branch information')) {
+                statusTitle.textContent = 'GitHub Check Failed';
+                statusDiv.innerHTML = 'Could not check the selected GitHub branch. Use Check for Updates below to view the full response.';
             } else {
-                statusDiv.innerHTML = '<p class="text-muted">Update status unknown</p>';
+                statusTitle.textContent = 'Update Status Unknown';
+                statusDiv.innerHTML = 'GitHub returned an unexpected response. Use Check for Updates below to view the full response.';
             }
             
             // Also populate versions for downgrade

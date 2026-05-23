@@ -551,63 +551,98 @@ let flightChart = null;
 let aircraftChart = null;
 let trapScoresChart = null;
 
-// Chart configuration with dark theme
+function cssThemeValue(name, fallback) {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return value || fallback;
+}
+
+function themeRgba(name, alpha, fallback) {
+    const hex = cssThemeValue(name, fallback).replace('#', '');
+    if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+        return fallback;
+    }
+    const value = parseInt(hex, 16);
+    const red = (value >> 16) & 255;
+    const green = (value >> 8) & 255;
+    const blue = value & 255;
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+function buildPilotChartTheme() {
+    return {
+        primary: cssThemeValue('--accent_color', '#4CAF50'),
+        secondary: cssThemeValue('--accent_hover_color', '#2196F3'),
+        danger: cssThemeValue('--danger_color', '#f44336'),
+        warning: cssThemeValue('--warning_color', '#ff9800'),
+        muted: cssThemeValue('--muted_text_color', '#cccccc'),
+        text: cssThemeValue('--card_text_color', '#ffffff'),
+        heading: cssThemeValue('--card_heading_color', '#4CAF50'),
+        grid: themeRgba('--border_color', 0.55, 'rgba(85, 107, 47, 0.55)'),
+        tooltipBg: cssThemeValue('--surface_dark_color', '#1e1e1e'),
+        surface: cssThemeValue('--surface_color', '#2c2c2c'),
+        primaryFill: themeRgba('--accent_color', 0.65, 'rgba(76, 175, 80, 0.65)'),
+        secondaryFill: themeRgba('--accent_hover_color', 0.65, 'rgba(33, 150, 243, 0.65)'),
+        dangerFill: themeRgba('--danger_color', 0.65, 'rgba(244, 67, 54, 0.65)'),
+        warningFill: themeRgba('--warning_color', 0.65, 'rgba(255, 152, 0, 0.65)'),
+        mutedFill: themeRgba('--muted_text_color', 0.5, 'rgba(158, 158, 158, 0.5)')
+    };
+}
+
+const pilotChartTheme = buildPilotChartTheme();
+
+function makeAxisTitle(text) {
+    return {
+        display: true,
+        text,
+        color: pilotChartTheme.heading,
+        font: {
+            size: 14,
+            weight: 'bold'
+        }
+    };
+}
+
+// Chart configuration using active theme colours
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
         legend: {
             labels: {
-                color: '#ccc',
+                color: pilotChartTheme.muted,
                 font: {
                     size: 12
                 }
             }
         },
         tooltip: {
-            backgroundColor: '#1e1e1e',
-            titleColor: '#4CAF50',
-            bodyColor: '#ccc',
-            borderColor: '#444',
+            backgroundColor: pilotChartTheme.tooltipBg,
+            titleColor: pilotChartTheme.heading,
+            bodyColor: pilotChartTheme.muted,
+            borderColor: pilotChartTheme.grid,
             borderWidth: 1
         }
     },
     scales: {
         x: {
             ticks: {
-                color: '#ccc'
+                color: pilotChartTheme.muted
             },
             grid: {
-                color: '#333',
-                borderColor: '#444'
+                color: pilotChartTheme.grid,
+                borderColor: pilotChartTheme.grid
             },
-            title: {
-                display: true,
-                text: 'Statistics',
-                color: '#4CAF50',
-                font: {
-                    size: 14,
-                    weight: 'bold'
-                }
-            }
+            title: makeAxisTitle('Statistics')
         },
         y: {
             ticks: {
-                color: '#ccc'
+                color: pilotChartTheme.muted
             },
             grid: {
-                color: '#333',
-                borderColor: '#444'
+                color: pilotChartTheme.grid,
+                borderColor: pilotChartTheme.grid
             },
-            title: {
-                display: true,
-                text: 'Count',
-                color: '#4CAF50',
-                font: {
-                    size: 14,
-                    weight: 'bold'
-                }
-            }
+            title: makeAxisTitle('Count')
         }
     }
 };
@@ -629,15 +664,15 @@ function createCombatChart(statsData) {
     if (statsData.kills !== undefined) {
         labels.push('Kills');
         data.push(statsData.kills || 0);
-        backgroundColor.push('rgba(76, 175, 80, 0.6)');
-        borderColor.push('rgba(76, 175, 80, 1)');
+        backgroundColor.push(pilotChartTheme.primaryFill);
+        borderColor.push(pilotChartTheme.primary);
     }
     
     if (statsData.deaths !== undefined) {
         labels.push('Deaths');
         data.push(statsData.deaths || 0);
-        backgroundColor.push('rgba(244, 67, 54, 0.6)');
-        borderColor.push('rgba(244, 67, 54, 1)');
+        backgroundColor.push(pilotChartTheme.dangerFill);
+        borderColor.push(pilotChartTheme.danger);
     }
     
     // Don't create chart if no data
@@ -674,25 +709,13 @@ function createCombatChart(statsData) {
                 x: {
                     ...chartOptions.scales.x,
                     title: {
-                        display: true,
-                        text: 'Combat Metrics',
-                        color: '#4CAF50',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                        ...makeAxisTitle('Combat Metrics')
                     }
                 },
                 y: {
                     ...chartOptions.scales.y,
                     title: {
-                        display: true,
-                        text: 'Number of Events',
-                        color: '#4CAF50',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                        ...makeAxisTitle('Number of Events')
                     }
                 }
             }
@@ -722,29 +745,29 @@ function createFlightChart(statsData) {
     if (statsData.landings !== undefined) {
         labels.push('Successful Landings');
         data.push(landings);
-        backgroundColor.push('rgba(76, 175, 80, 0.6)');
-        borderColor.push('rgba(76, 175, 80, 1)');
+        backgroundColor.push(pilotChartTheme.primaryFill);
+        borderColor.push(pilotChartTheme.primary);
     }
     
     if (statsData.crashes !== undefined) {
         labels.push('Crashes');
         data.push(crashes);
-        backgroundColor.push('rgba(244, 67, 54, 0.6)');
-        borderColor.push('rgba(244, 67, 54, 1)');
+        backgroundColor.push(pilotChartTheme.dangerFill);
+        borderColor.push(pilotChartTheme.danger);
     }
     
     if (statsData.ejections !== undefined) {
         labels.push('Ejections');
         data.push(ejections);
-        backgroundColor.push('rgba(255, 152, 0, 0.6)');
-        borderColor.push('rgba(255, 152, 0, 1)');
+        backgroundColor.push(pilotChartTheme.warningFill);
+        borderColor.push(pilotChartTheme.warning);
     }
     
     if (statsData.takeoffs !== undefined && takeoffs > (landings + crashes + ejections)) {
         labels.push('In Flight');
         data.push(Math.max(0, takeoffs - landings - crashes - ejections));
-        backgroundColor.push('rgba(158, 158, 158, 0.6)');
-        borderColor.push('rgba(158, 158, 158, 1)');
+        backgroundColor.push(pilotChartTheme.mutedFill);
+        borderColor.push(pilotChartTheme.muted);
     }
     
     // Don't create chart if no data
@@ -790,14 +813,20 @@ function createAircraftChart(aircraftData) {
     
     // Generate colors for each aircraft
     const colors = [
-        'rgba(76, 175, 80, 0.6)',
-        'rgba(33, 150, 243, 0.6)',
-        'rgba(255, 193, 7, 0.6)',
-        'rgba(233, 30, 99, 0.6)',
-        'rgba(156, 39, 176, 0.6)'
+        pilotChartTheme.primaryFill,
+        pilotChartTheme.secondaryFill,
+        pilotChartTheme.warningFill,
+        pilotChartTheme.dangerFill,
+        pilotChartTheme.mutedFill
     ];
     
-    const borderColors = colors.map(c => c.replace('0.6', '1'));
+    const borderColors = [
+        pilotChartTheme.primary,
+        pilotChartTheme.secondary,
+        pilotChartTheme.warning,
+        pilotChartTheme.danger,
+        pilotChartTheme.muted
+    ];
     
     aircraftChart = new Chart(ctx, {
         type: 'bar',
@@ -830,25 +859,13 @@ function createAircraftChart(aircraftData) {
                         stepSize: 1
                     },
                     title: {
-                        display: true,
-                        text: 'Times Used',
-                        color: '#4CAF50',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                        ...makeAxisTitle('Times Used')
                     }
                 },
                 y: {
                     ...chartOptions.scales.y,
                     title: {
-                        display: true,
-                        text: 'Aircraft Type',
-                        color: '#4CAF50',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                        ...makeAxisTitle('Aircraft Type')
                     }
                 }
             }
@@ -889,14 +906,20 @@ function createTrapScoresChart(trapScores) {
     
     // Generate colors matching carrier grading standards
     const colors = [
-        'rgba(76, 175, 80, 0.6)',   // OK - green (perfect)
-        'rgba(255, 193, 7, 0.6)',   // Fair - yellow
-        'rgba(158, 158, 158, 0.6)', // No Grade - gray
-        'rgba(255, 152, 0, 0.6)',   // Cut - orange (dangerous)
-        'rgba(244, 67, 54, 0.6)'    // Wave Off - red
+        pilotChartTheme.primaryFill,
+        pilotChartTheme.secondaryFill,
+        pilotChartTheme.mutedFill,
+        pilotChartTheme.warningFill,
+        pilotChartTheme.dangerFill
     ];
     
-    const borderColors = colors.map(c => c.replace('0.6', '1'));
+    const borderColors = [
+        pilotChartTheme.primary,
+        pilotChartTheme.secondary,
+        pilotChartTheme.muted,
+        pilotChartTheme.warning,
+        pilotChartTheme.danger
+    ];
     
     trapScoresChart = new Chart(ctx, {
         type: 'bar',
@@ -933,13 +956,7 @@ function createTrapScoresChart(trapScores) {
                 x: {
                     ...chartOptions.scales.x,
                     title: {
-                        display: true,
-                        text: 'Landing Grade',
-                        color: '#4CAF50',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                        ...makeAxisTitle('Landing Grade')
                     }
                 },
                 y: {
@@ -950,13 +967,7 @@ function createTrapScoresChart(trapScores) {
                         stepSize: 1
                     },
                     title: {
-                        display: true,
-                        text: 'Number of Carrier Traps',
-                        color: '#4CAF50',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                        ...makeAxisTitle('Number of Carrier Traps')
                     }
                 }
             }

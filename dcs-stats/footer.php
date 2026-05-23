@@ -1,5 +1,15 @@
+<?php
+require_once __DIR__ . '/site_metadata.php';
+$footerMetadata = loadSiteMetadata();
+?>
 <footer>
-  <p>&copy; 2025 DCS Statistics Dashboard | <button type="button" class="credits-link" id="openCredits">Credits</button></p>
+  <p>
+    &copy; 2025 DCS Statistics Dashboard |
+    <button type="button" class="credits-link" id="openCredits">Credits</button>
+    <?php if (!empty($footerMetadata['show_privacy_link'])): ?>
+      | <a class="footer-privacy-link" href="<?php echo url('privacy.php'); ?>">Privacy</a>
+    <?php endif; ?>
+  </p>
 </footer>
 
 <div class="credits-modal" id="creditsModal" aria-hidden="true">
@@ -18,7 +28,7 @@
   .credits-link {
     background: none;
     border: 0;
-    color: #4CAF50;
+    color: var(--link_color, #4CAF50);
     cursor: pointer;
     font: inherit;
     padding: 0;
@@ -26,9 +36,21 @@
     text-underline-offset: 3px;
   }
 
+  .footer-privacy-link {
+    color: var(--link_color, #4CAF50);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .footer-privacy-link:hover,
+  .footer-privacy-link:focus {
+    color: var(--accent_hover_color, #7ad77d);
+    outline: none;
+  }
+
   .credits-link:hover,
   .credits-link:focus {
-    color: #7ad77d;
+    color: var(--accent_hover_color, #7ad77d);
     outline: none;
   }
 
@@ -48,11 +70,11 @@
   }
 
   .credits-box {
-    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
-    border: 1px solid rgba(76, 175, 80, 0.35);
+    background: linear-gradient(135deg, var(--card_color, #2c2c2c) 0%, var(--card_alt_color, #1e1e1e) 100%);
+    border: 1px solid color-mix(in srgb, var(--accent_color, #4CAF50) 35%, transparent);
     border-radius: 8px;
     box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
-    color: #e0e0e0;
+    color: var(--card_text_color, #e0e0e0);
     max-width: 420px;
     padding: 24px;
     position: relative;
@@ -61,7 +83,7 @@
   }
 
   .credits-box h2 {
-    color: #4CAF50;
+    color: var(--card_heading_color, #4CAF50);
     margin: 0 36px 18px 0;
   }
 
@@ -71,18 +93,18 @@
   }
 
   .credits-list a {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: color-mix(in srgb, var(--secondary_color, #2a2a2a) 84%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border_color, #556b2f) 55%, transparent);
     border-radius: 6px;
-    color: #e0e0e0;
+    color: var(--card_text_color, #e0e0e0);
     padding: 12px 14px;
     text-decoration: none;
   }
 
   .credits-list a:hover,
   .credits-list a:focus {
-    border-color: rgba(76, 175, 80, 0.55);
-    color: #4CAF50;
+    border-color: color-mix(in srgb, var(--accent_color, #4CAF50) 55%, transparent);
+    color: var(--accent_hover_color, #4CAF50);
     outline: none;
   }
 
@@ -106,8 +128,8 @@
 
   .credits-close:hover,
   .credits-close:focus {
-    border-color: rgba(76, 175, 80, 0.55);
-    color: #4CAF50;
+    border-color: color-mix(in srgb, var(--accent_color, #4CAF50) 55%, transparent);
+    color: var(--accent_hover_color, #4CAF50);
     outline: none;
   }
 </style>

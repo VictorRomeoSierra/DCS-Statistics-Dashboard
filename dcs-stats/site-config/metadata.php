@@ -1,6 +1,6 @@
 <?php
 /**
- * Website Metadata Settings
+ * Privacy and SEO Settings
  */
 
 require_once __DIR__ . '/auth.php';
@@ -22,7 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $metadata = [
             'description' => trim($_POST['description'] ?? ''),
             'keywords' => trim($_POST['keywords'] ?? ''),
-            'block_search_engines' => isset($_POST['block_search_engines'])
+            'block_search_engines' => isset($_POST['block_search_engines']),
+            'show_privacy_link' => isset($_POST['show_privacy_link']),
+            'privacy_notice' => trim($_POST['privacy_notice'] ?? '')
         ];
 
         if (strlen($metadata['description']) > 320) {
@@ -31,13 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (strlen($metadata['keywords']) > 500) {
             $message = 'Keywords should be 500 characters or fewer';
             $messageType = 'error';
+        } elseif (strlen($metadata['privacy_notice']) > 5000) {
+            $message = 'Privacy notice should be 5000 characters or fewer';
+            $messageType = 'error';
         } elseif (saveSiteMetadata($metadata)) {
             logAdminActivity('METADATA_UPDATE', $_SESSION['admin_id'], 'settings', 'metadata', [
                 'description_length' => strlen($metadata['description']),
                 'keywords_length' => strlen($metadata['keywords']),
-                'block_search_engines' => $metadata['block_search_engines']
+                'block_search_engines' => $metadata['block_search_engines'],
+                'show_privacy_link' => $metadata['show_privacy_link'],
+                'privacy_notice_length' => strlen($metadata['privacy_notice'])
             ]);
-            $message = 'Website metadata saved successfully';
+            $message = 'Privacy and SEO settings saved successfully';
             $messageType = 'success';
         } else {
             $message = 'Failed to save website metadata';
@@ -47,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $metadata = loadSiteMetadata();
-$pageTitle = 'Website Metadata';
+$pageTitle = 'Privacy & SEO';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -109,7 +116,7 @@ $pageTitle = 'Website Metadata';
                 </div>
 
                 <div class="metadata-help">
-                    These settings control the public page meta tags used by search engines and link previews. Blocking search engines adds a robots tag asking crawlers not to index the site.
+                    Manage search metadata, crawler visibility, and the public privacy notice from one place.
                 </div>
 
                 <form method="POST">
@@ -134,7 +141,26 @@ $pageTitle = 'Website Metadata';
                         </label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Metadata</button>
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <h3 class="card-title">Privacy Notice</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="show_privacy_link" value="1" <?= !empty($metadata['show_privacy_link']) ? 'checked' : '' ?>>
+                                Show Privacy link in the public footer
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="privacy_notice">Privacy Notice Text</label>
+                            <textarea id="privacy_notice" name="privacy_notice" class="form-control" maxlength="5000"><?= e($metadata['privacy_notice'] ?? '') ?></textarea>
+                            <span class="character-count">This appears on the public Privacy page. Maximum: 5000 characters.</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Privacy & SEO Settings</button>
                 </form>
             </div>
         </div>

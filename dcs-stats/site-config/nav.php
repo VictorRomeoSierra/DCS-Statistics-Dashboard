@@ -46,7 +46,7 @@ if (!isset($currentAdmin)) {
             </li>
             <?php endif; ?>
             <?php if (hasPermission('change_settings') || hasPermission('manage_admins') || hasPermission('manage_permissions') || hasPermission('manage_api') || hasPermission('manage_features') || hasPermission('manage_maintenance') || hasPermission('manage_updates') || hasPermission('manage_discord') || hasPermission('manage_squadrons') || hasPermission('manage_themes')): ?>
-<?php $isSettingsPage = in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'metadata.php', 'custom_links.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php']); ?>
+<?php $isSettingsPage = in_array(basename($_SERVER['PHP_SELF']), ['settings.php', 'metadata.php', 'custom_links.php', 'settings_backup.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php']); ?>
             <li class="nav-dropdown <?= $isSettingsPage ? 'open' : '' ?>">
                 <a href="#" class="nav-dropdown-toggle <?= $isSettingsPage ? 'active' : '' ?>">
                     <span class="nav-icon">⚙️</span>
@@ -94,7 +94,13 @@ if (!isset($currentAdmin)) {
                     <li>
                         <a href="metadata.php" <?= basename($_SERVER['PHP_SELF']) === 'metadata.php' ? 'class="active"' : '' ?>>
                             <span class="nav-icon">🔎</span>
-                            Website Metadata
+                            Privacy & SEO
+                        </a>
+                    </li>
+                    <li>
+                        <a href="settings_backup.php" <?= basename($_SERVER['PHP_SELF']) === 'settings_backup.php' ? 'class="active"' : '' ?>>
+                            <span class="nav-icon">💾</span>
+                            Settings Backup
                         </a>
                     </li>
                     <?php endif; ?>
@@ -203,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.nav-dropdown')) {
             const currentPath = window.location.pathname;
-            const settingsPages = ['settings.php', 'metadata.php', 'custom_links.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php'];
+            const settingsPages = ['settings.php', 'metadata.php', 'custom_links.php', 'settings_backup.php', 'api_settings.php', 'themes.php', 'discord_settings.php', 'squadron_settings.php', 'admins.php', 'permissions.php', 'maintenance.php', 'update.php'];
             const isOnSettingsPage = settingsPages.some(page => currentPath.includes(page));
             
             if (!isOnSettingsPage) {

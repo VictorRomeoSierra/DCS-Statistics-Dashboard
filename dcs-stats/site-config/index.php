@@ -5,11 +5,10 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/admin_functions.php';
-
-// Debug: Check current user
-$currentUser = getCurrentAdmin();
-error_log("Current user: " . json_encode($currentUser));
-error_log("Has view_dashboard permission: " . (hasPermission('view_dashboard') ? 'yes' : 'no'));
+require_once __DIR__ . '/update_channel.php';
+require_once __DIR__ . '/version_tracker.php';
+require_once dirname(__DIR__) . '/site_features.php';
+require_once dirname(__DIR__) . '/api_config_helper.php';
 
 // Require admin login
 requireAdmin();
@@ -20,6 +19,37 @@ $currentAdmin = getCurrentAdmin();
 
 // Get dashboard statistics
 $stats = getDashboardStats();
+$features = loadSiteFeatures();
+$featureGroups = getFeatureGroups();
+$maintenanceConfig = loadMaintenanceConfig();
+$updateChannel = getUpdateChannelConfig();
+$versionInfo = initializeVersionTracking();
+$apiConfigResult = loadApiConfigWithFix();
+$apiConfig = $apiConfigResult['config'] ?? [];
+$siteConfigFile = dirname(__DIR__) . '/site_config.json';
+$siteConfig = file_exists($siteConfigFile) ? (json_decode(file_get_contents($siteConfigFile), true) ?: []) : [];
+
+$featureCount = 0;
+$enabledFeatureCount = 0;
+foreach ($featureGroups as $groupFeatures) {
+    foreach ($groupFeatures as $featureKey => $featureLabel) {
+        $featureCount++;
+        if (!empty($features[$featureKey])) {
+            $enabledFeatureCount++;
+        }
+    }
+}
+
+$apiEnabled = !empty($apiConfig['use_api']);
+$apiHost = $apiConfig['api_host'] ?? preg_replace('#^https?://#', '', $apiConfig['api_base_url'] ?? '');
+$enabledEndpoints = isset($apiConfig['enabled_endpoints']) && is_array($apiConfig['enabled_endpoints'])
+    ? count($apiConfig['enabled_endpoints'])
+    : 0;
+$installedBuild = $versionInfo['version'] ?? (defined('ADMIN_PANEL_VERSION') ? ADMIN_PANEL_VERSION : 'Unknown');
+$installedCommit = !empty($versionInfo['commit_sha']) ? substr($versionInfo['commit_sha'], 0, 12) : 'Unknown';
+$backupDataDir = __DIR__ . '/data';
+$dataFiles = is_dir($backupDataDir) ? glob($backupDataDir . '/*.json') : [];
+$siteName = $siteConfig['site_name'] ?? 'DCS Statistics';
 
 // Page title
 $pageTitle = 'Flight Deck Operations';
@@ -95,6 +125,92 @@ $pageTitle = 'Flight Deck Operations';
             color: #888;
             font-size: 13px;
         }
+        .overview-grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            margin-bottom: 28px;
+        }
+        .overview-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .overview-card-header {
+            align-items: flex-start;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .overview-icon {
+            align-items: center;
+            background: rgba(76, 175, 80, 0.14);
+            border-radius: 6px;
+            color: var(--accent-primary);
+            display: flex;
+            flex: 0 0 40px;
+            font-size: 22px;
+            height: 40px;
+            justify-content: center;
+            width: 40px;
+        }
+        .overview-title {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin: 0;
+        }
+        .overview-subtitle {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 3px;
+        }
+        .overview-value {
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+        .overview-meta {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 6px;
+            overflow-wrap: anywhere;
+        }
+        .status-pill {
+            align-self: flex-start;
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 12px;
+            padding: 4px 9px;
+        }
+        .status-pill.good {
+            background: rgba(76, 175, 80, 0.18);
+            color: #7bd97f;
+        }
+        .status-pill.warn {
+            background: rgba(255, 152, 0, 0.18);
+            color: #ffc266;
+        }
+        .status-pill.info {
+            background: rgba(33, 150, 243, 0.18);
+            color: #78c3ff;
+        }
+        .quick-action-grid {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
         @media (max-width: 768px) {
             .admin-sidebar { display: none; }
             .admin-wrapper { flex-direction: column; }
@@ -128,6 +244,101 @@ $pageTitle = 'Flight Deck Operations';
                 <div class="alert alert-info">
                     Welcome aboard, <?= e($currentAdmin['username']) ?>! 
                     Last watch: <?= formatDate($currentAdmin['last_login']) ?>
+                </div>
+
+                <!-- Admin Overview -->
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <div>
+                            <div class="overview-card-header">
+                                <div class="overview-icon">⚙️</div>
+                                <div>
+                                    <h2 class="overview-title">Site Setup</h2>
+                                    <div class="overview-subtitle">Public dashboard identity</div>
+                                </div>
+                            </div>
+                            <div class="overview-value"><?= e($siteName) ?></div>
+                            <div class="overview-meta">Theme: <?= e($siteConfig['theme'] ?? 'dark') ?></div>
+                        </div>
+                        <span class="status-pill good">Configured</span>
+                    </div>
+
+                    <div class="overview-card">
+                        <div>
+                            <div class="overview-card-header">
+                                <div class="overview-icon">🔌</div>
+                                <div>
+                                    <h2 class="overview-title">API Connection</h2>
+                                    <div class="overview-subtitle">DCSServerBot source</div>
+                                </div>
+                            </div>
+                            <div class="overview-value"><?= $apiEnabled ? 'Enabled' : 'Disabled' ?></div>
+                            <div class="overview-meta"><?= $apiHost ? e($apiHost) : 'No API host set' ?></div>
+                            <div class="overview-meta"><?= number_format($enabledEndpoints) ?> endpoints enabled</div>
+                        </div>
+                        <span class="status-pill <?= $apiEnabled && $apiHost ? 'good' : 'warn' ?>"><?= $apiEnabled && $apiHost ? 'Ready' : 'Needs Setup' ?></span>
+                    </div>
+
+                    <div class="overview-card">
+                        <div>
+                            <div class="overview-card-header">
+                                <div class="overview-icon">🎛️</div>
+                                <div>
+                                    <h2 class="overview-title">Site Features</h2>
+                                    <div class="overview-subtitle">Visible sections and controls</div>
+                                </div>
+                            </div>
+                            <div class="overview-value"><?= number_format($enabledFeatureCount) ?> / <?= number_format($featureCount) ?></div>
+                            <div class="overview-meta">Configured feature toggles enabled</div>
+                        </div>
+                        <span class="status-pill info">Customisable</span>
+                    </div>
+
+                    <div class="overview-card">
+                        <div>
+                            <div class="overview-card-header">
+                                <div class="overview-icon">🔄</div>
+                                <div>
+                                    <h2 class="overview-title">Update Status</h2>
+                                    <div class="overview-subtitle">Installed build and channel</div>
+                                </div>
+                            </div>
+                            <div class="overview-value"><?= e($installedBuild) ?></div>
+                            <div class="overview-meta"><?= e($updateChannel['channel']) ?> channel: <?= e($updateChannel['branch']) ?></div>
+                            <div class="overview-meta">Commit: <?= e($installedCommit) ?></div>
+                        </div>
+                        <span class="status-pill <?= $updateChannel['is_dev'] ? 'warn' : 'good' ?>"><?= $updateChannel['is_dev'] ? 'Dev' : 'Stable' ?></span>
+                    </div>
+
+                    <div class="overview-card">
+                        <div>
+                            <div class="overview-card-header">
+                                <div class="overview-icon">🛠️</div>
+                                <div>
+                                    <h2 class="overview-title">Maintenance</h2>
+                                    <div class="overview-subtitle">Public access mode</div>
+                                </div>
+                            </div>
+                            <div class="overview-value"><?= !empty($maintenanceConfig['enabled']) ? 'On' : 'Off' ?></div>
+                            <div class="overview-meta"><?= number_format(count($maintenanceConfig['ip_whitelist'] ?? [])) ?> allowed IPs</div>
+                        </div>
+                        <span class="status-pill <?= !empty($maintenanceConfig['enabled']) ? 'warn' : 'good' ?>"><?= !empty($maintenanceConfig['enabled']) ? 'Restricted' : 'Public' ?></span>
+                    </div>
+
+                    <div class="overview-card">
+                        <div>
+                            <div class="overview-card-header">
+                                <div class="overview-icon">💾</div>
+                                <div>
+                                    <h2 class="overview-title">Local Settings</h2>
+                                    <div class="overview-subtitle">Admin data files</div>
+                                </div>
+                            </div>
+                            <div class="overview-value"><?= number_format(count($dataFiles)) ?></div>
+                            <div class="overview-meta">JSON settings files found</div>
+                        </div>
+                        <span class="status-pill info">Backup Ready</span>
+                    </div>
                 </div>
                 
                 <!-- Statistics Grid -->
@@ -187,9 +398,22 @@ $pageTitle = 'Flight Deck Operations';
                     <div class="card-header">
                         <h2 class="card-title">Quick Actions</h2>
                     </div>
-                    <div class="btn-group">
+                    <div class="quick-action-grid">
                         <?php if (hasPermission('manage_admins')): ?>
                             <a href="admins.php" class="btn btn-primary">Manage Admins</a>
+                        <?php endif; ?>
+                        <?php if (hasPermission('manage_features')): ?>
+                            <a href="settings.php" class="btn btn-secondary">Site Features</a>
+                            <a href="settings_backup.php" class="btn btn-secondary">Settings Backup</a>
+                        <?php endif; ?>
+                        <?php if (hasPermission('manage_api')): ?>
+                            <a href="api_settings.php" class="btn btn-secondary">API Settings</a>
+                        <?php endif; ?>
+                        <?php if (hasPermission('manage_themes')): ?>
+                            <a href="themes.php" class="btn btn-secondary">Themes</a>
+                        <?php endif; ?>
+                        <?php if (hasPermission('manage_updates')): ?>
+                            <a href="update.php" class="btn btn-secondary">Updates</a>
                         <?php endif; ?>
                         <?php if (hasPermission('view_logs')): ?>
                             <a href="logs.php" class="btn btn-secondary">View Logs</a>
