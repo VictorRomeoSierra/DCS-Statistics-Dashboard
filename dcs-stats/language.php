@@ -78,6 +78,11 @@ function dcs_language_code($language = null) {
 
 function dcs_default_language() {
     static $language = null;
+    $override = $GLOBALS['dcs_language_override'] ?? null;
+
+    if ($override !== null) {
+        return dcs_language_code($override);
+    }
 
     if ($language !== null) {
         return $language;
@@ -91,6 +96,10 @@ function dcs_default_language() {
 
     $language = dcs_language_code($config['default_language'] ?? 'en');
     return $language;
+}
+
+function dcs_set_language_override($language) {
+    $GLOBALS['dcs_language_override'] = dcs_language_code($language);
 }
 
 function dcs_load_translations($language) {

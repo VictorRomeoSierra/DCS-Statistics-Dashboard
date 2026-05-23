@@ -9,6 +9,7 @@ require_once __DIR__ . '/update_channel.php';
 require_once __DIR__ . '/version_tracker.php';
 require_once dirname(__DIR__) . '/site_features.php';
 require_once dirname(__DIR__) . '/api_config_helper.php';
+require_once dirname(__DIR__) . '/language.php';
 
 // Require admin login
 requireAdmin();
@@ -52,7 +53,7 @@ $dataFiles = is_dir($backupDataDir) ? glob($backupDataDir . '/*.json') : [];
 $siteName = $siteConfig['site_name'] ?? 'DCS Statistics';
 
 // Page title
-$pageTitle = 'Flight Deck Operations';
+$pageTitle = dcs_t('admin.dashboard.title');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -234,7 +235,7 @@ $pageTitle = 'Flight Deck Operations';
                         <div class="admin-username"><?= e($currentAdmin['username']) ?></div>
                         <div class="admin-role"><?= getRoleBadge($currentAdmin['role']) ?></div>
                     </div>
-                    <a href="logout.php" class="btn btn-secondary btn-small">Logout</a>
+                    <a href="logout.php" class="btn btn-secondary btn-small"><?= e(dcs_t('admin.common.logout')) ?></a>
                 </div>
             </header>
             
@@ -242,8 +243,8 @@ $pageTitle = 'Flight Deck Operations';
             <div class="admin-content">
                 <!-- Welcome Message -->
                 <div class="alert alert-info">
-                    Welcome aboard, <?= e($currentAdmin['username']) ?>! 
-                    Last watch: <?= formatDate($currentAdmin['last_login']) ?>
+                    <?= e(dcs_t('admin.dashboard.welcome', ['user' => $currentAdmin['username']])) ?>
+                    <?= e(dcs_t('admin.dashboard.last_watch')) ?>: <?= formatDate($currentAdmin['last_login']) ?>
                 </div>
 
                 <!-- Admin Overview -->
@@ -253,14 +254,14 @@ $pageTitle = 'Flight Deck Operations';
                             <div class="overview-card-header">
                                 <div class="overview-icon">⚙️</div>
                                 <div>
-                                    <h2 class="overview-title">Site Setup</h2>
-                                    <div class="overview-subtitle">Public dashboard identity</div>
+                                    <h2 class="overview-title"><?= e(dcs_t('admin.dashboard.site_setup')) ?></h2>
+                                    <div class="overview-subtitle"><?= e(dcs_t('admin.dashboard.site_setup_subtitle')) ?></div>
                                 </div>
                             </div>
                             <div class="overview-value"><?= e($siteName) ?></div>
-                            <div class="overview-meta">Theme: <?= e($siteConfig['theme'] ?? 'dark') ?></div>
+                            <div class="overview-meta"><?= e(dcs_t('admin.dashboard.theme')) ?>: <?= e($siteConfig['theme'] ?? 'dark') ?></div>
                         </div>
-                        <span class="status-pill good">Configured</span>
+                        <span class="status-pill good"><?= e(dcs_t('admin.status.configured')) ?></span>
                     </div>
 
                     <div class="overview-card">
@@ -268,15 +269,15 @@ $pageTitle = 'Flight Deck Operations';
                             <div class="overview-card-header">
                                 <div class="overview-icon">🔌</div>
                                 <div>
-                                    <h2 class="overview-title">API Connection</h2>
-                                    <div class="overview-subtitle">DCSServerBot source</div>
+                                    <h2 class="overview-title"><?= e(dcs_t('admin.dashboard.api_connection')) ?></h2>
+                                    <div class="overview-subtitle"><?= e(dcs_t('admin.dashboard.api_connection_subtitle')) ?></div>
                                 </div>
                             </div>
-                            <div class="overview-value"><?= $apiEnabled ? 'Enabled' : 'Disabled' ?></div>
-                            <div class="overview-meta"><?= $apiHost ? e($apiHost) : 'No API host set' ?></div>
-                            <div class="overview-meta"><?= number_format($enabledEndpoints) ?> endpoints enabled</div>
+                            <div class="overview-value"><?= e($apiEnabled ? dcs_t('admin.status.enabled') : dcs_t('admin.status.disabled')) ?></div>
+                            <div class="overview-meta"><?= $apiHost ? e($apiHost) : e(dcs_t('admin.dashboard.no_api_host')) ?></div>
+                            <div class="overview-meta"><?= e(dcs_t('admin.dashboard.endpoints_enabled', ['count' => number_format($enabledEndpoints)])) ?></div>
                         </div>
-                        <span class="status-pill <?= $apiEnabled && $apiHost ? 'good' : 'warn' ?>"><?= $apiEnabled && $apiHost ? 'Ready' : 'Needs Setup' ?></span>
+                        <span class="status-pill <?= $apiEnabled && $apiHost ? 'good' : 'warn' ?>"><?= e($apiEnabled && $apiHost ? dcs_t('admin.status.ready') : dcs_t('admin.status.needs_setup')) ?></span>
                     </div>
 
                     <div class="overview-card">
@@ -284,14 +285,14 @@ $pageTitle = 'Flight Deck Operations';
                             <div class="overview-card-header">
                                 <div class="overview-icon">🎛️</div>
                                 <div>
-                                    <h2 class="overview-title">Site Features</h2>
-                                    <div class="overview-subtitle">Visible sections and controls</div>
+                                    <h2 class="overview-title"><?= e(dcs_t('admin.dashboard.site_features')) ?></h2>
+                                    <div class="overview-subtitle"><?= e(dcs_t('admin.dashboard.site_features_subtitle')) ?></div>
                                 </div>
                             </div>
                             <div class="overview-value"><?= number_format($enabledFeatureCount) ?> / <?= number_format($featureCount) ?></div>
-                            <div class="overview-meta">Configured feature toggles enabled</div>
+                            <div class="overview-meta"><?= e(dcs_t('admin.dashboard.features_enabled')) ?></div>
                         </div>
-                        <span class="status-pill info">Customisable</span>
+                        <span class="status-pill info"><?= e(dcs_t('admin.status.customisable')) ?></span>
                     </div>
 
                     <div class="overview-card">
@@ -299,13 +300,13 @@ $pageTitle = 'Flight Deck Operations';
                             <div class="overview-card-header">
                                 <div class="overview-icon">🔄</div>
                                 <div>
-                                    <h2 class="overview-title">Update Status</h2>
-                                    <div class="overview-subtitle">Installed build and channel</div>
+                                    <h2 class="overview-title"><?= e(dcs_t('admin.dashboard.update_status')) ?></h2>
+                                    <div class="overview-subtitle"><?= e(dcs_t('admin.dashboard.update_status_subtitle')) ?></div>
                                 </div>
                             </div>
                             <div class="overview-value"><?= e($installedBuild) ?></div>
-                            <div class="overview-meta"><?= e($updateChannel['channel']) ?> channel: <?= e($updateChannel['branch']) ?></div>
-                            <div class="overview-meta">Commit: <?= e($installedCommit) ?></div>
+                            <div class="overview-meta"><?= e($updateChannel['channel']) ?> <?= e(dcs_t('admin.dashboard.channel')) ?>: <?= e($updateChannel['branch']) ?></div>
+                            <div class="overview-meta"><?= e(dcs_t('admin.dashboard.commit')) ?>: <?= e($installedCommit) ?></div>
                         </div>
                         <span class="status-pill <?= $updateChannel['is_dev'] ? 'warn' : 'good' ?>"><?= $updateChannel['is_dev'] ? 'Dev' : 'Stable' ?></span>
                     </div>
@@ -315,14 +316,14 @@ $pageTitle = 'Flight Deck Operations';
                             <div class="overview-card-header">
                                 <div class="overview-icon">🛠️</div>
                                 <div>
-                                    <h2 class="overview-title">Maintenance</h2>
-                                    <div class="overview-subtitle">Public access mode</div>
+                                    <h2 class="overview-title"><?= e(dcs_t('admin.dashboard.maintenance')) ?></h2>
+                                    <div class="overview-subtitle"><?= e(dcs_t('admin.dashboard.maintenance_subtitle')) ?></div>
                                 </div>
                             </div>
-                            <div class="overview-value"><?= !empty($maintenanceConfig['enabled']) ? 'On' : 'Off' ?></div>
-                            <div class="overview-meta"><?= number_format(count($maintenanceConfig['ip_whitelist'] ?? [])) ?> allowed IPs</div>
+                            <div class="overview-value"><?= e(!empty($maintenanceConfig['enabled']) ? dcs_t('admin.status.on') : dcs_t('admin.status.off')) ?></div>
+                            <div class="overview-meta"><?= e(dcs_t('admin.dashboard.allowed_ips', ['count' => number_format(count($maintenanceConfig['ip_whitelist'] ?? []))])) ?></div>
                         </div>
-                        <span class="status-pill <?= !empty($maintenanceConfig['enabled']) ? 'warn' : 'good' ?>"><?= !empty($maintenanceConfig['enabled']) ? 'Restricted' : 'Public' ?></span>
+                        <span class="status-pill <?= !empty($maintenanceConfig['enabled']) ? 'warn' : 'good' ?>"><?= e(!empty($maintenanceConfig['enabled']) ? dcs_t('admin.status.restricted') : dcs_t('admin.status.public')) ?></span>
                     </div>
 
                     <div class="overview-card">
@@ -330,25 +331,25 @@ $pageTitle = 'Flight Deck Operations';
                             <div class="overview-card-header">
                                 <div class="overview-icon">💾</div>
                                 <div>
-                                    <h2 class="overview-title">Local Settings</h2>
-                                    <div class="overview-subtitle">Admin data files</div>
+                                    <h2 class="overview-title"><?= e(dcs_t('admin.dashboard.local_settings')) ?></h2>
+                                    <div class="overview-subtitle"><?= e(dcs_t('admin.dashboard.local_settings_subtitle')) ?></div>
                                 </div>
                             </div>
                             <div class="overview-value"><?= number_format(count($dataFiles)) ?></div>
-                            <div class="overview-meta">JSON settings files found</div>
+                            <div class="overview-meta"><?= e(dcs_t('admin.dashboard.json_files_found')) ?></div>
                         </div>
-                        <span class="status-pill info">Backup Ready</span>
+                        <span class="status-pill info"><?= e(dcs_t('admin.status.backup_ready')) ?></span>
                     </div>
                 </div>
                 
                 <!-- Statistics Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-label">Bridge Officers</div>
+                        <div class="stat-label"><?= e(dcs_t('admin.dashboard.bridge_officers')) ?></div>
                         <div class="stat-value"><?= number_format($stats['total_admins']) ?></div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Active Pilots</div>
+                        <div class="stat-label"><?= e(dcs_t('admin.dashboard.active_pilots')) ?></div>
                         <div class="stat-value"><?= number_format($stats['total_players']) ?></div>
                     </div>
                 </div>
@@ -356,12 +357,12 @@ $pageTitle = 'Flight Deck Operations';
                 <!-- Recent Activity -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Bridge Log</h2>
-                        <a href="logs.php" class="btn btn-primary btn-small">View All</a>
+                        <h2 class="card-title"><?= e(dcs_t('admin.dashboard.bridge_log')) ?></h2>
+                        <a href="logs.php" class="btn btn-primary btn-small"><?= e(dcs_t('admin.common.view_all')) ?></a>
                     </div>
                     
                     <?php if (empty($stats['recent_activity'])): ?>
-                        <p class="text-muted">No recent activity to display.</p>
+                        <p class="text-muted"><?= e(dcs_t('admin.dashboard.no_recent_activity')) ?></p>
                     <?php else: ?>
                         <div class="activity-list">
                             <?php foreach ($stats['recent_activity'] as $activity): ?>
@@ -372,7 +373,7 @@ $pageTitle = 'Flight Deck Operations';
                                         <?= e(LOG_ACTIONS[$activity['action']] ?? $activity['action']) ?>
                                         <?php if ($activity['target_type']): ?>
                                             <div style="margin-top: 5px;">
-                                                <span class="text-muted">Target: <?= e($activity['target_type']) ?></span>
+                                                <span class="text-muted"><?= e(dcs_t('admin.dashboard.target')) ?>: <?= e($activity['target_type']) ?></span>
                                                 <?php if ($activity['target_id']): ?>
                                                     <code style="font-size: 11px;"><?= e(substr($activity['target_id'], 0, 50)) ?><?= strlen($activity['target_id']) > 50 ? '...' : '' ?></code>
                                                 <?php endif; ?>
@@ -396,30 +397,30 @@ $pageTitle = 'Flight Deck Operations';
                 <!-- Quick Actions -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Quick Actions</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.dashboard.quick_actions')) ?></h2>
                     </div>
                     <div class="quick-action-grid">
                         <?php if (hasPermission('manage_admins')): ?>
-                            <a href="admins.php" class="btn btn-primary">Manage Admins</a>
+                            <a href="admins.php" class="btn btn-primary"><?= e(dcs_t('admin.dashboard.manage_admins')) ?></a>
                         <?php endif; ?>
                         <?php if (hasPermission('manage_features')): ?>
-                            <a href="settings.php" class="btn btn-secondary">Site Features</a>
-                            <a href="settings_backup.php" class="btn btn-secondary">Settings Backup</a>
+                            <a href="settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.site_features')) ?></a>
+                            <a href="settings_backup.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.settings_backup')) ?></a>
                         <?php endif; ?>
                         <?php if (hasPermission('manage_api')): ?>
-                            <a href="api_settings.php" class="btn btn-secondary">API Settings</a>
+                            <a href="api_settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.api_settings')) ?></a>
                         <?php endif; ?>
                         <?php if (hasPermission('manage_themes')): ?>
-                            <a href="themes.php" class="btn btn-secondary">Themes</a>
+                            <a href="themes.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.themes')) ?></a>
                         <?php endif; ?>
                         <?php if (hasPermission('manage_updates')): ?>
-                            <a href="update.php" class="btn btn-secondary">Updates</a>
+                            <a href="update.php" class="btn btn-secondary"><?= e(dcs_t('admin.dashboard.updates')) ?></a>
                         <?php endif; ?>
                         <?php if (hasPermission('view_logs')): ?>
-                            <a href="logs.php" class="btn btn-secondary">View Logs</a>
+                            <a href="logs.php" class="btn btn-secondary"><?= e(dcs_t('admin.dashboard.view_logs')) ?></a>
                         <?php endif; ?>
                         <?php if (hasPermission('export_data')): ?>
-                            <a href="export.php" class="btn btn-secondary">Export Data</a>
+                            <a href="export.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.export_data')) ?></a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -427,28 +428,28 @@ $pageTitle = 'Flight Deck Operations';
                 <!-- System Information -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">System Information</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.dashboard.system_information')) ?></h2>
                     </div>
                     <table class="data-table">
                         <tr>
-                            <td>Admin Panel Version</td>
+                            <td><?= e(dcs_t('admin.dashboard.admin_panel_version')) ?></td>
                             <td><?= ADMIN_PANEL_VERSION ?></td>
                         </tr>
                         <tr>
-                            <td>PHP Version</td>
+                            <td><?= e(dcs_t('admin.dashboard.php_version')) ?></td>
                             <td><?= phpversion() ?></td>
                         </tr>
                         <tr>
-                            <td>Storage Mode</td>
-                            <td><?= USE_DATABASE ? 'Database' : 'File-based' ?></td>
+                            <td><?= e(dcs_t('admin.dashboard.storage_mode')) ?></td>
+                            <td><?= e(USE_DATABASE ? dcs_t('admin.dashboard.database') : dcs_t('admin.dashboard.file_based')) ?></td>
                         </tr>
                         <tr>
-                            <td>Data Directory</td>
+                            <td><?= e(dcs_t('admin.dashboard.data_directory')) ?></td>
                             <td title="<?= htmlspecialchars(ADMIN_DATA_DIR) ?>"><?= basename(rtrim(ADMIN_DATA_DIR, '/')) ?>/</td>
                         </tr>
                         <tr>
-                            <td>Log Retention</td>
-                            <td><?= LOG_RETENTION_DAYS ?> days</td>
+                            <td><?= e(dcs_t('admin.dashboard.log_retention')) ?></td>
+                            <td><?= e(dcs_t('admin.dashboard.days', ['count' => LOG_RETENTION_DAYS])) ?></td>
                         </tr>
                     </table>
                 </div>

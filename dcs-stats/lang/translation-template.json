@@ -565,6 +565,14 @@
         "admin.themes.preset_red_flag": "Red Flag",
         "admin.themes.preset_red_flag_desc": "Charcoal panels with red and amber exercise accents.",
         "admin.themes.preset_arctic_ops": "Arctic Ops",
-        "admin.themes.preset_arctic_ops_desc": "Cool grey and blue palette for clean high-contrast dashboards."
+        "admin.themes.preset_arctic_ops_desc": "Cool grey and blue palette for clean high-contrast dashboards.",
+        "admin.login.title": "Admin Login",
+        "admin.login.subtitle": "DCS Statistics Management Panel",
+        "admin.login.username_email": "Username or Email",
+        "admin.login.password": "Password",
+        "admin.login.remember": "Remember me for 30 days",
+        "admin.login.login_button": "Login",
+        "admin.login.back_to_statistics": "Back to Statistics",
+        "admin.login.security_notice": "This is a secure area. All activities are logged."
     }
 }

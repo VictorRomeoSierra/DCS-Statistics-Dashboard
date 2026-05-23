@@ -562,5 +562,13 @@ return [
     'admin.themes.preset_red_flag' => 'Red Flag',
     'admin.themes.preset_red_flag_desc' => 'Anthrazitfarbene Panels mit roten und bernsteinfarbenen Übungsakzenten.',
     'admin.themes.preset_arctic_ops' => 'Arktische Einsätze',
-    'admin.themes.preset_arctic_ops_desc' => 'Kühle Grau- und Blautöne für saubere, kontrastreiche Dashboards.'
+    'admin.themes.preset_arctic_ops_desc' => 'Kühle Grau- und Blautöne für saubere, kontrastreiche Dashboards.',
+    'admin.login.title' => 'Admin-Login',
+    'admin.login.subtitle' => 'DCS Statistics Verwaltungsbereich',
+    'admin.login.username_email' => 'Benutzername oder E-Mail',
+    'admin.login.password' => 'Passwort',
+    'admin.login.remember' => '30 Tage angemeldet bleiben',
+    'admin.login.login_button' => 'Anmelden',
+    'admin.login.back_to_statistics' => 'Zurück zu den Statistiken',
+    'admin.login.security_notice' => 'Dies ist ein geschützter Bereich. Alle Aktivitäten werden protokolliert.'
 ];

@@ -115,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $language = dcs_language_code($_POST['default_language'] ?? 'en');
             $siteConfig['default_language'] = $language;
+            dcs_set_language_override($language);
 
             if (file_put_contents($siteConfigFile, json_encode($siteConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false) {
                 logAdminActivity('LANGUAGE_UPDATE', $_SESSION['admin_id'], 'settings', 'language', ['default_language' => $language]);
@@ -132,7 +133,7 @@ $supportedLanguages = dcs_supported_languages();
 $builtInLanguages = dcs_builtin_languages();
 $customLanguages = dcs_custom_languages();
 $currentLanguage = dcs_language_code($siteConfig['default_language'] ?? 'en');
-$pageTitle = 'Language Settings';
+$pageTitle = dcs_t('admin.language.title');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -229,7 +230,7 @@ $pageTitle = 'Language Settings';
 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Translated Languages</h2>
+                        <h2 class="card-title"><?= e(dcs_t('admin.language.translated_languages')) ?></h2>
                     </div>
 
                     <div class="language-grid">
@@ -238,10 +239,10 @@ $pageTitle = 'Language Settings';
                             <div class="language-card">
                                 <strong><?= e($label) ?></strong>
                                 <div class="language-meta">
-                                    <?= e(strtoupper($code)) ?> · <?= $isBuiltIn ? 'Built in' : 'Uploaded' ?> · <?= count(dcs_load_translations($code)) ?> translated keys
+                                    <?= e(strtoupper($code)) ?> · <?= e($isBuiltIn ? dcs_t('admin.language.built_in') : dcs_t('admin.language.uploaded')) ?> · <?= e(dcs_t('admin.language.translated_keys', ['count' => count(dcs_load_translations($code))])) ?>
                                 </div>
                                 <?php if ($currentLanguage === $code): ?>
-                                    <span class="language-badge">Current</span>
+                                    <span class="language-badge"><?= e(dcs_t('admin.language.current')) ?></span>
                                 <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
@@ -251,14 +252,14 @@ $pageTitle = 'Language Settings';
                 <div class="language-actions" style="margin-top: 24px;">
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">Default Language</h2>
+                            <h2 class="card-title"><?= e(dcs_t('admin.language.default_language')) ?></h2>
                         </div>
 
                         <form method="POST">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="save_language">
                             <div class="form-group">
-                                <label for="default_language">Public Site Language</label>
+                                <label for="default_language"><?= e(dcs_t('admin.language.public_site_language')) ?></label>
                                 <select id="default_language" name="default_language" class="form-control">
                                     <?php foreach ($supportedLanguages as $code => $label): ?>
                                     <option value="<?= e($code) ?>" <?= $currentLanguage === $code ? 'selected' : '' ?>>
@@ -268,27 +269,27 @@ $pageTitle = 'Language Settings';
                                 </select>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Save Language</button>
+                            <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.language.save_language')) ?></button>
                         </form>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">Upload Translation</h2>
+                            <h2 class="card-title"><?= e(dcs_t('admin.language.upload_translation')) ?></h2>
                         </div>
 
-                        <a class="template-link" href="../lang/translation-template.json" download>Download translation template</a>
+                        <a class="template-link" href="../lang/translation-template.json" download><?= e(dcs_t('admin.language.download_template')) ?></a>
 
                         <form method="POST" enctype="multipart/form-data">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="upload_translation">
                             <div class="form-group">
-                                <label for="translation_file">Translation JSON File</label>
+                                <label for="translation_file"><?= e(dcs_t('admin.language.translation_file')) ?></label>
                                 <input id="translation_file" name="translation_file" type="file" class="form-control" accept=".json,application/json" required>
-                                <div class="help-text">Upload a completed template for a new language. Missing text will fall back to English.</div>
+                                <div class="help-text"><?= e(dcs_t('admin.language.upload_help')) ?></div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Upload Translation</button>
+                            <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.language.upload_translation')) ?></button>
                         </form>
                     </div>
                 </div>
