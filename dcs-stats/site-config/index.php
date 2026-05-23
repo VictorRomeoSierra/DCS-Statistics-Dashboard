@@ -71,13 +71,29 @@ $pageTitle = dcs_t('admin.dashboard.title');
         .admin-main { flex: 1; min-width: 0; overflow-x: hidden; }
         .admin-content { padding: 30px; max-width: 100%; overflow-x: hidden; }
         .card { max-width: 100%; overflow-x: auto; }
+        .compact-card {
+            margin-bottom: 18px;
+        }
+        .compact-card .card-header {
+            padding: 14px 18px;
+        }
+        .compact-card .card-title {
+            font-size: 18px;
+        }
+        .compact-card .data-table td {
+            padding: 9px 12px;
+        }
         .data-table { width: 100%; table-layout: fixed; }
         .data-table td { word-wrap: break-word; overflow-wrap: break-word; }
         
         /* Bridge Log / Activity List Styles */
-        .activity-list { max-width: 100%; }
+        .activity-list {
+            max-height: 360px;
+            max-width: 100%;
+            overflow-y: auto;
+        }
         .activity-item {
-            padding: 15px;
+            padding: 10px 14px;
             border-bottom: 1px solid #444;
             word-wrap: break-word;
             overflow-wrap: break-word;
@@ -88,13 +104,13 @@ $pageTitle = dcs_t('admin.dashboard.title');
         .activity-time {
             font-size: 12px;
             color: #888;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             font-style: italic;
         }
         .activity-action {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             word-break: break-word;
-            line-height: 1.6;
+            line-height: 1.45;
         }
         .activity-action strong {
             color: #4CAF50;
@@ -104,9 +120,9 @@ $pageTitle = dcs_t('admin.dashboard.title');
             font-size: 12px;
             color: #aaa;
             background: #1a1a1a;
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 4px;
-            margin-top: 8px;
+            margin-top: 6px;
             word-break: break-all;
             max-width: 100%;
             overflow-x: auto;
@@ -210,7 +226,23 @@ $pageTitle = dcs_t('admin.dashboard.title');
         .quick-action-grid {
             display: grid;
             gap: 10px;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+        }
+        .quick-action-grid .btn {
+            padding: 9px 12px;
+        }
+        .dashboard-lower-grid {
+            align-items: start;
+            display: grid;
+            gap: 18px;
+            grid-template-columns: minmax(360px, 1.25fr) minmax(280px, 0.75fr);
+        }
+        .dashboard-utility-stack {
+            display: grid;
+            gap: 18px;
+        }
+        .system-table {
+            font-size: 13px;
         }
         @media (max-width: 768px) {
             .admin-sidebar { display: none; }
@@ -218,6 +250,9 @@ $pageTitle = dcs_t('admin.dashboard.title');
             .admin-content { padding: 15px; }
             .activity-item { padding: 10px; }
             .activity-details { font-size: 11px; padding: 5px; }
+            .dashboard-lower-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -354,104 +389,108 @@ $pageTitle = dcs_t('admin.dashboard.title');
                     </div>
                 </div>
                 
-                <!-- Recent Activity -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title"><?= e(dcs_t('admin.dashboard.bridge_log')) ?></h2>
-                        <a href="logs.php" class="btn btn-primary btn-small"><?= e(dcs_t('admin.common.view_all')) ?></a>
-                    </div>
-                    
-                    <?php if (empty($stats['recent_activity'])): ?>
-                        <p class="text-muted"><?= e(dcs_t('admin.dashboard.no_recent_activity')) ?></p>
-                    <?php else: ?>
-                        <div class="activity-list">
-                            <?php foreach ($stats['recent_activity'] as $activity): ?>
-                                <div class="activity-item">
-                                    <div class="activity-time"><?= formatDate($activity['created_at']) ?></div>
-                                    <div class="activity-action">
-                                        <strong><?= e($activity['admin_username']) ?></strong>
-                                        <?= e(LOG_ACTIONS[$activity['action']] ?? $activity['action']) ?>
-                                        <?php if ($activity['target_type']): ?>
-                                            <div style="margin-top: 5px;">
-                                                <span class="text-muted"><?= e(dcs_t('admin.dashboard.target')) ?>: <?= e($activity['target_type']) ?></span>
-                                                <?php if ($activity['target_id']): ?>
-                                                    <code style="font-size: 11px;"><?= e(substr($activity['target_id'], 0, 50)) ?><?= strlen($activity['target_id']) > 50 ? '...' : '' ?></code>
-                                                <?php endif; ?>
+                <div class="dashboard-lower-grid">
+                    <!-- Recent Activity -->
+                    <div class="card compact-card">
+                        <div class="card-header">
+                            <h2 class="card-title"><?= e(dcs_t('admin.dashboard.bridge_log')) ?></h2>
+                            <a href="logs.php" class="btn btn-primary btn-small"><?= e(dcs_t('admin.common.view_all')) ?></a>
+                        </div>
+                        
+                        <?php if (empty($stats['recent_activity'])): ?>
+                            <p class="text-muted"><?= e(dcs_t('admin.dashboard.no_recent_activity')) ?></p>
+                        <?php else: ?>
+                            <div class="activity-list">
+                                <?php foreach ($stats['recent_activity'] as $activity): ?>
+                                    <div class="activity-item">
+                                        <div class="activity-time"><?= formatDate($activity['created_at']) ?></div>
+                                        <div class="activity-action">
+                                            <strong><?= e($activity['admin_username']) ?></strong>
+                                            <?= e(LOG_ACTIONS[$activity['action']] ?? $activity['action']) ?>
+                                            <?php if ($activity['target_type']): ?>
+                                                <div style="margin-top: 5px;">
+                                                    <span class="text-muted"><?= e(dcs_t('admin.dashboard.target')) ?>: <?= e($activity['target_type']) ?></span>
+                                                    <?php if ($activity['target_id']): ?>
+                                                        <code style="font-size: 11px;"><?= e(substr($activity['target_id'], 0, 50)) ?><?= strlen($activity['target_id']) > 50 ? '...' : '' ?></code>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if ($activity['details'] && !empty($activity['details'])): ?>
+                                            <div class="activity-details">
+                                                <?php 
+                                                $details = is_array($activity['details']) ? json_encode($activity['details']) : $activity['details'];
+                                                echo e(substr($details, 0, 100)) . (strlen($details) > 100 ? '...' : '');
+                                                ?>
                                             </div>
                                         <?php endif; ?>
                                     </div>
-                                    <?php if ($activity['details'] && !empty($activity['details'])): ?>
-                                        <div class="activity-details">
-                                            <?php 
-                                            $details = is_array($activity['details']) ? json_encode($activity['details']) : $activity['details'];
-                                            echo e(substr($details, 0, 100)) . (strlen($details) > 100 ? '...' : '');
-                                            ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="dashboard-utility-stack">
+                        <!-- Quick Actions -->
+                        <div class="card compact-card">
+                            <div class="card-header">
+                                <h2 class="card-title"><?= e(dcs_t('admin.dashboard.quick_actions')) ?></h2>
+                            </div>
+                            <div class="quick-action-grid">
+                                <?php if (hasPermission('manage_admins')): ?>
+                                    <a href="admins.php" class="btn btn-primary"><?= e(dcs_t('admin.dashboard.manage_admins')) ?></a>
+                                <?php endif; ?>
+                                <?php if (hasPermission('manage_features')): ?>
+                                    <a href="settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.site_features')) ?></a>
+                                    <a href="settings_backup.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.settings_backup')) ?></a>
+                                <?php endif; ?>
+                                <?php if (hasPermission('manage_api')): ?>
+                                    <a href="api_settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.api_settings')) ?></a>
+                                <?php endif; ?>
+                                <?php if (hasPermission('manage_themes')): ?>
+                                    <a href="themes.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.themes')) ?></a>
+                                <?php endif; ?>
+                                <?php if (hasPermission('manage_updates')): ?>
+                                    <a href="update.php" class="btn btn-secondary"><?= e(dcs_t('admin.dashboard.updates')) ?></a>
+                                <?php endif; ?>
+                                <?php if (hasPermission('view_logs')): ?>
+                                    <a href="logs.php" class="btn btn-secondary"><?= e(dcs_t('admin.dashboard.view_logs')) ?></a>
+                                <?php endif; ?>
+                                <?php if (hasPermission('export_data')): ?>
+                                    <a href="export.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.export_data')) ?></a>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Quick Actions -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title"><?= e(dcs_t('admin.dashboard.quick_actions')) ?></h2>
+                        
+                        <!-- System Information -->
+                        <div class="card compact-card">
+                            <div class="card-header">
+                                <h2 class="card-title"><?= e(dcs_t('admin.dashboard.system_information')) ?></h2>
+                            </div>
+                            <table class="data-table system-table">
+                                <tr>
+                                    <td><?= e(dcs_t('admin.dashboard.admin_panel_version')) ?></td>
+                                    <td><?= ADMIN_PANEL_VERSION ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= e(dcs_t('admin.dashboard.php_version')) ?></td>
+                                    <td><?= phpversion() ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= e(dcs_t('admin.dashboard.storage_mode')) ?></td>
+                                    <td><?= e(USE_DATABASE ? dcs_t('admin.dashboard.database') : dcs_t('admin.dashboard.file_based')) ?></td>
+                                </tr>
+                                <tr>
+                                    <td><?= e(dcs_t('admin.dashboard.data_directory')) ?></td>
+                                    <td title="<?= htmlspecialchars(ADMIN_DATA_DIR) ?>"><?= basename(rtrim(ADMIN_DATA_DIR, '/')) ?>/</td>
+                                </tr>
+                                <tr>
+                                    <td><?= e(dcs_t('admin.dashboard.log_retention')) ?></td>
+                                    <td><?= e(dcs_t('admin.dashboard.days', ['count' => LOG_RETENTION_DAYS])) ?></td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                    <div class="quick-action-grid">
-                        <?php if (hasPermission('manage_admins')): ?>
-                            <a href="admins.php" class="btn btn-primary"><?= e(dcs_t('admin.dashboard.manage_admins')) ?></a>
-                        <?php endif; ?>
-                        <?php if (hasPermission('manage_features')): ?>
-                            <a href="settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.site_features')) ?></a>
-                            <a href="settings_backup.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.settings_backup')) ?></a>
-                        <?php endif; ?>
-                        <?php if (hasPermission('manage_api')): ?>
-                            <a href="api_settings.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.api_settings')) ?></a>
-                        <?php endif; ?>
-                        <?php if (hasPermission('manage_themes')): ?>
-                            <a href="themes.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.themes')) ?></a>
-                        <?php endif; ?>
-                        <?php if (hasPermission('manage_updates')): ?>
-                            <a href="update.php" class="btn btn-secondary"><?= e(dcs_t('admin.dashboard.updates')) ?></a>
-                        <?php endif; ?>
-                        <?php if (hasPermission('view_logs')): ?>
-                            <a href="logs.php" class="btn btn-secondary"><?= e(dcs_t('admin.dashboard.view_logs')) ?></a>
-                        <?php endif; ?>
-                        <?php if (hasPermission('export_data')): ?>
-                            <a href="export.php" class="btn btn-secondary"><?= e(dcs_t('admin.nav.export_data')) ?></a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                
-                <!-- System Information -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title"><?= e(dcs_t('admin.dashboard.system_information')) ?></h2>
-                    </div>
-                    <table class="data-table">
-                        <tr>
-                            <td><?= e(dcs_t('admin.dashboard.admin_panel_version')) ?></td>
-                            <td><?= ADMIN_PANEL_VERSION ?></td>
-                        </tr>
-                        <tr>
-                            <td><?= e(dcs_t('admin.dashboard.php_version')) ?></td>
-                            <td><?= phpversion() ?></td>
-                        </tr>
-                        <tr>
-                            <td><?= e(dcs_t('admin.dashboard.storage_mode')) ?></td>
-                            <td><?= e(USE_DATABASE ? dcs_t('admin.dashboard.database') : dcs_t('admin.dashboard.file_based')) ?></td>
-                        </tr>
-                        <tr>
-                            <td><?= e(dcs_t('admin.dashboard.data_directory')) ?></td>
-                            <td title="<?= htmlspecialchars(ADMIN_DATA_DIR) ?>"><?= basename(rtrim(ADMIN_DATA_DIR, '/')) ?>/</td>
-                        </tr>
-                        <tr>
-                            <td><?= e(dcs_t('admin.dashboard.log_retention')) ?></td>
-                            <td><?= e(dcs_t('admin.dashboard.days', ['count' => LOG_RETENTION_DAYS])) ?></td>
-                        </tr>
-                    </table>
                 </div>
             </div>
         </main>
