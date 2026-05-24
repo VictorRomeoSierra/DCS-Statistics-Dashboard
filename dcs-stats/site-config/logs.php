@@ -69,6 +69,16 @@ $offset = ($page - 1) * $perPage;
 // Get logs for current page
 $logs = array_slice($filteredLogs, $offset, $perPage);
 
+$paginationParams = array_filter([
+    'action' => $filterAction,
+    'admin' => $filterAdmin,
+    'date_from' => $filterDateFrom,
+    'date_to' => $filterDateTo
+], static function ($value) {
+    return $value !== '' && $value !== null;
+});
+$paginationBaseUrl = 'logs.php' . (!empty($paginationParams) ? '?' . http_build_query($paginationParams) : '');
+
 // Get unique actions for filter
 $uniqueActions = array_unique(array_column($allLogs, 'action'));
 sort($uniqueActions);
@@ -297,12 +307,7 @@ $pageTitle = 'Activity Logs';
                     
                     <!-- Pagination -->
                     <?php if ($totalPages > 1): ?>
-                        <?= getPagination($page, $totalPages, array_merge($_GET, [
-                            'action' => $filterAction,
-                            'admin' => $filterAdmin,
-                            'date_from' => $filterDateFrom,
-                            'date_to' => $filterDateTo
-                        ])) ?>
+                        <?= getPagination($totalLogs, $perPage, $page, $paginationBaseUrl) ?>
                     <?php endif; ?>
                 </div>
             </div>
