@@ -23,6 +23,13 @@ function buildVersionLabel($branch, $commitDate, $commitSha) {
     return $branch . ' @ ' . $date . ' #' . $shortSha;
 }
 
+if (!class_exists('ZipArchive')) {
+    logMessage('Update cancelled: PHP ZipArchive is not available.');
+    logMessage('Enable the PHP zip extension, then restart Apache and try again.');
+    logMessage('For XAMPP, open php.ini, enable extension=zip, save, and restart Apache.');
+    exit;
+}
+
 $channelConfig = getUpdateChannelConfig();
 $branch = $channelConfig['branch'];
 $repo = $channelConfig['repo'];
