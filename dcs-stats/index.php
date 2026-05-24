@@ -1017,6 +1017,12 @@ main {
 .stat-icon {
     font-size: 3rem;
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    flex: 0 0 auto;
+}
+
+.stat-content {
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
 .stat-content h3 {
@@ -1024,7 +1030,12 @@ main {
     font-size: 1rem;
     margin-bottom: 10px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.7px;
+    line-height: 1.15;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    hyphens: auto;
 }
 
 .stat-number {
@@ -1419,6 +1430,25 @@ main {
     
     .dashboard-header h1 {
         font-size: 2rem;
+    }
+}
+
+@media (max-width: 980px) and (min-width: 769px) {
+    .stat-card {
+        padding: 24px;
+        gap: 16px;
+    }
+
+    .stat-icon {
+        font-size: 2.6rem;
+    }
+
+    .stat-content h3 {
+        font-size: 0.9rem;
+    }
+
+    .stat-number {
+        font-size: 2.25rem;
     }
 }
 </style>
