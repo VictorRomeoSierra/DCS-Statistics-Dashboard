@@ -405,20 +405,20 @@ $pageTitle = dcs_t('admin.dashboard.title');
                             <div class="activity-list">
                                 <?php foreach ($stats['recent_activity'] as $activity): ?>
                                     <div class="activity-item">
-                                        <div class="activity-time"><?= formatDate($activity['created_at']) ?></div>
+                                        <div class="activity-time"><?= formatDate($activity['created_at'] ?? '') ?></div>
                                         <div class="activity-action">
-                                            <strong><?= e($activity['admin_username']) ?></strong>
-                                            <?= e(LOG_ACTIONS[$activity['action']] ?? $activity['action']) ?>
-                                            <?php if ($activity['target_type']): ?>
+                                            <strong><?= e($activity['admin_username'] ?? dcs_t('home.unknown')) ?></strong>
+                                            <?= e(LOG_ACTIONS[$activity['action'] ?? ''] ?? ($activity['action'] ?? dcs_t('home.unknown'))) ?>
+                                            <?php if (!empty($activity['target_type'])): ?>
                                                 <div style="margin-top: 5px;">
                                                     <span class="text-muted"><?= e(dcs_t('admin.dashboard.target')) ?>: <?= e($activity['target_type']) ?></span>
-                                                    <?php if ($activity['target_id']): ?>
+                                                    <?php if (!empty($activity['target_id'])): ?>
                                                         <code style="font-size: 11px;"><?= e(substr($activity['target_id'], 0, 50)) ?><?= strlen($activity['target_id']) > 50 ? '...' : '' ?></code>
                                                     <?php endif; ?>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
-                                        <?php if ($activity['details'] && !empty($activity['details'])): ?>
+                                        <?php if (!empty($activity['details'])): ?>
                                             <div class="activity-details">
                                                 <?php 
                                                 $details = is_array($activity['details']) ? json_encode($activity['details']) : $activity['details'];

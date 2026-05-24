@@ -217,7 +217,7 @@ if (file_exists($maintenanceFile)) {
           <?php endif; ?>
         </div>
       </div>
-      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="<?php echo htmlspecialchars(dcs_t('header.toggle_navigation')); ?>">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
@@ -225,7 +225,7 @@ if (file_exists($maintenanceFile)) {
       <div class="header-actions">
         <div class="status-indicator">
           <span class="status-dot"></span>
-          <span class="status-text">Live Data</span>
+          <span class="status-text"><?php echo htmlspecialchars(dcs_t('header.live_data')); ?></span>
         </div>
       </div>
     </div>

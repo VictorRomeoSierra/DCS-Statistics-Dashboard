@@ -2,6 +2,8 @@
 
 return [
     'site.subtitle' => 'Combat Data & Analytics Platform',
+    'header.toggle_navigation' => 'Toggle navigation menu',
+    'header.live_data' => 'Live Data',
     'server_scope.label' => 'Server Data',
     'server_scope.all_servers' => 'All Servers',
     'nav.mobile_title' => 'Navigation',

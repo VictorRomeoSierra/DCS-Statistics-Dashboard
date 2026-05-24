@@ -10,7 +10,8 @@
 function dcs_builtin_languages() {
     return [
         'en' => 'English',
-        'de' => 'Deutsch'
+        'de' => 'Deutsch',
+        'it' => 'Italiano'
     ];
 }
 

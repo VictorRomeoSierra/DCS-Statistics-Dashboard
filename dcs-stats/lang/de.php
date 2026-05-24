@@ -2,6 +2,8 @@
 
 return [
     'site.subtitle' => 'Kampfdaten- und Analyseplattform',
+    'header.toggle_navigation' => 'Navigationsmenü umschalten',
+    'header.live_data' => 'Live-Daten',
     'server_scope.label' => 'Serverdaten',
     'server_scope.all_servers' => 'Alle Server',
     'nav.mobile_title' => 'Navigation',
