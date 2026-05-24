@@ -121,6 +121,7 @@ function loadSiteFeatures() {
         'server_detail_weather' => true,
         'server_detail_extensions' => true,
         'server_detail_active_players' => true,
+        'server_scope_filter' => true,
         
         // Global Features
         'show_discord_link' => true,
@@ -279,7 +280,8 @@ function getFeatureGroups() {
             'server_detail_restart' => 'Restart Time Details',
             'server_detail_weather' => 'Weather Details',
             'server_detail_extensions' => 'Extensions/SRS Details',
-            'server_detail_active_players' => 'Active Players Details'
+            'server_detail_active_players' => 'Active Players Details',
+            'server_scope_filter' => 'Frontend Server Filter Dropdown'
         ],
         'Global Settings' => [
             'show_discord_link' => 'Show Discord Link',

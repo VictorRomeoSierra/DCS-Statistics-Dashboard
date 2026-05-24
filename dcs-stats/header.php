@@ -239,22 +239,56 @@ if (file_exists($maintenanceFile)) {
       }
 
       function getSavedScope() {
-        return normaliseServerName(localStorage.getItem(storageKey) || '');
+        try {
+          return normaliseServerName(localStorage.getItem(storageKey) || '');
+        } catch (error) {
+          return '';
+        }
       }
 
       function setSavedScope(value) {
         const serverName = normaliseServerName(value);
-        if (serverName) {
-          localStorage.setItem(storageKey, serverName);
-        } else {
-          localStorage.removeItem(storageKey);
+        try {
+          if (serverName) {
+            localStorage.setItem(storageKey, serverName);
+          } else {
+            localStorage.removeItem(storageKey);
+          }
+        } catch (error) {
+          // Some locked-down browsers can block localStorage.
         }
         window.DCS_SELECTED_SERVER = serverName;
         window.dispatchEvent(new CustomEvent('dcs-server-scope-change', { detail: { server: serverName } }));
       }
 
+      function isServerScopeEnabled() {
+        return window.DCS_SERVER_SCOPE_ENABLED !== false;
+      }
+
+      function getServerScopeFeatureKey(serverName) {
+        let slug = String(serverName || 'unknown_server')
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '');
+
+        if (!slug) {
+          slug = 'unknown_server';
+        }
+
+        return `server_card_${slug}`;
+      }
+
+      function isServerScopeOptionEnabled(serverName) {
+        const visibility = window.DCS_SERVER_SCOPE_CARD_VISIBILITY || {};
+        return visibility[getServerScopeFeatureKey(serverName)] !== false;
+      }
+
       window.DCS_SELECTED_SERVER = getSavedScope();
       window.getDcsSelectedServer = function() {
+        if (!isServerScopeEnabled()) {
+          return '';
+        }
         return normaliseServerName(window.DCS_SELECTED_SERVER || getSavedScope());
       };
 
@@ -263,11 +297,20 @@ if (file_exists($maintenanceFile)) {
         const select = document.getElementById('serverScopeSelect');
         if (!control || !select || !window.dcsAPI) return;
 
+        if (!isServerScopeEnabled()) {
+          control.hidden = true;
+          setSavedScope('');
+          return;
+        }
+
         try {
           const result = await window.dcsAPI.getServers({ ignoreScope: true });
           const responseData = result.data || result;
           const servers = Array.isArray(responseData) ? responseData : (responseData.servers || []);
-          const names = [...new Set(servers.map(server => normaliseServerName(server.name || server.server_name)).filter(Boolean))];
+          const names = [...new Set(servers
+            .map(server => normaliseServerName(server.name || server.server_name))
+            .filter(Boolean)
+            .filter(isServerScopeOptionEnabled))];
 
           if (!names.length) {
             control.hidden = true;

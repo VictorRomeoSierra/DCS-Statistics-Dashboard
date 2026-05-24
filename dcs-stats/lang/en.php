@@ -3,7 +3,7 @@
 return [
     'site.subtitle' => 'Combat Data & Analytics Platform',
     'server_scope.label' => 'Server Data',
-    'server_scope.all_servers' => 'ALL',
+    'server_scope.all_servers' => 'All Servers',
     'nav.mobile_title' => 'Navigation',
     'nav.close' => 'Close navigation menu',
     'nav.home' => 'Home',
@@ -768,6 +768,7 @@ return [
     'admin.settings.feature.server_detail_weather' => 'Weather Details',
     'admin.settings.feature.server_detail_extensions' => 'Extensions/SRS Details',
     'admin.settings.feature.server_detail_active_players' => 'Active Players Details',
+    'admin.settings.feature.server_scope_filter' => 'Frontend Server Filter Dropdown',
     'admin.settings.feature.show_discord_link' => 'Show Discord Link',
     'admin.settings.feature.show_last_update' => 'Show Last Update Time',
     'admin.custom_links.title' => 'Custom Links',

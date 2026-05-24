@@ -102,6 +102,15 @@ if ($customLinksMenuText === '') {
     $customLinksMenuText = dcs_t('nav.squadron_links');
 }
 
+$serverScopeEnabled = isFeatureEnabled('server_scope_filter');
+$serverCardVisibility = [];
+$siteFeatureValues = loadSiteFeatures();
+foreach ($siteFeatureValues as $featureKey => $enabled) {
+    if (strpos($featureKey, 'server_card_') === 0) {
+        $serverCardVisibility[$featureKey] = (bool)$enabled;
+    }
+}
+
 function dcs_nav_label($item) {
     $knownLabels = [
         'index.php' => ['Home', 'nav.home'],
@@ -202,6 +211,11 @@ function dcs_nav_label($item) {
     <?php endif; ?>
   </ul>
 </nav>
+<script>
+window.DCS_SERVER_SCOPE_ENABLED = <?= $serverScopeEnabled ? 'true' : 'false' ?>;
+window.DCS_SERVER_SCOPE_CARD_VISIBILITY = <?= json_encode($serverCardVisibility) ?>;
+</script>
+<?php if ($serverScopeEnabled): ?>
 <div class="server-scope-bar" id="serverScopeControl" hidden>
   <div class="server-scope-control">
     <select id="serverScopeSelect" aria-label="<?= htmlspecialchars(dcs_t('server_scope.label')) ?>">
@@ -209,6 +223,7 @@ function dcs_nav_label($item) {
     </select>
   </div>
 </div>
+<?php endif; ?>
 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 <script>
 // Mobile menu functionality

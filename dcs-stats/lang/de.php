@@ -3,7 +3,7 @@
 return [
     'site.subtitle' => 'Kampfdaten- und Analyseplattform',
     'server_scope.label' => 'Serverdaten',
-    'server_scope.all_servers' => 'ALL',
+    'server_scope.all_servers' => 'Alle Server',
     'nav.mobile_title' => 'Navigation',
     'nav.close' => 'Navigationsmenü schließen',
     'nav.home' => 'Startseite',
@@ -767,6 +767,7 @@ return [
     'admin.settings.feature.server_detail_weather' => 'Wetterdetails',
     'admin.settings.feature.server_detail_extensions' => 'Erweiterungen/SRS-Details',
     'admin.settings.feature.server_detail_active_players' => 'Details aktiver Spieler',
+    'admin.settings.feature.server_scope_filter' => 'Server-Filter-Dropdown im Frontend',
     'admin.settings.feature.show_discord_link' => 'Discord-Link anzeigen',
     'admin.settings.feature.show_last_update' => 'Zeit der letzten Aktualisierung anzeigen',
     'admin.custom_links.title' => 'Eigene Links',
