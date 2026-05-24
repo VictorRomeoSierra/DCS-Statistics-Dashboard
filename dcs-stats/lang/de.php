@@ -729,6 +729,7 @@ return [
     'admin.settings.feature.home_top_pilots' => 'Top-Piloten-Tabelle',
     'admin.settings.feature.home_recent_activity' => 'Feed der letzten Aktivitäten',
     'admin.settings.feature.home_api_insights' => 'Top-5-Einblicke',
+    'admin.settings.feature.home_attendance_cards' => 'Anwesenheitskarten',
     'admin.settings.feature.home_api_players_24h' => 'Spieler 24h-Karte',
     'admin.settings.feature.home_api_players_7d' => 'Spieler 7T-Karte',
     'admin.settings.feature.home_api_players_30d' => 'Spieler 30T-Karte',

@@ -70,6 +70,7 @@ function loadSiteFeatures() {
         'home_top_pilots' => true,
         'home_recent_activity' => true,
         'home_api_insights' => true,
+        'home_attendance_cards' => true,
         'home_api_players_24h' => true,
         'home_api_players_7d' => true,
         'home_api_players_30d' => true,
@@ -225,7 +226,8 @@ function getFeatureGroups() {
             'home_mission_stats' => 'Mission Statistics Graph',
             'home_top_pilots' => 'Top Pilots Table',
             'home_recent_activity' => 'Recent Activity Feed',
-            'home_api_insights' => 'Top 5 Insights'
+            'home_api_insights' => 'Top 5 Insights',
+            'home_attendance_cards' => 'Attendance Cards'
         ],
         'Attendance Cards' => [
             'home_api_players_24h' => 'Players 24h Card',
@@ -297,6 +299,8 @@ function getFeatureDependencies() {
         'squadrons_enabled' => ['squadron_management', 'squadron_statistics', 'nav_squadrons'],
         'pilot_search' => ['pilot_detailed_stats', 'pilot_mission_history'],
         'nav_servers' => ['server_live_api_details'],
-        'server_live_api_details' => ['server_detail_status', 'server_detail_description', 'server_detail_mission', 'server_detail_slots', 'server_detail_restart', 'server_detail_weather', 'server_detail_extensions', 'server_detail_active_players']
+        'server_live_api_details' => ['server_detail_status', 'server_detail_description', 'server_detail_mission', 'server_detail_slots', 'server_detail_restart', 'server_detail_weather', 'server_detail_extensions', 'server_detail_active_players'],
+        'home_api_insights' => ['home_top_theatres', 'home_top_missions', 'home_top_modules'],
+        'home_attendance_cards' => ['home_api_players_24h', 'home_api_players_7d', 'home_api_players_30d', 'home_api_current_players']
     ];
 }

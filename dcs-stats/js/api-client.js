@@ -19,16 +19,24 @@ class DCSStatsAPI {
 
     async loadConfig() {
         if (this.configLoaded) return this.config;
+        if (this.configPromise) return this.configPromise;
         
-        try {
+        this.configPromise = (async () => {
             const response = await fetch(this.buildUrl('get_api_config.php'));
             this.config = await response.json();
             this.configLoaded = true;
             return this.config;
+        })();
+
+        try {
+            return await this.configPromise;
         } catch (error) {
             // Failed to load API config
             this.config = { use_api: true };
+            this.configLoaded = true;
             return this.config;
+        } finally {
+            this.configPromise = null;
         }
     }
 
@@ -271,13 +279,45 @@ class DCSStatsAPI {
         return attendance;
     }
 
+    async getSquadrons(options = {}) {
+        const cacheName = 'squadrons';
+        const cacheTtlMs = 15 * 60 * 1000;
+        const cached = this.getCachedValue(cacheName, cacheTtlMs, options);
+        if (cached) {
+            return cached;
+        }
+
+        const squadrons = await this.makeAPICall('/squadrons', options);
+        const safeSquadrons = Array.isArray(squadrons) ? squadrons : [];
+        this.setCachedValue(cacheName, safeSquadrons, options);
+        return safeSquadrons;
+    }
+
+    async getSquadronCredits(name, options = {}) {
+        const cacheName = `squadron_credits_${String(name || '').toLowerCase()}`;
+        const cacheTtlMs = 15 * 60 * 1000;
+        const cached = this.getCachedValue(cacheName, cacheTtlMs, options);
+        if (cached) {
+            return cached;
+        }
+
+        const credits = await this.makeAPICall('/squadron_credits', {
+            ...options,
+            method: 'POST',
+            data: { name }
+        });
+        const safeCredits = credits || {};
+        this.setCachedValue(cacheName, safeCredits, options);
+        return safeCredits;
+    }
+
     async getRefreshIntervalMs() {
         const config = await this.loadConfig();
         const seconds = Number(config.refresh_interval || 300);
         return Math.max(seconds, 60) * 1000;
     }
 
-    async getLeaderboard() {
+    async getLeaderboard(options = {}) {
         const config = await this.loadConfig();
         
         if (!config.use_api) {
@@ -286,20 +326,23 @@ class DCSStatsAPI {
 
         const leaderboard = await this.makeAPICall('/leaderboard?what=kills&limit=10');
         const items = Array.isArray(leaderboard) ? leaderboard : (leaderboard.items || []);
+        const needsPlayerDetails = options.loadPlayerDetails !== false;
         const detailedPlayers = await Promise.all(items.map(async (player, index) => {
             let overall = {};
             let mostUsedAircraft = null;
 
-            try {
-                const playerInfo = await this.makeAPICall('/player_info', {
-                    method: 'POST',
-                    data: { nick: player.nick }
-                });
-                overall = playerInfo.overall || {};
-                const moduleKills = Array.isArray(overall.killsByModule) ? overall.killsByModule : [];
-                mostUsedAircraft = moduleKills.length ? moduleKills[0].module : null;
-            } catch (error) {
-                overall = {};
+            if (needsPlayerDetails) {
+                try {
+                    const playerInfo = await this.makeAPICall('/player_info', {
+                        method: 'POST',
+                        data: { nick: player.nick }
+                    });
+                    overall = playerInfo.overall || {};
+                    const moduleKills = Array.isArray(overall.killsByModule) ? overall.killsByModule : [];
+                    mostUsedAircraft = moduleKills.length ? moduleKills[0].module : null;
+                } catch (error) {
+                    overall = {};
+                }
             }
 
             return {
@@ -389,9 +432,16 @@ class DCSStatsAPI {
             throw new Error('API is not enabled');
         }
 
-        const stats = await this.makeAPICall('/serverstats', {
-            data: {}
-        });
+        let stats = {};
+        if (options.loadServerStats !== false) {
+            try {
+                stats = await this.makeAPICall('/serverstats', {
+                    data: {}
+                });
+            } catch (error) {
+                stats = {};
+            }
+        }
 
         let attendance = {};
         if (options.loadAttendance !== false) {
@@ -402,56 +452,53 @@ class DCSStatsAPI {
             }
         }
 
-        const topkills = await this.getTopPilots('kills', 5);
+        const topkills = options.loadTopPilots !== false
+            ? await this.getTopPilots('kills', 5)
+            : [];
 
-        // Get squadron list
-        const squadrons = await this.makeAPICall('/squadrons');
+        let top3Squadrons = [];
+        if (options.loadSquadrons !== false) {
+            const squadrons = await this.getSquadrons();
 
-        // Fetch credits for each squadron
-        const squadronsWithCredits = await Promise.all(
-            squadrons.map(async (squadron) => {
-                try {
-                    const credits = await this.makeAPICall('/squadron_credits', {
-                        method: 'POST',
-                        data: { name: squadron.name }
-                    });
-                    return {
-                        name: squadron.name,
-                        credits: credits.credits || 0
-                    };
-                } catch (error) {
-                    return {
-                        name: squadron.name,
-                        credits: 0
-                    };
-                }
-            })
-        );
+            // Fetch credits for each squadron
+            const squadronsWithCredits = await Promise.all(
+                squadrons.map(async (squadron) => {
+                    try {
+                        const credits = await this.getSquadronCredits(squadron.name);
+                        return {
+                            name: squadron.name,
+                            credits: credits.credits || 0
+                        };
+                    } catch (error) {
+                        return {
+                            name: squadron.name,
+                            credits: 0
+                        };
+                    }
+                })
+            );
 
-        // Sort by credits and get top 3
-        const top3Squadrons = squadronsWithCredits
-            .sort((a, b) => b.credits - a.credits)
-            .slice(0, 3);
-
-
-        // If stats has overall server statistics, use them
-        if (stats.totalPlayers !== undefined) {
-            return {
-                totalPlayers: stats.totalPlayers || 0,
-                totalPlaytime: stats.totalPlaytime || 0,
-                avgPlaytime: stats.avgPlaytime || 0,
-                activePlayers: stats.activePlayers || attendance.current_players || 0,
-                totalSorties: stats.totalSorties || 0,
-                totalKills: stats.totalKills || 0,
-                totalDeaths: stats.totalDeaths || 0,
-                totalPvPKills: stats.totalPvPKills || 0,
-                totalPvPDeaths: stats.totalPvPDeaths || 0,
-                top5Pilots: topkills,
-                top3Squadrons: top3Squadrons,
-                activityLastWeek: stats.daily_players || attendance.daily_trend,
-                attendance: attendance
-            };
+            // Sort by credits and get top 3
+            top3Squadrons = squadronsWithCredits
+                .sort((a, b) => b.credits - a.credits)
+                .slice(0, 3);
         }
+
+        return {
+            totalPlayers: stats.totalPlayers || 0,
+            totalPlaytime: stats.totalPlaytime || 0,
+            avgPlaytime: stats.avgPlaytime || 0,
+            activePlayers: stats.activePlayers || attendance.current_players || 0,
+            totalSorties: stats.totalSorties || 0,
+            totalKills: stats.totalKills || 0,
+            totalDeaths: stats.totalDeaths || 0,
+            totalPvPKills: stats.totalPvPKills || 0,
+            totalPvPDeaths: stats.totalPvPDeaths || 0,
+            top5Pilots: topkills,
+            top3Squadrons: top3Squadrons,
+            activityLastWeek: stats.daily_players || attendance.daily_trend || [],
+            attendance: attendance
+        };
     }
 
     async searchPlayers(searchTerm) {

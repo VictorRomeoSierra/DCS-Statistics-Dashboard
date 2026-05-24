@@ -23,14 +23,23 @@ if ($isConfigured) {
     runInstallCheckinIfDue(getCurrentVersionInfo(), getUpdateChannelConfig());
 }
 
-$showAttendanceCards = isFeatureEnabled('home_api_players_24h') ||
+$showAttendanceCards = isFeatureEnabled('home_attendance_cards') && (
+                       isFeatureEnabled('home_api_players_24h') ||
                        isFeatureEnabled('home_api_players_7d') ||
                        isFeatureEnabled('home_api_players_30d') ||
-                       isFeatureEnabled('home_api_current_players');
-$showTopApiLists = isFeatureEnabled('home_top_theatres') ||
+                       isFeatureEnabled('home_api_current_players')
+);
+$showApiInsights = isFeatureEnabled('home_api_insights');
+$showTopApiLists = $showApiInsights && (
+                   isFeatureEnabled('home_top_theatres') ||
                    isFeatureEnabled('home_top_missions') ||
-                   isFeatureEnabled('home_top_modules');
-$showApiInsights = isFeatureEnabled('home_api_insights') || $showTopApiLists;
+                   isFeatureEnabled('home_top_modules')
+);
+$showTopPilotsChart = isFeatureEnabled('home_top_pilots');
+$showTopSquadronsChart = isFeatureEnabled('squadrons_enabled') && isFeatureEnabled('home_top_pilots');
+$showCoreServerStats = isFeatureEnabled('home_server_stats') ||
+                       isFeatureEnabled('home_mission_stats') ||
+                       isFeatureEnabled('home_player_activity');
 $homepageChartTheme = loadChartTheme();
 
 if (!$isConfigured):
@@ -260,7 +269,12 @@ let topSquadronsChart = null;
 let latestTopPilots = [];
 
 const homepageChartTheme = <?= json_encode($homepageChartTheme) ?>;
-const shouldLoadAttendance = <?= json_encode($showAttendanceCards || $showApiInsights) ?>;
+const homepageDataNeeds = <?= json_encode([
+    'loadServerStats' => $showCoreServerStats,
+    'loadAttendance' => $showAttendanceCards || $showTopApiLists,
+    'loadTopPilots' => $showTopPilotsChart,
+    'loadSquadrons' => $showTopSquadronsChart
+]) ?>;
 
 function chartThemeColor(key, fallbackKey, fallbackColor) {
     return homepageChartTheme[key] || homepageChartTheme[fallbackKey] || fallbackColor;
@@ -315,7 +329,7 @@ async function loadServerStats() {
         }
 
         // Use the client-side API
-        const data = await window.dcsAPI.getServerStats({ loadAttendance: shouldLoadAttendance });
+        const data = await window.dcsAPI.getServerStats(homepageDataNeeds);
         
         if (data.error) {
             document.getElementById('loading-overlay').style.display = 'none';
@@ -357,7 +371,7 @@ async function loadServerStats() {
         createPlayerActivityChart(data.activityLastWeek || []);
         <?php endif; ?>
 
-        <?php if ($showAttendanceCards || $showApiInsights): ?>
+        <?php if ($showAttendanceCards || $showTopApiLists): ?>
         renderApiInsights(data.attendance || {});
         <?php endif; ?>
         

@@ -266,6 +266,15 @@ include "nav.php"; ?>
 <script>
 let leaderboardData = [];
 const leaderboardChartTheme = <?php echo json_encode($chartTheme); ?>;
+const needsLeaderboardPlayerDetails = <?php echo json_encode(
+  isFeatureEnabled('leaderboard_chart') ||
+  isFeatureEnabled('leaderboard_sorties') ||
+  isFeatureEnabled('leaderboard_takeoffs') ||
+  isFeatureEnabled('leaderboard_landings') ||
+  isFeatureEnabled('leaderboard_crashes') ||
+  isFeatureEnabled('leaderboard_ejections') ||
+  isFeatureEnabled('leaderboard_aircraft')
+); ?>;
 const i18n = <?php echo json_encode([
   'kills' => dcs_t('leaderboard.kills'),
   'deaths' => dcs_t('leaderboard.deaths'),
@@ -429,7 +438,7 @@ async function loadLeaderboardFromMissionstats() {
     document.getElementById("top3-leaderboard").innerHTML = "";
 
     // Use the client-side API
-    const result = await window.dcsAPI.getLeaderboard();
+    const result = await window.dcsAPI.getLeaderboard({ loadPlayerDetails: needsLeaderboardPlayerDetails });
     
     // Handle both direct array response and wrapped response
     let data = result;

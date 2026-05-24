@@ -730,6 +730,7 @@ return [
     'admin.settings.feature.home_top_pilots' => 'Top Pilots Table',
     'admin.settings.feature.home_recent_activity' => 'Recent Activity Feed',
     'admin.settings.feature.home_api_insights' => 'Top 5 Insights',
+    'admin.settings.feature.home_attendance_cards' => 'Attendance Cards',
     'admin.settings.feature.home_api_players_24h' => 'Players 24h Card',
     'admin.settings.feature.home_api_players_7d' => 'Players 7d Card',
     'admin.settings.feature.home_api_players_30d' => 'Players 30d Card',

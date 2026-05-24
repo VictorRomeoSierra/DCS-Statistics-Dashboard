@@ -378,6 +378,7 @@
     "admin.settings.feature.credits_leaderboard": "Credits Leaderboard",
     "admin.settings.feature.home_api_current_players": "Current Players Card",
     "admin.settings.feature.home_api_insights": "Top 5 Insights",
+    "admin.settings.feature.home_attendance_cards": "Attendance Cards",
     "admin.settings.feature.home_api_players_24h": "Players 24h Card",
     "admin.settings.feature.home_api_players_30d": "Players 30d Card",
     "admin.settings.feature.home_api_players_7d": "Players 7d Card",
