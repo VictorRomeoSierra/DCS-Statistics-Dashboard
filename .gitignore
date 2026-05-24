@@ -1,3 +1,6 @@
 tools/install-checkin-receiver/
 dcs-stats/.dev
 .dev
+.php-sessions/
+
+.php-sessions/
