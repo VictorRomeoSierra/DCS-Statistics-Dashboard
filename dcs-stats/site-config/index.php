@@ -8,6 +8,7 @@ require_once __DIR__ . '/admin_functions.php';
 require_once __DIR__ . '/update_channel.php';
 require_once __DIR__ . '/version_tracker.php';
 require_once dirname(__DIR__) . '/site_features.php';
+require_once dirname(__DIR__) . '/install_checkin.php';
 require_once dirname(__DIR__) . '/api_config_helper.php';
 require_once dirname(__DIR__) . '/language.php';
 
@@ -25,6 +26,7 @@ $featureGroups = getFeatureGroups();
 $maintenanceConfig = loadMaintenanceConfig();
 $updateChannel = getUpdateChannelConfig();
 $versionInfo = initializeVersionTracking();
+runInstallCheckinIfDue($versionInfo, $updateChannel);
 $apiConfigResult = loadApiConfigWithFix();
 $apiConfig = $apiConfigResult['config'] ?? [];
 $siteConfigFile = dirname(__DIR__) . '/site_config.json';

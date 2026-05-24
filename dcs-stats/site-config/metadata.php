@@ -86,6 +86,13 @@ $pageTitle = dcs_t('admin.metadata.title');
             min-height: 110px;
             resize: vertical;
         }
+
+        .usage-data-disclaimer {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 18px 0 0;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +170,8 @@ $pageTitle = dcs_t('admin.metadata.title');
 
                     <button type="submit" class="btn btn-primary"><?= e(dcs_t('admin.metadata.save_button')) ?></button>
                 </form>
+
+                <p class="usage-data-disclaimer"><?= e(dcs_t('admin.metadata.usage_data_disclaimer')) ?></p>
             </div>
         </div>
     </main>

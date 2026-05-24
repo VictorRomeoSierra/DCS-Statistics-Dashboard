@@ -801,6 +801,7 @@ return [
     'admin.metadata.error_privacy_length' => 'Der Datenschutzhinweis darf höchstens 5000 Zeichen lang sein',
     'admin.metadata.save_success' => 'Datenschutz- und SEO-Einstellungen erfolgreich gespeichert',
     'admin.metadata.save_failed' => 'Website-Metadaten konnten nicht gespeichert werden',
+    'admin.metadata.usage_data_disclaimer' => 'Das DCS Statistics Dashboard lädt sehr minimale Nutzungsdaten (hauptsächlich Branch und Version) zu meinem zentralen Cloud-Dienst hoch, damit ich die verwendeten Versionen verfolgen und meine Support-Strategie entsprechend ausrichten kann.',
     'admin.settings_backup.title' => 'Einstellungen sichern',
     'admin.settings_backup.note' => 'Exportiere und stelle portable Seiteneinstellungen wieder her, ohne sensible Daten einzuschließen. API-Schlüssel, Admin-Benutzer, Passwörter, Protokolle, Sitzungen, Sperren, Wartungs-IPs, Uploads, Backups und Versionsmetadaten werden absichtlich ausgeschlossen.',
     'admin.settings_backup.export_settings' => 'Einstellungen exportieren',

@@ -1,0 +1,6 @@
+.header-background {
+    background-image: url('dcs-header-image.jpg') !important;
+    background-size: cover !important;
+    background-position: 11% 70% !important;
+    background-repeat: no-repeat !important;
+}

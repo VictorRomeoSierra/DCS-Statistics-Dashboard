@@ -802,6 +802,7 @@ return [
     'admin.metadata.error_privacy_length' => 'Privacy notice should be 5000 characters or fewer',
     'admin.metadata.save_success' => 'Privacy and SEO settings saved successfully',
     'admin.metadata.save_failed' => 'Failed to save website metadata',
+    'admin.metadata.usage_data_disclaimer' => 'The DCS Statistics Dashboard will upload very minimal usage data (mainly branch and version) to my central cloud service to be able to track the versions in use and align my support strategy accordingly.',
     'admin.settings_backup.title' => 'Settings Backup',
     'admin.settings_backup.note' => 'Export and restore portable site settings without including sensitive data. API keys, admin users, passwords, logs, sessions, bans, maintenance IPs, uploads, backups, and version metadata are deliberately excluded.',
     'admin.settings_backup.export_settings' => 'Export Settings',
