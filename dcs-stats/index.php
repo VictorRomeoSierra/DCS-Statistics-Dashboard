@@ -286,6 +286,11 @@ const gradientColors = {
 // Load server statistics
 async function loadServerStats() {
     try {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+        }
+
         // Use the client-side API
         const data = await window.dcsAPI.getServerStats();
         
@@ -865,6 +870,7 @@ function createPlayerActivityChart(daily_players) {
 // Load stats on page load and refresh using the configured API interval
 document.addEventListener('DOMContentLoaded', async () => {
     loadServerStats();
+    window.addEventListener('dcs-server-scope-change', loadServerStats);
     const refreshMs = window.dcsAPI ? await window.dcsAPI.getRefreshIntervalMs() : 600000;
     setInterval(loadServerStats, refreshMs);
 });

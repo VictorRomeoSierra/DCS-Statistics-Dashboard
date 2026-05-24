@@ -118,11 +118,16 @@ async function loadServers() {
         serverDetailsGrid.innerHTML = '';
         
         // Handle both array and object with servers property
-        const servers = Array.isArray(data) ? data : (data.servers || []);
+        const selectedServer = window.getDcsSelectedServer ? window.getDcsSelectedServer() : '';
+        const allServers = Array.isArray(data) ? data : (data.servers || []);
+        const servers = selectedServer
+            ? allServers.filter(server => String(server.name || server.server_name || '').trim() === selectedServer)
+            : allServers;
         let visibleServerCount = 0;
         
         servers.forEach((server, index) => {
-            if (!isServerCardEnabled(server.name || `Server ${index + 1}`)) {
+            const serverDisplayName = server.name || server.server_name || `Server ${index + 1}`;
+            if (!isServerCardEnabled(serverDisplayName)) {
                 return;
             }
 
@@ -160,7 +165,7 @@ async function loadServers() {
                 }
             }
             
-            serverDetailsGrid.appendChild(createServerDetailCard(server, {
+            serverDetailsGrid.appendChild(createServerDetailCard({ ...server, name: serverDisplayName }, {
                 missionName,
                 theatre,
                 playerCount,
@@ -335,6 +340,7 @@ function createServerDetailCard(server, summary) {
 // Load servers on page load and refresh using the configured API interval
 document.addEventListener('DOMContentLoaded', async () => {
     loadServers();
+    window.addEventListener('dcs-server-scope-change', loadServers);
     const refreshMs = window.dcsAPI ? await window.dcsAPI.getRefreshIntervalMs() : 600000;
     setInterval(loadServers, refreshMs);
 });

@@ -920,6 +920,8 @@
     "pilot.times_used": "Times Used",
     "pilot.title": "Pilot Statistics",
     "pilot.use_partial": "Using a partial name",
+    "server_scope.all_servers": "ALL",
+    "server_scope.label": "Server Data",
     "servers.active_players": "Active Players",
     "servers.blue_short": "B",
     "servers.cloud_base": "cloud base",

@@ -34,6 +34,7 @@ class DCSStatsAPI {
 
     async makeDirectAPICall(endpoint, options = {}) {
         const config = await this.loadConfig();
+        endpoint = this.prepareScopedEndpoint(endpoint, options);
         
         // Determine API base URL
         let apiUrl = config.api_base_url;
@@ -79,7 +80,7 @@ class DCSStatsAPI {
             // Add data for POST requests
             if (method === 'POST' && options.data) {
                 fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-                fetchOptions.body = new URLSearchParams(options.data).toString();
+                fetchOptions.body = new URLSearchParams(this.prepareScopedData(options.data, options)).toString();
             }
             
             const response = await fetch(url, fetchOptions);
@@ -107,6 +108,7 @@ class DCSStatsAPI {
 
         // First try proxy endpoint
         const method = options.method || 'GET';
+        endpoint = this.prepareScopedEndpoint(endpoint, options);
         const proxyUrl = this.buildUrl(`api_proxy.php?endpoint=${encodeURIComponent(endpoint)}&method=${method}`);
         
         // Making API call via proxy
@@ -125,7 +127,7 @@ class DCSStatsAPI {
 
             // For POST requests, send data as JSON in body
             if (method === 'POST' && (options.body || options.data)) {
-                const data = options.body || options.data || {};
+                const data = this.prepareScopedData(options.body || options.data || {}, options);
                 
                 // If body is FormData, convert to object
                 if (data instanceof FormData) {
@@ -169,6 +171,54 @@ class DCSStatsAPI {
 
     async request(endpoint, options = {}) {
         return this.makeAPICall(endpoint, options);
+    }
+
+    getSelectedServerScope(options = {}) {
+        if (options.ignoreScope) return '';
+        if (options.serverScope !== undefined) return String(options.serverScope || '').trim();
+        if (typeof window.getDcsSelectedServer === 'function') {
+            return String(window.getDcsSelectedServer() || '').trim();
+        }
+        return String(window.DCS_SELECTED_SERVER || '').trim();
+    }
+
+    prepareScopedEndpoint(endpoint, options = {}) {
+        const method = options.method || 'GET';
+        const serverScope = this.getSelectedServerScope(options);
+        if (!serverScope || method !== 'GET') {
+            return endpoint;
+        }
+
+        const existingQuery = endpoint.includes('?') ? endpoint.split('?').slice(1).join('?') : '';
+        const existingParams = new URLSearchParams(existingQuery);
+        if (existingParams.has('server') || existingParams.has('server_name')) {
+            return endpoint;
+        }
+
+        const separator = endpoint.includes('?') ? '&' : '?';
+        const params = new URLSearchParams({
+            server: serverScope,
+            server_name: serverScope
+        });
+        return `${endpoint}${separator}${params.toString()}`;
+    }
+
+    prepareScopedData(data, options = {}) {
+        const serverScope = this.getSelectedServerScope(options);
+        if (!serverScope) {
+            return data;
+        }
+
+        if (data instanceof FormData) {
+            if (!data.has('server')) data.append('server', serverScope);
+            if (!data.has('server_name')) data.append('server_name', serverScope);
+            return data;
+        }
+
+        const scopedData = { ...(data || {}) };
+        if (!scopedData.server) scopedData.server = serverScope;
+        if (!scopedData.server_name) scopedData.server_name = serverScope;
+        return scopedData;
     }
 
     async getRefreshIntervalMs() {
@@ -465,7 +515,7 @@ class DCSStatsAPI {
         })).sort((a, b) => b.credits - a.credits);
     }
 
-    async getServers() {
+    async getServers(options = {}) {
         const config = await this.loadConfig();
         
         if (!config.use_api) {
@@ -473,7 +523,7 @@ class DCSStatsAPI {
         }
 
         // Use new /servers endpoint
-        const data = await this.makeAPICall('/servers');
+        const data = await this.makeAPICall('/servers', { ignoreScope: options.ignoreScope === true });
         return {
             data: data,
             source: 'api-client',

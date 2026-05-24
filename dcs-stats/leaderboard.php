@@ -424,6 +424,10 @@ function renderTable() {
 
 async function loadLeaderboardFromMissionstats() {
   try {
+    document.getElementById("leaderboard-loading").style.display = "block";
+    document.getElementById("leaderboard-loading").innerText = <?php echo json_encode(dcs_t('leaderboard.loading')); ?>;
+    document.getElementById("top3-leaderboard").innerHTML = "";
+
     // Use the client-side API
     const result = await window.dcsAPI.getLeaderboard();
     
@@ -576,6 +580,7 @@ function formatOptionalNumber(value) {
 
 // Load the leaderboard
 loadLeaderboardFromMissionstats();
+window.addEventListener('dcs-server-scope-change', loadLeaderboardFromMissionstats);
 </script>
 
 <?php include "footer.php"; ?>

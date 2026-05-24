@@ -202,6 +202,13 @@ function dcs_nav_label($item) {
     <?php endif; ?>
   </ul>
 </nav>
+<div class="server-scope-bar" id="serverScopeControl" hidden>
+  <div class="server-scope-control">
+    <select id="serverScopeSelect" aria-label="<?= htmlspecialchars(dcs_t('server_scope.label')) ?>">
+      <option value=""><?= htmlspecialchars(dcs_t('server_scope.all_servers')) ?></option>
+    </select>
+  </div>
+</div>
 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 <script>
 // Mobile menu functionality
