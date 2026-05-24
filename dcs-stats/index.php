@@ -8,6 +8,9 @@ include 'header.php';
 <?php require_once __DIR__ . '/site_features.php'; ?>
 <?php require_once __DIR__ . '/chart_theme.php'; ?>
 <?php require_once __DIR__ . '/language.php'; ?>
+<?php require_once __DIR__ . '/install_checkin.php'; ?>
+<?php require_once __DIR__ . '/site-config/update_channel.php'; ?>
+<?php require_once __DIR__ . '/site-config/version_tracker.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php include 'nav.php'; ?>
 
@@ -15,6 +18,10 @@ include 'header.php';
 // Check if this is a fresh install
 $isConfigured = file_exists(__DIR__ . '/api_config.json') || 
                 file_exists(__DIR__ . '/site-config/data/users.json');
+
+if ($isConfigured) {
+    runInstallCheckinIfDue(getCurrentVersionInfo(), getUpdateChannelConfig());
+}
 
 $showAttendanceCards = isFeatureEnabled('home_api_players_24h') ||
                        isFeatureEnabled('home_api_players_7d') ||
