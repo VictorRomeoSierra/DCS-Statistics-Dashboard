@@ -1,7 +1,0 @@
-{
-    "description": "DCS Statistics Dashboard for combat data, pilot statistics, server activity, and squadron insights.",
-    "keywords": "DCS, DCS World, dashboard, statistics, pilots, squadron, server stats",
-    "block_search_engines": false,
-    "show_privacy_link": true,
-    "privacy_notice": "This dashboard displays DCS server and pilot statistics provided by the configured DCSServerBot API. Site administrators control what data is shown publicly."
-}
