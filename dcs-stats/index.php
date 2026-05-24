@@ -260,6 +260,7 @@ let topSquadronsChart = null;
 let latestTopPilots = [];
 
 const homepageChartTheme = <?= json_encode($homepageChartTheme) ?>;
+const shouldLoadAttendance = <?= json_encode($showAttendanceCards || $showApiInsights) ?>;
 
 function chartThemeColor(key, fallbackKey, fallbackColor) {
     return homepageChartTheme[key] || homepageChartTheme[fallbackKey] || fallbackColor;
@@ -314,7 +315,7 @@ async function loadServerStats() {
         }
 
         // Use the client-side API
-        const data = await window.dcsAPI.getServerStats();
+        const data = await window.dcsAPI.getServerStats({ loadAttendance: shouldLoadAttendance });
         
         if (data.error) {
             document.getElementById('loading-overlay').style.display = 'none';

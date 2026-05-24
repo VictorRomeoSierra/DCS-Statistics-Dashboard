@@ -221,6 +221,56 @@ class DCSStatsAPI {
         return scopedData;
     }
 
+    getCacheKey(name, options = {}) {
+        const serverScope = this.getSelectedServerScope(options) || 'all';
+        return `dcs_stats_cache_${name}_${serverScope}`;
+    }
+
+    getCachedValue(name, maxAgeMs, options = {}) {
+        try {
+            const raw = localStorage.getItem(this.getCacheKey(name, options));
+            if (!raw) return null;
+
+            const cached = JSON.parse(raw);
+            if (!cached || !cached.savedAt || !Object.prototype.hasOwnProperty.call(cached, 'data')) {
+                return null;
+            }
+
+            if (Date.now() - Number(cached.savedAt) > maxAgeMs) {
+                localStorage.removeItem(this.getCacheKey(name, options));
+                return null;
+            }
+
+            return cached.data;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    setCachedValue(name, data, options = {}) {
+        try {
+            localStorage.setItem(this.getCacheKey(name, options), JSON.stringify({
+                savedAt: Date.now(),
+                data
+            }));
+        } catch (error) {
+            // Some locked-down browsers can block localStorage.
+        }
+    }
+
+    async getServerAttendance(options = {}) {
+        const cacheName = 'server_attendance';
+        const cacheTtlMs = 15 * 60 * 1000;
+        const cached = this.getCachedValue(cacheName, cacheTtlMs, options);
+        if (cached) {
+            return cached;
+        }
+
+        const attendance = await this.makeAPICall('/server_attendance', options);
+        this.setCachedValue(cacheName, attendance, options);
+        return attendance;
+    }
+
     async getRefreshIntervalMs() {
         const config = await this.loadConfig();
         const seconds = Number(config.refresh_interval || 300);
@@ -332,7 +382,7 @@ class DCSStatsAPI {
         }
     }
 
-    async getServerStats() {
+    async getServerStats(options = {}) {
         const config = await this.loadConfig();
         
         if (!config.use_api) {
@@ -344,10 +394,12 @@ class DCSStatsAPI {
         });
 
         let attendance = {};
-        try {
-            attendance = await this.makeAPICall('/server_attendance');
-        } catch (error) {
-            attendance = {};
+        if (options.loadAttendance !== false) {
+            try {
+                attendance = await this.getServerAttendance();
+            } catch (error) {
+                attendance = {};
+            }
         }
 
         const topkills = await this.getTopPilots('kills', 5);
