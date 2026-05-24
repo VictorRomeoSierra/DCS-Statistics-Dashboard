@@ -21,7 +21,7 @@ if (!isset($currentAdmin)) {
 <!-- Sidebar -->
 <aside class="admin-sidebar">
     <div class="admin-logo">
-        <h2>⚓ CAG Bridge</h2>
+        <h2>⚓ Admin Panel</h2>
     </div>
     <nav class="admin-nav">
         <ul>
