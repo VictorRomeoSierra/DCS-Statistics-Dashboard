@@ -284,6 +284,54 @@ class DCSStatsAPI {
         };
     }
 
+    async getTopPilots(metric = 'kills', limit = 5) {
+        const config = await this.loadConfig();
+
+        if (!config.use_api) {
+            throw new Error('API is not enabled');
+        }
+
+        const metricMap = {
+            kills: 'kills',
+            kdr: 'kdr',
+            kdr_pvp: 'kdr_pvp'
+        };
+        const what = metricMap[metric] || 'kills';
+        const normalize = (player, index) => ({
+            rank: player.row_num || index + 1,
+            nick: player.nick,
+            name: player.nick,
+            date: player.date,
+            kills: Number(player.kills || 0),
+            deaths: Number(player.deaths || 0),
+            kd_ratio: Number(player.kd_ratio ?? player.kdr ?? 0),
+            kdr: Number(player.kdr ?? player.kd_ratio ?? 0),
+            kills_pvp: Number(player.kills_pvp || 0),
+            deaths_pvp: Number(player.deaths_pvp || 0),
+            kdr_pvp: Number(player.kdr_pvp || 0),
+            credits: Number(player.credits || 0),
+            playtime: Number(player.playtime || 0)
+        });
+        const valueForMetric = (player) => {
+            if (what === 'kdr') return Number(player.kdr ?? player.kd_ratio ?? 0);
+            if (what === 'kdr_pvp') return Number(player.kdr_pvp || 0);
+            return Number(player.kills || 0);
+        };
+
+        try {
+            const leaderboard = await this.makeAPICall(`/leaderboard?what=${encodeURIComponent(what)}&limit=${Number(limit) || 5}`);
+            const items = Array.isArray(leaderboard) ? leaderboard : (leaderboard.items || []);
+            return items.map(normalize);
+        } catch (error) {
+            if (what === 'kills') throw error;
+            const fallback = await this.makeAPICall('/leaderboard?what=kills&limit=100');
+            const items = Array.isArray(fallback) ? fallback : (fallback.items || []);
+            return items.map(normalize)
+                .sort((a, b) => valueForMetric(b) - valueForMetric(a))
+                .slice(0, Number(limit) || 5);
+        }
+    }
+
     async getServerStats() {
         const config = await this.loadConfig();
         
@@ -302,8 +350,7 @@ class DCSStatsAPI {
             attendance = {};
         }
 
-        const leaderboard = await this.makeAPICall('/leaderboard?what=kills&limit=5');
-        const topkills = leaderboard.items || [];
+        const topkills = await this.getTopPilots('kills', 5);
 
         // Get squadron list
         const squadrons = await this.makeAPICall('/squadrons');

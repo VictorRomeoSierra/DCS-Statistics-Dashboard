@@ -143,7 +143,18 @@ if (!$isConfigured):
     <div class="charts-dashboard">
         <?php if (isFeatureEnabled('home_top_pilots')): ?>
         <div class="chart-container" title="<?php echo htmlspecialchars(dcs_t('home.chart_top_pilots_title')); ?>">
-            <h2><?php echo htmlspecialchars(dcs_t('home.chart_top_pilots')); ?> <span class="chart-info">ⓘ</span></h2>
+            <div class="chart-card-header">
+                <h2><?php echo htmlspecialchars(dcs_t('home.chart_top_pilots')); ?> <span class="chart-info">ⓘ</span></h2>
+                <label class="chart-metric-control" for="topPilotsMetric">
+                    <span class="chart-metric-select server-scope-control">
+                        <select id="topPilotsMetric">
+                            <option value="kills"><?php echo htmlspecialchars(dcs_t('home.kills')); ?></option>
+                            <option value="kdr"><?php echo htmlspecialchars(dcs_t('home.kill_death_ratio')); ?></option>
+                            <option value="kdr_pvp"><?php echo htmlspecialchars(dcs_t('home.pvp_kill_death_ratio')); ?></option>
+                        </select>
+                    </span>
+                </label>
+            </div>
             <canvas id="topPilotsChart"></canvas>
             <p class="no-data-message" id="topPilotsNoData" style="display: none;"><?php echo htmlspecialchars(dcs_t('home.no_mission_data')); ?></p>
         </div>
@@ -212,8 +223,11 @@ const i18n = <?= json_encode([
     'kills' => dcs_t('home.kills'),
     'deaths' => dcs_t('home.deaths'),
     'kdRatio' => dcs_t('home.kill_death_ratio'),
+    'pvpKdRatio' => dcs_t('home.pvp_kill_death_ratio'),
     'pilotNames' => dcs_t('home.pilot_names'),
     'numberOfKills' => dcs_t('home.number_of_kills'),
+    'numberOfKDRatio' => dcs_t('home.number_of_kd_ratio'),
+    'numberOfPvpKDRatio' => dcs_t('home.number_of_pvp_kd_ratio'),
     'combatResults' => dcs_t('home.combat_results'),
     'count' => dcs_t('home.count'),
     'squadrons' => dcs_t('home.squadrons'),
@@ -236,6 +250,7 @@ let topPilotsChart = null;
 let combatStatsChart = null;
 let playerActivityChart = null;
 let topSquadronsChart = null;
+let latestTopPilots = [];
 
 const homepageChartTheme = <?= json_encode($homepageChartTheme) ?>;
 
@@ -313,13 +328,7 @@ async function loadServerStats() {
         
         // Create charts with empty data handling
         <?php if (isFeatureEnabled('home_top_pilots')): ?>
-        if (data.top5Pilots && data.top5Pilots.length > 0) {
-            createTopPilotsChart(data.top5Pilots);
-            document.getElementById('topPilotsNoData').style.display = 'none';
-        } else {
-            document.getElementById('topPilotsChart').style.display = 'none';
-            document.getElementById('topPilotsNoData').style.display = 'block';
-        }
+        await loadTopPilotsChart(document.getElementById('topPilotsMetric')?.value || 'kills', data.top5Pilots || []);
         <?php endif; ?>
         
         <?php if (isFeatureEnabled('home_mission_stats')): ?>
@@ -445,8 +454,55 @@ function createGradient(ctx, colors) {
 }
 
 // Top 5 pilots chart
-function createTopPilotsChart(pilots) {
+const topPilotsMetrics = {
+    kills: {
+        label: i18n.kills,
+        axis: i18n.numberOfKills,
+        value: pilot => Number(pilot.kills || 0)
+    },
+    kdr: {
+        label: i18n.kdRatio,
+        axis: i18n.numberOfKDRatio,
+        value: pilot => Number(pilot.kdr ?? pilot.kd_ratio ?? 0)
+    },
+    kdr_pvp: {
+        label: i18n.pvpKdRatio,
+        axis: i18n.numberOfPvpKDRatio,
+        value: pilot => Number(pilot.kdr_pvp || 0)
+    }
+};
+
+async function loadTopPilotsChart(metricName = 'kills', fallbackPilots = []) {
+    const canvas = document.getElementById('topPilotsChart');
+    const noData = document.getElementById('topPilotsNoData');
+    if (!canvas || !noData) return;
+
+    try {
+        const metric = topPilotsMetrics[metricName] ? metricName : 'kills';
+        let pilots = metric === 'kills' && fallbackPilots.length ? fallbackPilots : [];
+        if (!pilots.length && window.dcsAPI?.getTopPilots) {
+            pilots = await window.dcsAPI.getTopPilots(metric);
+        }
+
+        latestTopPilots = Array.isArray(pilots) ? pilots : [];
+        if (latestTopPilots.length > 0) {
+            createTopPilotsChart(latestTopPilots, metric);
+            canvas.style.display = 'block';
+            noData.style.display = 'none';
+        } else {
+            canvas.style.display = 'none';
+            noData.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading top pilots chart:', error);
+        canvas.style.display = 'none';
+        noData.style.display = 'block';
+    }
+}
+
+function createTopPilotsChart(pilots, metricName = 'kills') {
     const ctx = document.getElementById('topPilotsChart').getContext('2d');
+    const metric = topPilotsMetrics[metricName] || topPilotsMetrics.kills;
     
     if (topPilotsChart) {
         topPilotsChart.destroy();
@@ -459,8 +515,8 @@ function createTopPilotsChart(pilots) {
         data: {
             labels: pilots.map(p => p.nick),
             datasets: [{
-                label: i18n.kills,
-                data: pilots.map(p => p.kills),
+                label: metric.label,
+                data: pilots.map(metric.value),
                 backgroundColor: gradient,
                 borderColor: hexToRgba(chartColors.topPilots.main, 1),
                 borderWidth: 2,
@@ -492,7 +548,7 @@ function createTopPilotsChart(pilots) {
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return `${i18n.kills}: ${context.parsed.y.toLocaleString()}`;
+                            return `${metric.label}: ${Number(context.parsed.y || 0).toLocaleString()}`;
                         }
                     }
                 }
@@ -536,7 +592,7 @@ function createTopPilotsChart(pilots) {
                     },
                     title: {
                         display: true,
-                        text: i18n.numberOfKills,
+                        text: metric.axis,
                         color: hexToRgba(chartColors.topPilots.main, 1),
                         font: {
                             size: 14,
@@ -869,6 +925,9 @@ function createPlayerActivityChart(daily_players) {
 
 // Load stats on page load and refresh using the configured API interval
 document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('topPilotsMetric')?.addEventListener('change', event => {
+        loadTopPilotsChart(event.target.value);
+    });
     loadServerStats();
     window.addEventListener('dcs-server-scope-change', loadServerStats);
     const refreshMs = window.dcsAPI ? await window.dcsAPI.getRefreshIntervalMs() : 600000;
@@ -1123,8 +1182,59 @@ main {
     text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
 }
 
+.chart-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.chart-card-header h2 {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.chart-metric-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--card-muted-text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.chart-metric-select {
+    max-width: 190px;
+}
+
+.chart-metric-select select {
+    width: 190px;
+}
+
 .chart-container canvas {
     max-height: 350px;
+}
+
+@media (max-width: 640px) {
+    .chart-card-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .chart-card-header h2 {
+        text-align: left;
+    }
+
+    .chart-metric-control {
+        justify-content: space-between;
+    }
+
+    .chart-metric-control select {
+        flex: 1;
+        min-width: 0;
+    }
 }
 
 .loading-overlay {
